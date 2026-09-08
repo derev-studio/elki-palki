@@ -369,4 +369,202 @@ function cardHTML(p){
       <div class="cin"><input id="ci-${p.id}" placeholder="Написать комментарий..." maxlength="200" onkeydown="if(event.key==='Enter')addComm(${p.id})"><button onclick="addComm(${p.id})">➤</button></div>
     </div>
   </div>`;
+}window.renderVillage=()=>{
+  const f=filtered();
+  const pages=Math.max(1,Math.ceil(f.length/PER));
+  if(page<0)page=0;if(page>pages-1)page=pages-1;
+  document.getElementById('pgnum').textContent=(page+1)+' / '+pages;
+  const slice=f.slice(page*PER,page*PER+PER);
+  document.getElementById('village').innerHTML=slice.length?slice.map(cardHTML).join(''):'<div class="empty">Пока пусто. Зайдите в «Моя изба» и повесьте первую работу.</div>';
+};
+function renderMy(){
+  const u=auth.currentUser;
+  const head=document.getElementById('my-head');
+  if(u){const p=prof(u.uid)||{name:u.displayName};head.innerHTML=`<h3>👤 ${esc(p.name||u.displayName)}</h3><div style="font-size:14px"><a href="javascript:void(0)" style="color:var(--accent)" onclick="openProfile('${u.uid}')">открыть мою избу</a></div>`;
+    document.getElementById('up-login').style.display='none';document.getElementById('up-form').style.display='block';}
+  else{head.innerHTML='<h3>👤 Гость</h3>';document.getElementById('up-login').style.display='block';document.getElementById('up-form').style.display='none'}
+  const mine=u?photos.filter(p=>p.uid===u.uid):[];
+  document.getElementById('myworks').innerHTML=mine.length?mine.map(cardHTML).join(''):'<div class="empty">У вас пока нет работ.</div>';
 }
+function renderFavs(){
+  const f=photos.filter(p=>favs.includes(p.id));
+  document.getElementById('favgrid').innerHTML=f.length?f.map(cardHTML).join(''):'';
+  document.getElementById('favempty').style.display=f.length?'none':'block';
+}
+window.fav=id=>{const i=favs.indexOf(id);if(i>-1)favs.splice(i,1);else favs.push(id);localStorage.setItem('ep-favs',JSON.stringify(favs));renderVillage();renderMy();renderFavs()};
+window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex';document.body.style.overflow='hidden'};
+window.share=u=>{if(navigator.share)navigator.share({title:'Ёлки-Палки',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>toast('📋 Ссылка скопирована'))};
+
+window.like=id=>{
+  const u=auth.currentUser;if(!u)return alert('Войдите через Google, чтобы ставить сердечки.');
+  const r=db.ref('photos/'+id+'/likes/'+u.uid);
+  r.once('value').then(s=>{if(s.exists())r.remove();else r.set(u.displayName||u.email)});
+};
+window.del=id=>{
+  const r=db.ref('photos/'+id);
+  r.once('value').then(s=>{const p=s.val();if(!p)return;const u=auth.currentUser;
+    if(!(isAdmin()||(u&&p.uid===u.uid)))return alert('Можно удалять только свои работы.');
+    if(!confirm('Убрать работу со стены?'))return;r.remove().then(()=>toast('🗑️ Убрано'))});
+};
+window.addComm=pid=>{
+  const i=document.getElementById('ci-'+pid);const t=i.value.trim();if(!t)return alert('Напишите комментарий.');
+  const u=auth.currentUser;if(!u)return alert('Войдите через Google, чтобы комментировать.');
+  const r=db.ref('photos/'+pid);
+  r.once('value').then(s=>{const p=s.val();if(!p)return;const cs=p.comments||[];
+    cs.push({id:Date.now()+'_'+Math.random().toString(36).slice(2,6),author:u.displayName||u.email,uid:u.uid,text:t.slice(0,200),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),replies:[]});
+    r.update({comments:cs});i.value=''});
+};
+window.delComm=(pid,cid)=>{
+  if(!confirm('Удалить комментарий?'))return;
+  const r=db.ref('photos/'+pid);
+  r.once('value').then(s=>{const p=s.val();if(!p)return;r.update({comments:(p.comments||[]).filter(c=>c.id!==cid)})});
+};
+window.showReply=(pid,cid)=>{
+  const box=document.getElementById('comms-'+pid);
+  if(box.querySelector('.cin.reply'))return;
+  const w=document.createElement('div');w.className='cin reply';
+  w.innerHTML=`<input id="ri-${pid}" placeholder="Ответить..." maxlength="200" onkeydown="if(event.key==='Enter')sendReply(${pid},'${cid}')"><button onclick="sendReply(${pid},'${cid}')">➤</button>`;
+  box.appendChild(w);w.querySelector('input').focus();
+};
+window.sendReply=(pid,cid)=>{
+  const i=document.getElementById('ri-'+pid);const t=i.value.trim();if(!t)return alert('Напишите ответ.');
+  const u=auth.currentUser;if(!u)return alert('Войдите через Google.');
+  const r=db.ref('photos/'+pid);
+  r.once('value').then(s=>{const p=s.val();if(!p)return;const cs=p.comments||[];const k=cs.findIndex(c=>c.id===cid);
+    if(k<0)return;cs[k].replies=cs[k].replies||[];
+    cs[k].replies.push({author:u.displayName||u.email,uid:u.uid,text:t.slice(0,200),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})});
+    r.update({comments:cs})});
+};
+
+window.openProfile=uid=>{
+  const p=prof(uid);if(!p){toast('Изба не найдена');return}
+  const mine=auth.currentUser&&auth.currentUser.uid===uid;
+  document.getElementById('pf-ava').src=p.photo||'';document.getElementById('pf-ava').style.display=p.photo?'block':'none';
+  document.getElementById('pf-name').textContent=p.name||'—';
+  document.getElementById('pf-mail').textContent='';
+  document.getElementById('pf-since').textContent=p.joined?('в деревне с '+new Date(p.joined).toLocaleDateString('ru-RU')):'';
+  const works=photos.filter(x=>x.uid===uid);
+  document.getElementById('pf-works').textContent=works.length;
+  document.getElementById('pf-likes').textContent=works.reduce((s,x)=>s+Object.keys(x.likes||{}).length,0);
+  document.getElementById('pf-comms').textContent=works.reduce((s,x)=>s+((x.comments||[]).length),0);
+  const bv=document.getElementById('pf-bio-view'),bw=document.getElementById('pf-bio-wrap');
+  if(mine){bv.style.display='none';bw.style.display='block';document.getElementById('pf-bio').value=p.bio||''}
+  else{bv.style.display='block';bw.style.display='none';bv.textContent=p.bio||'Житель пока ничего о себе не рассказал.'}
+  document.getElementById('pf-grid').innerHTML=works.length?works.map(x=>`<img src="${esc(x.img)}" onclick="closeProfile();showLB('${esc(x.img)}')">`).join(''):'<div class="empty">Работ пока нет.</div>';
+  document.getElementById('pmodal').classList.add('show');
+};
+window.closeProfile=()=>document.getElementById('pmodal').classList.remove('show');
+window.saveBio=()=>{if(!auth.currentUser)return;db.ref('users/'+auth.currentUser.uid).update({bio:document.getElementById('pf-bio').value.trim()}).then(()=>toast('💾 Сохранено'))};
+
+/* ================= РОБОТЫ ================= */
+let voiceOn=true,clf=null,curCat='';
+const CATS={'portrait photography of a person':'Портретный зал','landscape nature scenic view':'Пейзажи','macro photography of insects or details':'Макромир','urban architecture and buildings':'Архитектура','wildlife animals and birds':'Животный мир','still life and indoor objects':'Натюрморт','sports and physical activity':'Спорт','plants flowers and botanical':'Оранжерея','abstract art or headless human form':'Загадка','nude art fine art boudoir':'Жанр Ню'};
+const LBL=Object.keys(CATS);
+
+function robotSVG(g,acc){return `<svg viewBox="0 0 120 150" class="robot">
+<defs><linearGradient id="m${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d7e0ea"/><stop offset=".55" stop-color="#93a5b8"/><stop offset="1" stop-color="#5c6e80"/></linearGradient></defs>
+<line x1="60" y1="12" x2="60" y2="22" stroke="#5c6e80" stroke-width="3"/><circle cx="60" cy="10" r="4" fill="${acc}"/>
+<rect x="32" y="22" width="56" height="42" rx="13" fill="url(#m${g})" stroke="#3d4a58" stroke-width="2"/>
+<g class="eyes"><circle cx="48" cy="40" r="5" fill="#1a2332"/><circle cx="72" cy="40" r="5" fill="#1a2332"/><circle cx="49.5" cy="38.5" r="1.5" fill="#7fe3d6"/><circle cx="73.5" cy="38.5" r="1.5" fill="#7fe3d6"/></g>
+<rect class="mouth" x="52" y="52" width="16" height="4" rx="2" fill="#3d4a58"/>
+<rect x="26" y="68" width="68" height="52" rx="14" fill="url(#m${g})" stroke="#3d4a58" stroke-width="2"/>
+<circle cx="60" cy="88" r="7" fill="${acc}"/>
+<rect x="10" y="72" width="14" height="34" rx="7" fill="url(#m${g})" stroke="#3d4a58" stroke-width="2"/>
+<g class="armR"><rect x="96" y="72" width="14" height="34" rx="7" fill="url(#m${g})" stroke="#3d4a58" stroke-width="2"/><circle cx="103" cy="108" r="6" fill="${acc}"/></g>
+<rect x="40" y="124" width="14" height="22" rx="6" fill="#5c6e80"/>
+<rect x="66" y="124" width="14" height="22" rx="6" fill="#5c6e80"/>
+</svg>`}
+
+let ruV=null;
+if('speechSynthesis' in window){const ld=()=>{ruV=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith('ru'))||null};ld();speechSynthesis.onvoiceschanged=ld;}
+function speak(t,who){if(!voiceOn||!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ru-RU';if(ruV)u.voice=ruV;u.pitch=who==='L'?1.5:0.7;u.rate=who==='L'?1.12:0.95;speechSynthesis.speak(u)}catch(e){}}
+window.toggleVoice=()=>{voiceOn=!voiceOn;document.getElementById('voiceBtn').textContent=voiceOn?'🔊 Голоса: вкл':'🔇 Голоса: выкл';if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel()};
+
+function say(who,text){const b=document.getElementById(who==='L'?'bubL':'bubR');const rb=document.getElementById(who==='L'?'rleft':'rright');document.querySelectorAll('.rbot').forEach(x=>x.classList.remove('talking'));rb.classList.add('talking');b.textContent=text;speak(text,who)}
+function rlog(t){const l=document.getElementById('rlog');l.innerHTML+=t+'<br>';l.scrollTop=l.scrollHeight}
+
+async function getClf(){
+  if(clf)return clf;
+  rlog('[мозги] гружу нейросеть... первый раз может быть долго');
+  try{
+    const mod=await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1');
+    mod.env.allowLocalModels=false;
+    clf=await mod.pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32');
+    rlog('[мозги] готово ✅');
+  }catch(e){rlog('[мозги] ошибка: '+e.message)}
+  return clf;
+}
+
+window.startScan=async()=>{
+  if(!myFile||!auth.currentUser)return;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    const url=e.target.result;
+    document.getElementById('rscene').style.display='block';
+    document.getElementById('rleft').innerHTML=robotSVG('a','#3f6b4f');
+    document.getElementById('rright').innerHTML=robotSVG('b','#c1553a');
+    document.getElementById('scan-img').src=url;
+    document.getElementById('rverdict').textContent='';
+    document.getElementById('pubbtn2').disabled=true;
+    document.getElementById('bubL').textContent='';document.getElementById('bubR').textContent='';
+    document.getElementById('rlog').innerHTML='';
+    document.getElementById('laser').style.display='block';
+    rlog('[сканер] изображение получено');
+    setTimeout(()=>window.scrollTo({top:document.getElementById('rscene').offsetTop-80,behavior:'smooth'}),100);
+    const script=[['L','Смотри-ка, новая работа пришла...'],['R','Опять работа... Ладно, смотрю.'],['L','Провожу лазерный анализ...'],['R','Хм. Неожиданно неплохо.']];
+    script.forEach((s,i)=>setTimeout(()=>{say(s[0],s[1]);rlog('[разговор] '+s[1])},i*1700));
+    const pipe=await getClf();
+    let cat='Пейзажи';
+    if(pipe){
+      try{
+        rlog('[сканер] определяю категорию...');
+        const out=await pipe(url,LBL);
+        cat=CATS[out[0].label]||'Пейзажи';
+        rlog('[вердикт] '+cat+' ('+Math.round(out[0].score*100)+'%)');
+      }catch(e2){rlog('[вердикт] по умолчанию: Пейзажи');}
+    }
+    setTimeout(()=>{
+      document.getElementById('laser').style.display='none';
+      curCat=cat;
+      say('L','Вердикт: '+cat+'. Несём в этот зал!');
+      setTimeout(()=>{say('R','Согласен! Вешаем на стену.');document.getElementById('rverdict').textContent='🚪 Категория: «'+cat+'»';document.getElementById('pubbtn2').disabled=false;},2200);
+    },1800);
+  };
+  reader.readAsDataURL(myFile);
+};
+
+window.publish2=async()=>{
+  if(!myFile||!auth.currentUser||!curCat)return;
+  const u=auth.currentUser,btn=document.getElementById('pubbtn2');
+  btn.disabled=true;
+  toast('⏳ Загружаю в облако...');
+  let url='';
+  try{const fd=new FormData();fd.append('image',myFile);const res=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});const d=await res.json();if(d.success&&d.data.url)url=d.data.url;}catch(e){}
+  if(!url){alert('Не загрузилось. Проверьте интернет.');btn.disabled=false;return}
+  const cap=document.getElementById('cap').value.trim();
+  const photo={id:Date.now(),img:url,uid:u.uid,author:u.displayName||'Без имени',caption:cap,rubric:curCat,date:new Date().toLocaleDateString('ru-RU'),likes:{},comments:{}};
+  try{
+    await db.ref('photos/'+photo.id).set(photo);
+    myFile=null;curCat='';document.getElementById('cap').value='';
+    document.getElementById('filebtn').textContent='📂 Выбрать фото';
+    document.getElementById('scanbtn').disabled=true;
+    document.getElementById('rscene').style.display='none';
+    toast('🎉 Работа на стене! Зал: '+photo.rubric);
+    document.querySelector('[data-p="p-village"]').click();
+  }catch(e){alert('Ошибка сохранения.');btn.disabled=false}
+};
+
+document.getElementById('file').addEventListener('change',e=>{
+  myFile=e.target.files[0]||null;
+  document.getElementById('filebtn').textContent=myFile?('✅ '+myFile.name):'📂 Выбрать фото';
+  document.getElementById('scanbtn').disabled=!myFile;
+  document.getElementById('upst').textContent='';
+});
+
+document.addEventListener('contextmenu',e=>{if(e.target.tagName==='IMG')e.preventDefault()});
+document.addEventListener('dragstart',e=>{if(e.target.tagName==='IMG')e.preventDefault()});
+document.getElementById('yy').textContent=new Date().getFullYear();
+renderAuth();renderVillage();renderMy();
+</script>
+</body>
+</html>
