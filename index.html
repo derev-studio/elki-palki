@@ -289,7 +289,7 @@ let page=0,sort='new',myFile=null;
 const PER=12;
 
 window.toggleTheme=()=>{const b=document.body;b.classList.toggle('evening');localStorage.setItem('ep-theme',b.classList.contains('evening')?'e':'d');renderVillage();renderMy();};
-if(localStorage.getItem('ep-theme')==='e')document.body.classList.add('evening');
+if(localStorage.getItem('ep-theme')!=='d')document.body.classList.add('evening');
 
 window.go=id=>{document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.p===id));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='p-village')renderVillage();if(id==='p-my')renderMy();if(id==='p-fav')renderFavs();window.scrollTo(0,0)};
 
