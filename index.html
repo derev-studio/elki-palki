@@ -27,14 +27,14 @@ body.evening{background-image:radial-gradient(circle at 80% 0%, rgba(255,180,80,
 h1,h2,h3,.serif{font-family:Georgia,'Times New Roman',serif}
 .wrap{max-width:1150px;margin:0 auto;padding:18px}
 header{
-  display:flex;flex-wrap:wrap;gap:14px;flex-direction:column;justify-content:center;align-items:center;text-align:center;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px;
   background:linear-gradient(180deg,var(--wood-l),var(--wood)); color:#fdf3df;
   border-radius:22px; padding:16px 24px; box-shadow:0 6px 18px rgba(60,40,20,.25), inset 0 2px 0 rgba(255,255,255,.25);
   border:3px solid var(--wood-d); position:sticky; top:10px; z-index:100;
 }
-header h1{font-size:24px;text-shadow:1px 2px 0 rgba(0,0,0,.25)}
+header h1{font-size:34px;text-shadow:1px 2px 0 rgba(0,0,0,.25)}
 .tagline{font-size:12px;opacity:.9}
-.hctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.hctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
 .pbtn{
   background:var(--card); color:var(--bark); border:2px solid var(--wood-d);
   border-radius:14px; padding:7px 16px; font-weight:700; cursor:pointer; font-size:14px; transition:.2s;
@@ -47,7 +47,7 @@ header h1{font-size:24px;text-shadow:1px 2px 0 rgba(0,0,0,.25)}
 .pbtn.small{padding:4px 12px;font-size:13px}
 .gbtn{background:#fff;color:#333;border:2px solid var(--wood-d);border-radius:14px;padding:7px 16px;font-weight:700;cursor:pointer;font-size:14px;box-shadow:0 3px 0 var(--wood-d)}
 .hava{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #ffd98a;cursor:pointer}
-nav{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+nav{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;justify-content:center}
 .tab{
   background:var(--bg2);border:2px solid var(--line);border-radius:14px;padding:9px 20px;
   font-weight:700;cursor:pointer;color:var(--bark);transition:.2s;font-size:15px;
@@ -128,7 +128,29 @@ body.evening .bio{background:#241a11;color:#e8dcc8}
 .empty{text-align:center;padding:34px;color:var(--wood-l);font-style:italic}
 footer{text-align:center;margin:26px 0 10px;font-size:13px;color:var(--wood-l)}
 .guestmark{font-size:10px;background:var(--line);border-radius:8px;padding:1px 6px;color:var(--wood-d)}
-@media(max-width:600px){.wrap{padding:10px}.grid{grid-template-columns:1fr 1fr;gap:10px}.card img{height:150px}header{position:static}}
+.rdesk{display:flex;gap:14px;align-items:flex-end;justify-content:center;flex-wrap:wrap;background:var(--card);border:3px solid var(--wood);border-radius:18px;padding:18px}
+.rbot{width:130px}
+.robot{width:100%;display:block}
+.robot .armR{transform-box:fill-box;transform-origin:15% 15%}
+.rbot.talking .armR{animation:wave .7s infinite}
+.rbot.talking .mouth{animation:talk .3s infinite;transform-box:fill-box;transform-origin:center}
+.robot .eyes{animation:blink 3.5s infinite;transform-box:fill-box;transform-origin:center}
+@keyframes wave{0%,100%{transform:rotate(0)}50%{transform:rotate(-38deg)}}
+@keyframes talk{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.25)}}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}}
+.rmid{flex:1;min-width:240px;max-width:460px}
+.rframe{position:relative;border:3px solid var(--wood-d);border-radius:14px;overflow:hidden;background:#111}
+.rframe img{width:100%;display:block;max-height:280px;object-fit:contain}
+.laser{position:absolute;left:0;width:100%;height:3px;background:#ffd700;box-shadow:0 0 14px #ffd700;display:none;animation:scan 1.6s infinite alternate}
+@keyframes scan{from{top:0}to{top:calc(100% - 3px)}}
+.rlog{background:#1a2332;color:#7fe3d6;font-family:monospace;font-size:12px;border-radius:12px;padding:10px 12px;height:86px;overflow-y:auto;margin-top:8px}
+.rbubbles{display:flex;gap:14px;justify-content:space-between;margin-top:10px;flex-wrap:wrap}
+.bubble{flex:1;min-width:200px;background:#fff;border:2px solid var(--wood);border-radius:14px;padding:8px 14px;font-size:14px;min-height:44px;color:#222}
+body.evening .bubble{background:#2c2118;color:#e8dcc8}
+.bubble:empty{opacity:.35}
+.rverdict{font-family:Georgia,serif;font-weight:700;color:var(--accent);font-size:17px}
+.rubbadge{font-size:10px;background:var(--pine);color:#fff;border-radius:8px;padding:1px 8px;margin-left:4px}
+@media(max-width:600px){.wrap{padding:10px}.grid{grid-template-columns:1fr 1fr;gap:10px}.card img{height:150px}header{position:static}.rbot{width:90px}}
 </style>
 </head>
 <body>
@@ -165,7 +187,7 @@ footer{text-align:center;margin:26px 0 10px;font-size:13px;color:var(--wood-l)}
   <header>
     <div>
       <h1>🌲 Ёлки-Палки</h1>
-      <div class="tagline">деревянная соцсеть · гуляй по деревне, заглядывай в избы</div>
+      <div class="tagline">соцсеть семьи Деревяшкиных · гуляй по деревне, заглядывай в избы</div>
     </div>
     <div class="hctl">
       <button class="pbtn small" id="themeBtn" onclick="toggleTheme()" title="День / вечер">🌆</button>
@@ -200,8 +222,8 @@ footer{text-align:center;margin:26px 0 10px;font-size:13px;color:var(--wood-l)}
   </section>
 
   <section class="panel" id="p-crit">
-    <div class="doska"><h3>🎭 Разбор</h3><div>Сюда работы выносят на суд общины — разбирает «редакция Ёлок-Палок». <b>Этот раздел появится в части 2.</b></div></div>
-    <div class="empty">Мастерская редакции ещё собирается...</div>
+    <div class="doska"><h3>🎭 Разбор</h3><div>Роботы-смотрители встречают каждую новую работу в «Моя изба»: определяют категорию и обсуждают вслух.</div></div>
+    <div class="empty">Смотрите новые разборы в «Моя изба» → «Показать роботам».</div>
   </section>
 
   <section class="panel" id="p-chat">
@@ -222,7 +244,25 @@ footer{text-align:center;margin:26px 0 10px;font-size:13px;color:var(--wood-l)}
         <label class="filebtn" for="file" id="filebtn">📂 Выбрать фото</label>
         <input type="file" id="file" accept="image/*">
         <div id="upst" style="margin-top:12px;font-weight:700"></div>
-        <div style="margin-top:10px"><button class="pbtn primary" id="pubbtn" onclick="publish()" disabled>🪵 Повесить на стену</button></div>
+        <div style="margin-top:10px"><button class="pbtn primary" id="scanbtn" onclick="startScan()" disabled>🤖 Показать роботам</button></div>
+      </div>
+    </div>
+    <div id="rscene" style="display:none">
+      <div class="rdesk">
+        <div class="rbot" id="rleft"></div>
+        <div class="rmid">
+          <div class="rframe"><img id="scan-img"><div class="laser" id="laser"></div></div>
+          <div id="rlog" class="rlog"></div>
+        </div>
+        <div class="rbot" id="rright"></div>
+      </div>
+      <div class="rbubbles"><div class="bubble" id="bubL"></div><div class="bubble" id="bubR"></div></div>
+      <div style="text-align:center;margin-top:14px">
+        <div id="rverdict" class="rverdict"></div>
+        <div style="margin-top:10px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="pbtn" id="voiceBtn" onclick="toggleVoice()">🔊 Голоса: вкл</button>
+          <button class="pbtn primary" id="pubbtn2" onclick="publish2()" disabled>🪵 Повесить на стену</button>
+        </div>
       </div>
     </div>
     <h3 style="margin:18px 0 10px">Мои работы на стене:</h3>
@@ -235,223 +275,4 @@ footer{text-align:center;margin:26px 0 10px;font-size:13px;color:var(--wood-l)}
   </section>
 
   <footer>🌲 Ёлки-Палки · деревянная соцсеть семьи Деревяшкиных · <span id="yy"></span></footer>
-</div><script type="module">
-const CFG={apiKey:"AIzaSyB2X3o7KwYFkMfsskKoWpQYBrws8L-Mn9w",authDomain:"photo-gallery-18193.firebaseapp.com",projectId:"photo-gallery-18193",databaseURL:"https://photo-gallery-18193-default-rtdb.firebaseio.com",storageBucket:"photo-gallery-18193.firebasestorage.app",messagingSenderId:"329094770221",appId:"1:329094770221:web:b9d076f195f968668212a4"};
-const IMGBB="b3ef16e01059cc97d198428f28ebc07e";
-firebase.initializeApp(CFG);
-const db=firebase.database(),auth=firebase.auth();
-
-const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.getElementById('toasts').appendChild(t);setTimeout(()=>t.remove(),2600)};
-
-let photos=[],profiles={},favs=JSON.parse(localStorage.getItem('ep-favs')||'[]').map(Number);
-let page=0,sort='new',myFile=null,replyTo=null;
-const PER=12;
-
-window.toggleTheme=()=>{const b=document.body;b.classList.toggle('evening');localStorage.setItem('ep-theme',b.classList.contains('evening')?'e':'d');renderVillage();renderMy();};
-if(localStorage.getItem('ep-theme')==='e')document.body.classList.add('evening');
-
-window.go=id=>{document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.p===id));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='p-village')renderVillage();if(id==='p-my')renderMy();if(id==='p-fav')renderFavs();window.scrollTo(0,0)};
-
-window.signIn=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/popup-closed-by-user'){try{await auth.signInWithRedirect(p);return}catch(e2){}}alert('Вход не удался. Проверьте, что домен разрешён в Firebase (Authorized domains).')}};
-window.signOut_=()=>auth.signOut();
-auth.getRedirectResult().catch(()=>{});
-auth.onAuthStateChanged(u=>{
-  if(u){ensureUser(u);checkBan(u.uid)}
-  renderAuth();renderVillage();renderMy();
-});
-function renderAuth(){
-  const b=document.getElementById('authbox');
-  if(auth.currentUser){const u=auth.currentUser;b.innerHTML=`<img class="hava" src="${esc(u.photoURL||'')}" onclick="openProfile('${u.uid}')" title="Моя изба"><button class="pbtn small" onclick="signOut_()">🚪 Выйти</button>`}
-  else b.innerHTML=`<button class="gbtn" onclick="signIn()">🔑 Войти через Google</button>`;
-}
-function ensureUser(u){
-  const r=db.ref('users/'+u.uid);
-  r.once('value').then(s=>{if(!s.exists())r.set({name:u.displayName||'Без имени',email:u.email||'',photo:u.photoURL||'',bio:'',joined:Date.now()});else{const uu={};if(u.displayName)uu.name=u.displayName;if(u.photoURL)uu.photo=u.photoURL;if(Object.keys(uu).length)r.update(uu)}});
-  db.ref('admins/'+u.uid).once('value').then(s=>{window.__admin=(s.val()===true)});
-}
-function checkBan(uid){db.ref('banned/'+uid).on('value',s=>{if(s.val()===true){alert('Вы забанены.');auth.signOut()}})}
-db.ref('users').on('value',s=>{profiles=s.val()||{};renderVillage();renderMy()});
-const prof=uid=>(uid&&profiles[uid])||null;
-const ava=(uid,sz)=>{const p=prof(uid);return (p&&p.photo)?`<img class="ava" src="${esc(p.photo)}" style="width:${sz}px;height:${sz}px">`:''};
-const isAdmin=()=>!!window.__admin;
-
-db.ref('photos').on('value',s=>{photos=s.val()?Object.values(s.val()):[];renderVillage();renderMy();renderFavs();renderBoard()});
-db.ref('chat').on('value',s=>{const d=s.val();const m=d?Object.values(d):[];const c=document.getElementById('chat');c.innerHTML=m.map(x=>{const a=x.photo?`<img class="ava" src="${esc(x.photo)}">`:'';return `<div class="cmsg">${a}<span class="n">${esc(x.author)}</span><span class="x">${esc(x.text)}</span><time>${esc(x.time||'')}</time></div>`}).join('');c.scrollTop=c.scrollHeight});
-
-window.sendChat=()=>{
-  const i=document.getElementById('chat-in'),t=i.value.trim();if(!t)return;
-  const u=auth.currentUser;
-  if(!u)return alert('Войдите через Google, чтобы писать в чат.');
-  db.ref('chat/'+Date.now()).set({author:u.displayName||u.email,photo:u.photoURL||'',text:t.slice(0,300),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})});
-  i.value='';
-};
-
-window.setSort=m=>{sort=m;page=0;renderVillage()};
-function filtered(){
-  const q=(document.getElementById('q').value||'').toLowerCase();
-  let f=photos.filter(p=>!q||(p.author||'').toLowerCase().includes(q)||(p.caption||'').toLowerCase().includes(q));
-  f.sort((a,b)=>sort==='top'?(Object.keys(b.likes||{}).length-Object.keys(a.likes||{}).length||b.id-a.id):(b.id-a.id));
-  return f;
-}
-function renderBoard(){
-  if(!photos.length){document.getElementById('board').textContent='Деревня только строится. Повесьте первую работу!';return}
-  const best=photos.slice().sort((a,b)=>Object.keys(b.likes||{}).length-Object.keys(a.likes||{}).length)[0];
-  const newest=photos.slice().sort((a,b)=>b.id-a.id)[0];
-  document.getElementById('board').innerHTML=`🏆 Лучшая работа: «${esc(best.caption||'без подписи')}» — ${esc(best.author)} · 🆕 Свежая: «${esc(newest.caption||'без подписи')}» — ${esc(newest.author)} · 👥 Жителей: ${Object.keys(profiles).length} · 🖼 Работ: ${photos.length}`;
-}
-function cardHTML(p){
-  const likes=p.likes||{};const lks=Object.entries(likes);
-  const myUid=auth.currentUser?auth.currentUser.uid:null;
-  const mine=myUid&&likes[myUid];
-  const who=lks.length?('❤ '+lks.slice(0,4).map(([ ,n])=>esc(n)).join(', ')+(lks.length>4?' ещё '+(lks.length-4):'')):'пока никому не понравилось';
-  const fav=favs.includes(p.id);
-  const canDel=isAdmin()||(myUid&&p.uid===myUid);
-  const comms=(p.comments||[]).map(cm=>{
-    const rp=(cm.replies||[]).map(r=>`<div class="comm">${ava(r.uid,18)}<b onclick="openProfile('${esc(r.uid||'')}')">${esc(r.author)}</b><span class="t">${esc(r.text)}</span><time>${esc(r.time||'')}</time></div>`).join('');
-    const mineC=isAdmin()||(myUid&&cm.uid===myUid);
-    return `<div class="comm">${ava(cm.uid,20)}<b onclick="openProfile('${esc(cm.uid||'')}')">${esc(cm.author)}</b>${cm.uid?'':'<span class="guestmark">гость</span>'}<span class="t">${esc(cm.text)}</span><time>${esc(cm.time||'')}</time><span class="acts">${mineC?`<button onclick="delComm(${p.id},'${esc(cm.id)}')">✕</button>`:''}<button onclick="showReply(${p.id},'${esc(cm.id)}')">↩</button></span></div>${rp?`<div class="replies">${rp}</div>`:''}`;
-  }).join('');
-  return `<div class="card">
-    <img src="${esc(p.img)}" onclick="showLB('${esc(p.img)}')">
-    <div class="body">
-      ${p.caption?`<div class="cap">«${esc(p.caption)}»</div>`:''}
-      <div class="au" onclick="openProfile('${esc(p.uid||'')}')">${ava(p.uid,26)}${esc(p.author)}</div>
-      <div class="who">${p.date||''}</div>
-      <div class="row">
-        <button class="likebtn ${mine?'mine':''}" onclick="like(${p.id})">❤️ ${lks.length}</button>
-        <button class="ibtn" onclick="fav(${p.id})">${fav?'⭐':'☆'}</button>
-        <button class="ibtn" onclick="share('${esc(p.img)}')">📤</button>
-        ${canDel?`<button class="ibtn" onclick="del(${p.id})">🗑️</button>`:''}
-      </div>
-      <div class="who" style="font-weight:400">${who}</div>
-      <div class="comms" id="comms-${p.id}">${comms||'<span class="who">Комментариев нет — будьте первым.</span>'}</div>
-      <div class="cin"><input id="ci-${p.id}" placeholder="Написать комментарий..." maxlength="200" onkeydown="if(event.key==='Enter')addComm(${p.id})"><button onclick="addComm(${p.id})">➤</button></div>
-    </div>
-  </div>`;
-}window.renderVillage=()=>{
-  const f=filtered();
-  const pages=Math.max(1,Math.ceil(f.length/PER));
-  if(page<0)page=0;if(page>pages-1)page=pages-1;
-  document.getElementById('pgnum').textContent=(page+1)+' / '+pages;
-  const slice=f.slice(page*PER,page*PER+PER);
-  document.getElementById('village').innerHTML=slice.length?slice.map(cardHTML).join(''):'<div class="empty">Пока пусто. Зайдите в «Моя изба» и повесьте первую работу.</div>';
-};
-function renderMy(){
-  const u=auth.currentUser;
-  const head=document.getElementById('my-head');
-  if(u){const p=prof(u.uid)||{name:u.displayName};head.innerHTML=`<h3>👤 ${esc(p.name||u.displayName)}</h3><div style="font-size:14px">${u.email||''} · <a href="javascript:void(0)" style="color:var(--accent)" onclick="openProfile('${u.uid}')">открыть мою избу</a></div>`;
-    document.getElementById('up-login').style.display='none';document.getElementById('up-form').style.display='block';}
-  else{head.innerHTML='<h3>👤 Гость</h3>';document.getElementById('up-login').style.display='block';document.getElementById('up-form').style.display='none'}
-  const mine=u?photos.filter(p=>p.uid===u.uid):[];
-  document.getElementById('myworks').innerHTML=mine.length?mine.map(cardHTML).join(''):'<div class="empty">У вас пока нет работ.</div>';
-}
-function renderFavs(){
-  const f=photos.filter(p=>favs.includes(p.id));
-  document.getElementById('favgrid').innerHTML=f.length?f.map(cardHTML).join(''):'';
-  document.getElementById('favempty').style.display=f.length?'none':'block';
-}
-window.fav=id=>{const i=favs.indexOf(id);if(i>-1)favs.splice(i,1);else favs.push(id);localStorage.setItem('ep-favs',JSON.stringify(favs));renderVillage();renderMy();renderFavs()};
-window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex';document.body.style.overflow='hidden'};
-window.share=u=>{if(navigator.share)navigator.share({title:'Ёлки-Палки',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>toast('📋 Ссылка скопирована'))};
-
-window.like=id=>{
-  const u=auth.currentUser;if(!u)return alert('Войдите через Google, чтобы ставить сердечки.');
-  const r=db.ref('photos/'+id+'/likes/'+u.uid);
-  r.once('value').then(s=>{if(s.exists())r.remove();else r.set(u.displayName||u.email)});
-};
-window.del=id=>{
-  const r=db.ref('photos/'+id);
-  r.once('value').then(s=>{const p=s.val();if(!p)return;const u=auth.currentUser;
-    if(!(isAdmin()||(u&&p.uid===u.uid)))return alert('Можно удалять только свои работы.');
-    if(!confirm('Убрать работу со стены?'))return;r.remove().then(()=>toast('🗑️ Убрано'))});
-};
-window.addComm=pid=>{
-  const i=document.getElementById('ci-'+pid);const t=i.value.trim();if(!t)return alert('Напишите комментарий.');
-  const u=auth.currentUser;if(!u)return alert('Войдите через Google, чтобы комментировать.');
-  const r=db.ref('photos/'+pid);
-  r.once('value').then(s=>{const p=s.val();if(!p)return;const cs=p.comments||[];
-    cs.push({id:Date.now()+'_'+Math.random().toString(36).slice(2,6),author:u.displayName||u.email,uid:u.uid,text:t.slice(0,200),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),replies:[]});
-    r.update({comments:cs});i.value=''});
-};
-window.delComm=(pid,cid)=>{
-  if(!confirm('Удалить комментарий?'))return;
-  const r=db.ref('photos/'+pid);
-  r.once('value').then(s=>{const p=s.val();if(!p)return;r.update({comments:(p.comments||[]).filter(c=>c.id!==cid)})});
-};
-window.showReply=(pid,cid)=>{
-  const box=document.getElementById('comms-'+pid);
-  if(box.querySelector('.cin.reply'))return;
-  const old=box.querySelector('.cin.main');if(old)old.remove();
-  const w=document.createElement('div');w.className='cin reply';
-  w.innerHTML=`<input id="ri-${pid}" placeholder="Ответить..." maxlength="200" onkeydown="if(event.key==='Enter')sendReply(${pid},'${cid}')"><button onclick="sendReply(${pid},'${cid}')">➤</button>`;
-  box.appendChild(w);w.querySelector('input').focus();
-};
-window.sendReply=(pid,cid)=>{
-  const i=document.getElementById('ri-'+pid);const t=i.value.trim();if(!t)return alert('Напишите ответ.');
-  const u=auth.currentUser;if(!u)return alert('Войдите через Google.');
-  const r=db.ref('photos/'+pid);
-  r.once('value').then(s=>{const p=s.val();if(!p)return;const cs=p.comments||[];const k=cs.findIndex(c=>c.id===cid);
-    if(k<0)return;cs[k].replies=cs[k].replies||[];
-    cs[k].replies.push({author:u.displayName||u.email,uid:u.uid,text:t.slice(0,200),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})});
-    r.update({comments:cs})});
-};
-
-window.openProfile=uid=>{
-  const p=prof(uid);if(!p){toast('Изба не найдена');return}
-  const mine=auth.currentUser&&auth.currentUser.uid===uid;
-  document.getElementById('pf-ava').src=p.photo||'';document.getElementById('pf-ava').style.display=p.photo?'block':'none';
-  document.getElementById('pf-name').textContent=p.name||'—';
-  document.getElementById('pf-mail').textContent=''||'';
-  document.getElementById('pf-since').textContent=p.joined?('в деревне с '+new Date(p.joined).toLocaleDateString('ru-RU')):'';
-  const works=photos.filter(x=>x.uid===uid);
-  document.getElementById('pf-works').textContent=works.length;
-  document.getElementById('pf-likes').textContent=works.reduce((s,x)=>s+Object.keys(x.likes||{}).length,0);
-  document.getElementById('pf-comms').textContent=works.reduce((s,x)=>s+((x.comments||[]).length),0);
-  const bv=document.getElementById('pf-bio-view'),bw=document.getElementById('pf-bio-wrap');
-  if(mine){bv.style.display='none';bw.style.display='block';document.getElementById('pf-bio').value=p.bio||''}
-  else{bv.style.display='block';bw.style.display='none';bv.textContent=p.bio||'Житель пока ничего о себе не рассказал.'}
-  document.getElementById('pf-grid').innerHTML=works.length?works.map(x=>`<img src="${esc(x.img)}" onclick="closeProfile();showLB('${esc(x.img)}')">`).join(''):'<div class="empty">Работ пока нет.</div>';
-  document.getElementById('pmodal').classList.add('show');
-};
-window.closeProfile=()=>document.getElementById('pmodal').classList.remove('show');
-window.saveBio=()=>{if(!auth.currentUser)return;db.ref('users/'+auth.currentUser.uid).update({bio:document.getElementById('pf-bio').value.trim()}).then(()=>toast('💾 Сохранено'))};
-
-document.getElementById('file').addEventListener('change',e=>{
-  myFile=e.target.files[0]||null;
-  document.getElementById('filebtn').textContent=myFile?('✅ '+myFile.name):'📂 Выбрать фото';
-  document.getElementById('pubbtn').disabled=!myFile;
-  document.getElementById('upst').textContent='';
-});
-window.publish=async()=>{
-  if(!myFile||!auth.currentUser)return;
-  const u=auth.currentUser,btn=document.getElementById('pubbtn'),st=document.getElementById('upst');
-  btn.disabled=true;st.textContent='⏳ Загружаем в облако...';
-  let url='';
-  try{
-    const fd=new FormData();fd.append('image',myFile);
-    const res=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});
-    const d=await res.json();
-    if(d.success&&d.data.url)url=d.data.url;
-  }catch(e){}
-  if(!url){st.textContent='❌ Не загрузилось. Проверьте интернет и попробуйте снова.';btn.disabled=false;return}
-  st.textContent='🪵 Вешаем на стену...';
-  const cap=document.getElementById('cap').value.trim();
-  const photo={id:Date.now(),img:url,uid:u.uid,author:u.displayName||'Без имени',caption:cap,date:new Date().toLocaleDateString('ru-RU'),likes:{},comments:{}};
-  try{
-    await db.ref('photos/'+photo.id).set(photo);
-    st.textContent='';btn.disabled=false;document.getElementById('pubbtn').disabled=true;
-    document.getElementById('cap').value='';myFile=null;
-    document.getElementById('filebtn').textContent='📂 Выбрать фото';
-    toast('🎉 Работа на стене!');
-    document.querySelector('[data-p="p-village"]').click();
-  }catch(e){st.textContent='❌ Ошибка сохранения.';btn.disabled=false}
-};
-
-document.addEventListener('contextmenu',e=>{if(e.target.tagName==='IMG')e.preventDefault()});
-document.addEventListener('dragstart',e=>{if(e.target.tagName==='IMG')e.preventDefault()});
-document.getElementById('yy').textContent=new Date().getFullYear();
-renderAuth();renderVillage();renderMy();
-</script>
-</body>
-</html>
+</div>
