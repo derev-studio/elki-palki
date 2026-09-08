@@ -329,4 +329,129 @@ function cardHTML(p){
       <div class="cin"><input id="ci-${p.id}" placeholder="Написать комментарий..." maxlength="200" onkeydown="if(event.key==='Enter')addComm(${p.id})"><button onclick="addComm(${p.id})">➤</button></div>
     </div>
   </div>`;
+}window.renderVillage=()=>{
+  const f=filtered();
+  const pages=Math.max(1,Math.ceil(f.length/PER));
+  if(page<0)page=0;if(page>pages-1)page=pages-1;
+  document.getElementById('pgnum').textContent=(page+1)+' / '+pages;
+  const slice=f.slice(page*PER,page*PER+PER);
+  document.getElementById('village').innerHTML=slice.length?slice.map(cardHTML).join(''):'<div class="empty">Пока пусто. Зайдите в «Моя изба» и повесьте первую работу.</div>';
+};
+function renderMy(){
+  const u=auth.currentUser;
+  const head=document.getElementById('my-head');
+  if(u){const p=prof(u.uid)||{name:u.displayName};head.innerHTML=`<h3>👤 ${esc(p.name||u.displayName)}</h3><div style="font-size:14px">${u.email||''} · <a href="javascript:void(0)" style="color:var(--accent)" onclick="openProfile('${u.uid}')">открыть мою избу</a></div>`;
+    document.getElementById('up-login').style.display='none';document.getElementById('up-form').style.display='block';}
+  else{head.innerHTML='<h3>👤 Гость</h3>';document.getElementById('up-login').style.display='block';document.getElementById('up-form').style.display='none'}
+  const mine=u?photos.filter(p=>p.uid===u.uid):[];
+  document.getElementById('myworks').innerHTML=mine.length?mine.map(cardHTML).join(''):'<div class="empty">У вас пока нет работ.</div>';
 }
+function renderFavs(){
+  const f=photos.filter(p=>favs.includes(p.id));
+  document.getElementById('favgrid').innerHTML=f.length?f.map(cardHTML).join(''):'';
+  document.getElementById('favempty').style.display=f.length?'none':'block';
+}
+window.fav=id=>{const i=favs.indexOf(id);if(i>-1)favs.splice(i,1);else favs.push(id);localStorage.setItem('ep-favs',JSON.stringify(favs));renderVillage();renderMy();renderFavs()};
+window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex';document.body.style.overflow='hidden'};
+window.share=u=>{if(navigator.share)navigator.share({title:'Ёлки-Палки',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>toast('📋 Ссылка скопирована'))};
+
+window.like=id=>{
+  const u=auth.currentUser;if(!u)return alert('Войдите через Google, чтобы ставить сердечки.');
+  const r=db.ref('photos/'+id+'/likes/'+u.uid);
+  r.once('value').then(s=>{if(s.exists())r.remove();else r.set(u.displayName||u.email)});
+};
+window.del=id=>{
+  const r=db.ref('photos/'+id);
+  r.once('value').then(s=>{const p=s.val();if(!p)return;const u=auth.currentUser;
+    if(!(isAdmin()||(u&&p.uid===u.uid)))return alert('Можно удалять только свои работы.');
+    if(!confirm('Убрать работу со стены?'))return;r.remove().then(()=>toast('🗑️ Убрано'))});
+};
+window.addComm=pid=>{
+  const i=document.getElementById('ci-'+pid);const t=i.value.trim();if(!t)return alert('Напишите комментарий.');
+  const u=auth.currentUser;if(!u)return alert('Войдите через Google, чтобы комментировать.');
+  const r=db.ref('photos/'+pid);
+  r.once('value').then(s=>{const p=s.val();if(!p)return;const cs=p.comments||[];
+    cs.push({id:Date.now()+'_'+Math.random().toString(36).slice(2,6),author:u.displayName||u.email,uid:u.uid,text:t.slice(0,200),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),replies:[]});
+    r.update({comments:cs});i.value=''});
+};
+window.delComm=(pid,cid)=>{
+  if(!confirm('Удалить комментарий?'))return;
+  const r=db.ref('photos/'+pid);
+  r.once('value').then(s=>{const p=s.val();if(!p)return;r.update({comments:(p.comments||[]).filter(c=>c.id!==cid)})});
+};
+window.showReply=(pid,cid)=>{
+  const box=document.getElementById('comms-'+pid);
+  if(box.querySelector('.cin.reply'))return;
+  const old=box.querySelector('.cin.main');if(old)old.remove();
+  const w=document.createElement('div');w.className='cin reply';
+  w.innerHTML=`<input id="ri-${pid}" placeholder="Ответить..." maxlength="200" onkeydown="if(event.key==='Enter')sendReply(${pid},'${cid}')"><button onclick="sendReply(${pid},'${cid}')">➤</button>`;
+  box.appendChild(w);w.querySelector('input').focus();
+};
+window.sendReply=(pid,cid)=>{
+  const i=document.getElementById('ri-'+pid);const t=i.value.trim();if(!t)return alert('Напишите ответ.');
+  const u=auth.currentUser;if(!u)return alert('Войдите через Google.');
+  const r=db.ref('photos/'+pid);
+  r.once('value').then(s=>{const p=s.val();if(!p)return;const cs=p.comments||[];const k=cs.findIndex(c=>c.id===cid);
+    if(k<0)return;cs[k].replies=cs[k].replies||[];
+    cs[k].replies.push({author:u.displayName||u.email,uid:u.uid,text:t.slice(0,200),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})});
+    r.update({comments:cs})});
+};
+
+window.openProfile=uid=>{
+  const p=prof(uid);if(!p){toast('Изба не найдена');return}
+  const mine=auth.currentUser&&auth.currentUser.uid===uid;
+  document.getElementById('pf-ava').src=p.photo||'';document.getElementById('pf-ava').style.display=p.photo?'block':'none';
+  document.getElementById('pf-name').textContent=p.name||'—';
+  document.getElementById('pf-mail').textContent=p.email||'';
+  document.getElementById('pf-since').textContent=p.joined?('в деревне с '+new Date(p.joined).toLocaleDateString('ru-RU')):'';
+  const works=photos.filter(x=>x.uid===uid);
+  document.getElementById('pf-works').textContent=works.length;
+  document.getElementById('pf-likes').textContent=works.reduce((s,x)=>s+Object.keys(x.likes||{}).length,0);
+  document.getElementById('pf-comms').textContent=works.reduce((s,x)=>s+((x.comments||[]).length),0);
+  const bv=document.getElementById('pf-bio-view'),bw=document.getElementById('pf-bio-wrap');
+  if(mine){bv.style.display='none';bw.style.display='block';document.getElementById('pf-bio').value=p.bio||''}
+  else{bv.style.display='block';bw.style.display='none';bv.textContent=p.bio||'Житель пока ничего о себе не рассказал.'}
+  document.getElementById('pf-grid').innerHTML=works.length?works.map(x=>`<img src="${esc(x.img)}" onclick="closeProfile();showLB('${esc(x.img)}')">`).join(''):'<div class="empty">Работ пока нет.</div>';
+  document.getElementById('pmodal').classList.add('show');
+};
+window.closeProfile=()=>document.getElementById('pmodal').classList.remove('show');
+window.saveBio=()=>{if(!auth.currentUser)return;db.ref('users/'+auth.currentUser.uid).update({bio:document.getElementById('pf-bio').value.trim()}).then(()=>toast('💾 Сохранено'))};
+
+document.getElementById('file').addEventListener('change',e=>{
+  myFile=e.target.files[0]||null;
+  document.getElementById('filebtn').textContent=myFile?('✅ '+myFile.name):'📂 Выбрать фото';
+  document.getElementById('pubbtn').disabled=!myFile;
+  document.getElementById('upst').textContent='';
+});
+window.publish=async()=>{
+  if(!myFile||!auth.currentUser)return;
+  const u=auth.currentUser,btn=document.getElementById('pubbtn'),st=document.getElementById('upst');
+  btn.disabled=true;st.textContent='⏳ Загружаем в облако...';
+  let url='';
+  try{
+    const fd=new FormData();fd.append('image',myFile);
+    const res=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});
+    const d=await res.json();
+    if(d.success&&d.data.url)url=d.data.url;
+  }catch(e){}
+  if(!url){st.textContent='❌ Не загрузилось. Проверьте интернет и попробуйте снова.';btn.disabled=false;return}
+  st.textContent='🪵 Вешаем на стену...';
+  const cap=document.getElementById('cap').value.trim();
+  const photo={id:Date.now(),img:url,uid:u.uid,author:u.displayName||'Без имени',caption:cap,date:new Date().toLocaleDateString('ru-RU'),likes:{},comments:{}};
+  try{
+    await db.ref('photos/'+photo.id).set(photo);
+    st.textContent='';btn.disabled=false;document.getElementById('pubbtn').disabled=true;
+    document.getElementById('cap').value='';myFile=null;
+    document.getElementById('filebtn').textContent='📂 Выбрать фото';
+    toast('🎉 Работа на стене!');
+    document.querySelector('[data-p="p-village"]').click();
+  }catch(e){st.textContent='❌ Ошибка сохранения.';btn.disabled=false}
+};
+
+document.addEventListener('contextmenu',e=>{if(e.target.tagName==='IMG')e.preventDefault()});
+document.addEventListener('dragstart',e=>{if(e.target.tagName==='IMG')e.preventDefault()});
+document.getElementById('yy').textContent=new Date().getFullYear();
+renderAuth();renderVillage();renderMy();
+</script>
+</body>
+</html>
