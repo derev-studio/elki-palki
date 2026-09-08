@@ -235,4 +235,98 @@ footer{text-align:center;margin:26px 0 10px;font-size:13px;color:var(--wood-l)}
   </section>
 
   <footer>🌲 Ёлки-Палки · деревянная соцсеть семьи Деревяшкиных · <span id="yy"></span></footer>
-</div>
+</div><script type="module">
+const CFG={apiKey:"AIzaSyB2X3o7KwYFkMfsskKoWpQYBrws8L-Mn9w",authDomain:"photo-gallery-18193.firebaseapp.com",projectId:"photo-gallery-18193",databaseURL:"https://photo-gallery-18193-default-rtdb.firebaseio.com",storageBucket:"photo-gallery-18193.firebasestorage.app",messagingSenderId:"329094770221",appId:"1:329094770221:web:b9d076f195f968668212a4"};
+const IMGBB="b3ef16e01059cc97d198428f28ebc07e";
+firebase.initializeApp(CFG);
+const db=firebase.database(),auth=firebase.auth();
+
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.getElementById('toasts').appendChild(t);setTimeout(()=>t.remove(),2600)};
+
+let photos=[],profiles={},favs=JSON.parse(localStorage.getItem('ep-favs')||'[]').map(Number);
+let page=0,sort='new',myFile=null,replyTo=null;
+const PER=12;
+
+window.toggleTheme=()=>{const b=document.body;b.classList.toggle('evening');localStorage.setItem('ep-theme',b.classList.contains('evening')?'e':'d');renderVillage();renderMy();};
+if(localStorage.getItem('ep-theme')==='e')document.body.classList.add('evening');
+
+window.go=id=>{document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.p===id));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='p-village')renderVillage();if(id==='p-my')renderMy();if(id==='p-fav')renderFavs();window.scrollTo(0,0)};
+
+window.signIn=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/popup-closed-by-user'){try{await auth.signInWithRedirect(p);return}catch(e2){}}alert('Вход не удался. Проверьте, что домен разрешён в Firebase (Authorized domains).')}};
+window.signOut_=()=>auth.signOut();
+auth.getRedirectResult().catch(()=>{});
+auth.onAuthStateChanged(u=>{
+  if(u){ensureUser(u);checkBan(u.uid)}
+  renderAuth();renderVillage();renderMy();
+});
+function renderAuth(){
+  const b=document.getElementById('authbox');
+  if(auth.currentUser){const u=auth.currentUser;b.innerHTML=`<img class="hava" src="${esc(u.photoURL||'')}" onclick="openProfile('${u.uid}')" title="Моя изба"><button class="pbtn small" onclick="signOut_()">🚪 Выйти</button>`}
+  else b.innerHTML=`<button class="gbtn" onclick="signIn()">🔑 Войти через Google</button>`;
+}
+function ensureUser(u){
+  const r=db.ref('users/'+u.uid);
+  r.once('value').then(s=>{if(!s.exists())r.set({name:u.displayName||'Без имени',email:u.email||'',photo:u.photoURL||'',bio:'',joined:Date.now()});else{const uu={};if(u.displayName)uu.name=u.displayName;if(u.photoURL)uu.photo=u.photoURL;if(Object.keys(uu).length)r.update(uu)}});
+  db.ref('admins/'+u.uid).once('value').then(s=>{window.__admin=(s.val()===true)});
+}
+function checkBan(uid){db.ref('banned/'+uid).on('value',s=>{if(s.val()===true){alert('Вы забанены.');auth.signOut()}})}
+db.ref('users').on('value',s=>{profiles=s.val()||{};renderVillage();renderMy()});
+const prof=uid=>(uid&&profiles[uid])||null;
+const ava=(uid,sz)=>{const p=prof(uid);return (p&&p.photo)?`<img class="ava" src="${esc(p.photo)}" style="width:${sz}px;height:${sz}px">`:''};
+const isAdmin=()=>!!window.__admin;
+
+db.ref('photos').on('value',s=>{photos=s.val()?Object.values(s.val()):[];renderVillage();renderMy();renderFavs();renderBoard()});
+db.ref('chat').on('value',s=>{const d=s.val();const m=d?Object.values(d):[];const c=document.getElementById('chat');c.innerHTML=m.map(x=>{const a=x.photo?`<img class="ava" src="${esc(x.photo)}">`:'';return `<div class="cmsg">${a}<span class="n">${esc(x.author)}</span><span class="x">${esc(x.text)}</span><time>${esc(x.time||'')}</time></div>`}).join('');c.scrollTop=c.scrollHeight});
+
+window.sendChat=()=>{
+  const i=document.getElementById('chat-in'),t=i.value.trim();if(!t)return;
+  const u=auth.currentUser;
+  if(!u)return alert('Войдите через Google, чтобы писать в чат.');
+  db.ref('chat/'+Date.now()).set({author:u.displayName||u.email,photo:u.photoURL||'',text:t.slice(0,300),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})});
+  i.value='';
+};
+
+window.setSort=m=>{sort=m;page=0;renderVillage()};
+function filtered(){
+  const q=(document.getElementById('q').value||'').toLowerCase();
+  let f=photos.filter(p=>!q||(p.author||'').toLowerCase().includes(q)||(p.caption||'').toLowerCase().includes(q));
+  f.sort((a,b)=>sort==='top'?(Object.keys(b.likes||{}).length-Object.keys(a.likes||{}).length||b.id-a.id):(b.id-a.id));
+  return f;
+}
+function renderBoard(){
+  if(!photos.length){document.getElementById('board').textContent='Деревня только строится. Повесьте первую работу!';return}
+  const best=photos.slice().sort((a,b)=>Object.keys(b.likes||{}).length-Object.keys(a.likes||{}).length)[0];
+  const newest=photos.slice().sort((a,b)=>b.id-a.id)[0];
+  document.getElementById('board').innerHTML=`🏆 Лучшая работа: «${esc(best.caption||'без подписи')}» — ${esc(best.author)} · 🆕 Свежая: «${esc(newest.caption||'без подписи')}» — ${esc(newest.author)} · 👥 Жителей: ${Object.keys(profiles).length} · 🖼 Работ: ${photos.length}`;
+}
+function cardHTML(p){
+  const likes=p.likes||{};const lks=Object.entries(likes);
+  const myUid=auth.currentUser?auth.currentUser.uid:null;
+  const mine=myUid&&likes[myUid];
+  const who=lks.length?('❤ '+lks.slice(0,4).map(([ ,n])=>esc(n)).join(', ')+(lks.length>4?' ещё '+(lks.length-4):'')):'пока никому не понравилось';
+  const fav=favs.includes(p.id);
+  const canDel=isAdmin()||(myUid&&p.uid===myUid);
+  const comms=(p.comments||[]).map(cm=>{
+    const rp=(cm.replies||[]).map(r=>`<div class="comm">${ava(r.uid,18)}<b onclick="openProfile('${esc(r.uid||'')}')">${esc(r.author)}</b><span class="t">${esc(r.text)}</span><time>${esc(r.time||'')}</time></div>`).join('');
+    const mineC=isAdmin()||(myUid&&cm.uid===myUid);
+    return `<div class="comm">${ava(cm.uid,20)}<b onclick="openProfile('${esc(cm.uid||'')}')">${esc(cm.author)}</b>${cm.uid?'':'<span class="guestmark">гость</span>'}<span class="t">${esc(cm.text)}</span><time>${esc(cm.time||'')}</time><span class="acts">${mineC?`<button onclick="delComm(${p.id},'${esc(cm.id)}')">✕</button>`:''}<button onclick="showReply(${p.id},'${esc(cm.id)}')">↩</button></span></div>${rp?`<div class="replies">${rp}</div>`:''}`;
+  }).join('');
+  return `<div class="card">
+    <img src="${esc(p.img)}" onclick="showLB('${esc(p.img)}')">
+    <div class="body">
+      ${p.caption?`<div class="cap">«${esc(p.caption)}»</div>`:''}
+      <div class="au" onclick="openProfile('${esc(p.uid||'')}')">${ava(p.uid,26)}${esc(p.author)}</div>
+      <div class="who">${p.date||''}</div>
+      <div class="row">
+        <button class="likebtn ${mine?'mine':''}" onclick="like(${p.id})">❤️ ${lks.length}</button>
+        <button class="ibtn" onclick="fav(${p.id})">${fav?'⭐':'☆'}</button>
+        <button class="ibtn" onclick="share('${esc(p.img)}')">📤</button>
+        ${canDel?`<button class="ibtn" onclick="del(${p.id})">🗑️</button>`:''}
+      </div>
+      <div class="who" style="font-weight:400">${who}</div>
+      <div class="comms" id="comms-${p.id}">${comms||'<span class="who">Комментариев нет — будьте первым.</span>'}</div>
+      <div class="cin"><input id="ci-${p.id}" placeholder="Написать комментарий..." maxlength="200" onkeydown="if(event.key==='Enter')addComm(${p.id})"><button onclick="addComm(${p.id})">➤</button></div>
+    </div>
+  </div>`;
+}
