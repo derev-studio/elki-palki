@@ -402,7 +402,7 @@ window.openProfile=uid=>{
   const mine=auth.currentUser&&auth.currentUser.uid===uid;
   document.getElementById('pf-ava').src=p.photo||'';document.getElementById('pf-ava').style.display=p.photo?'block':'none';
   document.getElementById('pf-name').textContent=p.name||'—';
-  document.getElementById('pf-mail').textContent=p.email||'';
+  document.getElementById('pf-mail').textContent=''||'';
   document.getElementById('pf-since').textContent=p.joined?('в деревне с '+new Date(p.joined).toLocaleDateString('ru-RU')):'';
   const works=photos.filter(x=>x.uid===uid);
   document.getElementById('pf-works').textContent=works.length;
