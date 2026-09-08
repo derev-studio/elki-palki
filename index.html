@@ -27,7 +27,7 @@ body.evening{background-image:radial-gradient(circle at 80% 0%, rgba(255,180,80,
 h1,h2,h3,.serif{font-family:Georgia,'Times New Roman',serif}
 .wrap{max-width:1150px;margin:0 auto;padding:18px}
 header{
-  display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;
+  display:flex;flex-wrap:wrap;gap:14px;flex-direction:column;justify-content:center;align-items:center;text-align:center;
   background:linear-gradient(180deg,var(--wood-l),var(--wood)); color:#fdf3df;
   border-radius:22px; padding:16px 24px; box-shadow:0 6px 18px rgba(60,40,20,.25), inset 0 2px 0 rgba(255,255,255,.25);
   border:3px solid var(--wood-d); position:sticky; top:10px; z-index:100;
@@ -84,7 +84,7 @@ body.evening .doska{background:repeating-linear-gradient(90deg,var(--card) 0 60p
 .comms{margin-top:4px;border-top:2px dashed var(--line);padding-top:8px;display:flex;flex-direction:column;gap:6px}
 .comm{display:flex;gap:6px;align-items:baseline;font-size:14px;flex-wrap:wrap}
 .comm b{cursor:pointer}.comm b:hover{text-decoration:underline}
-.comm .t{flex:1;word-break:break-word}
+.comm .t{flex:1 1 100%;word-break:break-word}
 .comm time{font-size:11px;color:var(--wood-l)}
 .comm .acts button{background:none;border:none;cursor:pointer;font-size:12px;color:var(--accent)}
 .cin{display:flex;gap:6px;margin-top:4px}
