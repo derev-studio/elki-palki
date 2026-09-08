@@ -330,7 +330,7 @@ window.sendChat=()=>{
 window.setSort=m=>{sort=m;page=0;renderVillage()};
 function filtered(){
   const q=(document.getElementById('q').value||'').toLowerCase();
-  let f=photos.filter(p=>!q||(p.author||'').toLowerCase().includes(q)||(p.caption||'').toLowerCase().includes(q));
+  let f=photos.filter(p=>!q||(p.author||'').toLowerCase().includes(q)||(p.caption||'').toLowerCase().includes(q)||(p.rubric||'').toLowerCase().includes(q));
   f.sort((a,b)=>sort==='top'?(Object.keys(b.likes||{}).length-Object.keys(a.likes||{}).length||b.id-a.id):(b.id-a.id));
   return f;
 }
