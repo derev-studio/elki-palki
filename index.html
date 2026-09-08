@@ -302,7 +302,7 @@ auth.onAuthStateChanged(u=>{
 });
 function renderAuth(){
   const b=document.getElementById('authbox');
-  if(auth.currentUser){const u=auth.currentUser;b.innerHTML=`<img class="hava" src="${esc(u.photoURL||'')}" onclick="openProfile('${u.uid}')" title="Моя изба"><button class="pbtn small" onclick="signOut_()">🚪 Выйти</button>`}
+  if(auth.currentUser){const u=auth.currentUser;b.innerHTML=`<img class="hava" src="${esc(u.photoURL||'')}" onclick="openProfile('${u.uid}')" title="Моя изба"><button class="pbtn small" onclick="signOut_()" title="Выйти">🚪</button>`}
   else b.innerHTML=`<button class="gbtn" onclick="signIn()">🔑 Войти через Google</button>`;
 }
 function ensureUser(u){
