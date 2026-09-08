@@ -1,8 +1,238 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head><meta charset="UTF-8"><title>Ёлки-Палки</title></head>
-<body style="font-family:sans-serif;background:#f5ead6;text-align:center;padding-top:80px;">
-<h1>🌲 Ёлки-Палки</h1>
-<p>Деревня строится. Зайдите позже.</p>
-</body>
-</html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ёлки-Палки — деревянная соцсеть</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌲</text></svg>">
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f3e9d2; --bg2:#e9dbbd; --wood:#8b5e34; --wood-d:#6b4526; --wood-l:#a9804f;
+  --bark:#3d2c1e; --card:#fdf8ec; --line:#d8c49a; --accent:#c1553a; --pine:#3f6b4f; --gold:#b8860b;
+}
+body.evening{
+  --bg:#2b2016; --bg2:#241a11; --wood:#5e4025; --wood-d:#4a3018; --wood-l:#7a5636;
+  --bark:#e8dcc8; --card:#3a2c1e; --line:#55432e; --accent:#d9704f; --pine:#6fa383; --gold:#d4af37;
+}
+body{
+  font-family:'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--bark);
+  min-height:100vh; transition:background .4s,color .4s;
+  background-image:radial-gradient(circle at 20% 10%, rgba(255,255,255,.25), transparent 40%);
+}
+body.evening{background-image:radial-gradient(circle at 80% 0%, rgba(255,180,80,.08), transparent 45%)}
+h1,h2,h3,.serif{font-family:Georgia,'Times New Roman',serif}
+.wrap{max-width:1150px;margin:0 auto;padding:18px}
+header{
+  display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;
+  background:linear-gradient(180deg,var(--wood-l),var(--wood)); color:#fdf3df;
+  border-radius:22px; padding:16px 24px; box-shadow:0 6px 18px rgba(60,40,20,.25), inset 0 2px 0 rgba(255,255,255,.25);
+  border:3px solid var(--wood-d); position:sticky; top:10px; z-index:100;
+}
+header h1{font-size:24px;text-shadow:1px 2px 0 rgba(0,0,0,.25)}
+.tagline{font-size:12px;opacity:.9}
+.hctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pbtn{
+  background:var(--card); color:var(--bark); border:2px solid var(--wood-d);
+  border-radius:14px; padding:7px 16px; font-weight:700; cursor:pointer; font-size:14px; transition:.2s;
+  box-shadow:0 3px 0 var(--wood-d);
+}
+.pbtn:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--wood-d)}
+.pbtn:active{transform:translateY(1px);box-shadow:0 1px 0 var(--wood-d)}
+.pbtn.primary{background:var(--accent);color:#fff;border-color:#8f3a26;box-shadow:0 3px 0 #8f3a26}
+.pbtn.primary:hover{box-shadow:0 5px 0 #8f3a26}
+.pbtn.small{padding:4px 12px;font-size:13px}
+.gbtn{background:#fff;color:#333;border:2px solid var(--wood-d);border-radius:14px;padding:7px 16px;font-weight:700;cursor:pointer;font-size:14px;box-shadow:0 3px 0 var(--wood-d)}
+.hava{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #ffd98a;cursor:pointer}
+nav{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}
+.tab{
+  background:var(--bg2);border:2px solid var(--line);border-radius:14px;padding:9px 20px;
+  font-weight:700;cursor:pointer;color:var(--bark);transition:.2s;font-size:15px;
+}
+.tab.active{background:var(--wood);color:#fdf3df;border-color:var(--wood-d);box-shadow:0 3px 0 var(--wood-d)}
+.panel{display:none}
+.panel.active{display:block;animation:fadein .3s}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1}}
+.doska{
+  background:repeating-linear-gradient(90deg,var(--card) 0 60px, #f4ead2 60px 61px);
+  border:3px solid var(--wood); border-radius:18px; padding:16px 20px; margin-bottom:18px;
+  box-shadow:inset 0 0 30px rgba(139,94,52,.15);
+}
+body.evening .doska{background:repeating-linear-gradient(90deg,var(--card) 0 60px, #33271a 60px 61px)}
+.doska h3{color:var(--accent);margin-bottom:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:20px}
+.card{
+  background:var(--card);border:3px solid var(--wood);border-radius:18px;overflow:hidden;
+  box-shadow:0 5px 14px rgba(60,40,20,.18); transition:.25s; display:flex;flex-direction:column;
+}
+.card:hover{transform:translateY(-4px);box-shadow:0 10px 22px rgba(60,40,20,.28)}
+.card img{width:100%;height:230px;object-fit:cover;display:block;cursor:zoom-in;background:#222}
+.card .body{padding:12px 14px;flex:1;display:flex;flex-direction:column;gap:8px}
+.card .cap{font-family:Georgia,serif;font-style:italic;color:var(--gold);font-size:14px}
+.au{display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700}
+.au:hover{text-decoration:underline}
+.ava{width:26px;height:26px;border-radius:50%;object-fit:cover;border:2px solid var(--wood)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.likebtn{background:var(--bg2);border:2px solid var(--line);border-radius:12px;padding:4px 12px;cursor:pointer;font-size:14px;font-weight:700;color:var(--bark)}
+.likebtn.mine{background:var(--pine);color:#fff;border-color:var(--pine)}
+.likebtn:hover{filter:brightness(1.05)}
+.ibtn{background:none;border:none;font-size:17px;cursor:pointer;padding:2px 4px}
+.who{font-size:12px;color:var(--wood-l);font-weight:600}
+.comms{margin-top:4px;border-top:2px dashed var(--line);padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.comm{display:flex;gap:6px;align-items:baseline;font-size:14px;flex-wrap:wrap}
+.comm b{cursor:pointer}.comm b:hover{text-decoration:underline}
+.comm .t{flex:1;word-break:break-word}
+.comm time{font-size:11px;color:var(--wood-l)}
+.comm .acts button{background:none;border:none;cursor:pointer;font-size:12px;color:var(--accent)}
+.cin{display:flex;gap:6px;margin-top:4px}
+.cin input{flex:1;min-width:100px;padding:7px 12px;border:2px solid var(--line);border-radius:12px;background:#fff;color:#222;font-size:14px}
+body.evening .cin input{background:#241a11;color:#e8dcc8}
+.cin button{background:var(--wood);color:#fdf3df;border:none;border-radius:12px;padding:7px 14px;font-weight:700;cursor:pointer}
+.replies{margin-left:22px;border-left:3px solid var(--line);padding-left:10px}
+.search{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.search input{flex:1;min-width:180px;padding:10px 16px;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--bark);font-size:15px}
+.upzone{border:3px dashed var(--wood);border-radius:18px;padding:30px;text-align:center;background:var(--card)}
+.upzone input[type=text]{padding:10px 16px;border:2px solid var(--line);border-radius:12px;background:#fff;color:#222;font-size:15px;width:100%;max-width:320px;margin-bottom:12px}
+.filebtn{display:inline-block;background:var(--pine);color:#fff;padding:11px 26px;border-radius:14px;cursor:pointer;font-weight:700;box-shadow:0 3px 0 #2c4a38}
+.filebtn:hover{filter:brightness(1.08)}
+input[type=file]{display:none}
+.chatbox{background:var(--card);border:3px solid var(--wood);border-radius:18px;height:420px;overflow-y:auto;padding:14px;margin-bottom:12px}
+.cmsg{display:flex;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line);align-items:baseline}
+.cmsg .n{font-weight:700}
+.cmsg .x{flex:1;word-break:break-word}
+.cmsg time{font-size:11px;color:var(--wood-l)}
+.pager{display:flex;gap:12px;justify-content:center;margin:20px 0;align-items:center;font-weight:700}
+.modal{position:fixed;inset:0;z-index:500;background:rgba(30,20,10,.75);display:none;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex}
+.pcard{background:var(--card);border:4px solid var(--wood);border-radius:22px;max-width:620px;width:100%;max-height:88vh;overflow-y:auto;padding:26px;position:relative}
+.pclose{position:absolute;top:10px;right:16px;font-size:30px;cursor:pointer;color:var(--wood)}
+.pclose:hover{color:var(--accent)}
+.phead{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.pava{width:90px;height:90px;border-radius:50%;object-fit:cover;border:4px solid var(--wood)}
+.pname{font-size:24px;font-family:Georgia,serif}
+.pmail{font-size:13px;color:var(--wood-l)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+.chip{flex:1;min-width:90px;background:var(--bg2);border:2px solid var(--line);border-radius:14px;text-align:center;padding:10px}
+.chip b{display:block;font-size:22px;color:var(--accent)}
+.bio{width:100%;min-height:64px;border:2px solid var(--line);border-radius:14px;padding:10px;font-family:inherit;font-size:14px;background:#fff;color:#222;resize:vertical}
+body.evening .bio{background:#241a11;color:#e8dcc8}
+.pworks{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:10px}
+.pworks img{width:100%;height:100px;object-fit:cover;border-radius:10px;cursor:zoom-in;border:2px solid var(--line)}
+#lb{position:fixed;inset:0;z-index:600;background:rgba(20,12,6,.92);display:none;align-items:center;justify-content:center;cursor:zoom-out}
+#lb img{max-width:92vw;max-height:92vh;border-radius:16px;border:5px solid var(--wood)}
+#toasts{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:700;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:var(--bark);color:var(--bg);padding:10px 22px;border-radius:14px;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.35);animation:fadein .3s}
+.empty{text-align:center;padding:34px;color:var(--wood-l);font-style:italic}
+footer{text-align:center;margin:26px 0 10px;font-size:13px;color:var(--wood-l)}
+.guestmark{font-size:10px;background:var(--line);border-radius:8px;padding:1px 6px;color:var(--wood-d)}
+@media(max-width:600px){.wrap{padding:10px}.grid{grid-template-columns:1fr 1fr;gap:10px}.card img{height:150px}header{position:static}}
+</style>
+</head>
+<body>
+<div id="lb" onclick="this.style.display='none';document.body.style.overflow='auto'"><img id="lbimg"></div>
+<div id="toasts"></div>
+
+<div class="modal" id="pmodal" onclick="if(event.target===this)closeProfile()">
+  <div class="pcard">
+    <span class="pclose" onclick="closeProfile()">&times;</span>
+    <div class="phead">
+      <img class="pava" id="pf-ava">
+      <div>
+        <div class="pname" id="pf-name">—</div>
+        <div class="pmail" id="pf-mail"></div>
+        <div class="pmail" id="pf-since"></div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="chip"><b id="pf-works">0</b>работ</div>
+      <div class="chip"><b id="pf-likes">0</b>лайков</div>
+      <div class="chip"><b id="pf-comms">0</b>коммент.</div>
+    </div>
+    <div id="pf-bio-view" style="font-style:italic;color:var(--wood-l);margin-bottom:8px"></div>
+    <div id="pf-bio-wrap" style="display:none">
+      <textarea class="bio" id="pf-bio" maxlength="300" placeholder="Расскажите о себе: чем дышите, что снимаете..."></textarea>
+      <div style="margin-top:8px"><button class="pbtn primary" onclick="saveBio()">💾 Сохранить</button></div>
+    </div>
+    <h3 style="margin-top:14px">Работы жителя:</h3>
+    <div class="pworks" id="pf-grid"></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>🌲 Ёлки-Палки</h1>
+      <div class="tagline">деревянная соцсеть · гуляй по деревне, заглядывай в избы</div>
+    </div>
+    <div class="hctl">
+      <button class="pbtn small" id="themeBtn" onclick="toggleTheme()" title="День / вечер">🌆</button>
+      <span id="authbox"></span>
+    </div>
+  </header>
+
+  <nav>
+    <span class="tab active" data-p="p-village" onclick="go('p-village')">🏠 Деревня</span>
+    <span class="tab" data-p="p-crit" onclick="go('p-crit')">🎭 Разбор</span>
+    <span class="tab" data-p="p-chat" onclick="go('p-chat')">💬 Общая изба</span>
+    <span class="tab" data-p="p-my" onclick="go('p-my')">👤 Моя изба</span>
+    <span class="tab" data-p="p-fav" onclick="go('p-fav')">⭐ Избранное</span>
+  </nav>
+
+  <section class="panel active" id="p-village">
+    <div class="doska">
+      <h3>📌 Доска объявлений</h3>
+      <div id="board">Деревня только строится. Повесьте первую работу!</div>
+    </div>
+    <div class="search">
+      <input id="q" placeholder="🔍 Поиск по автору или подписи..." oninput="page=0;renderVillage()">
+      <button class="pbtn" onclick="setSort('new')">📅 Новые</button>
+      <button class="pbtn" onclick="setSort('top')">❤️ Лучшие</button>
+    </div>
+    <div class="grid" id="village"></div>
+    <div class="pager">
+      <button class="pbtn" onclick="page--;renderVillage()">← Назад</button>
+      <span id="pgnum">1</span>
+      <button class="pbtn" onclick="page++;renderVillage()">Дальше по улице →</button>
+    </div>
+  </section>
+
+  <section class="panel" id="p-crit">
+    <div class="doska"><h3>🎭 Разбор</h3><div>Сюда работы выносят на суд общины — разбирает «редакция Ёлок-Палок». <b>Этот раздел появится в части 2.</b></div></div>
+    <div class="empty">Мастерская редакции ещё собирается...</div>
+  </section>
+
+  <section class="panel" id="p-chat">
+    <div class="chatbox" id="chat"></div>
+    <div class="row">
+      <input id="chat-in" placeholder="Скажите что-нибудь доброе..." maxlength="300" style="flex:1;min-width:160px;padding:11px 16px;border:2px solid var(--line);border-radius:14px;background:var(--card);color:var(--bark);font-size:15px" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="pbtn primary" onclick="sendChat()">Отправить</button>
+    </div>
+  </section>
+
+  <section class="panel" id="p-my">
+    <div id="my-head" class="doska"></div>
+    <div class="upzone" id="upzone">
+      <h3 style="margin-bottom:12px">📸 Повесить новую работу на стену</h3>
+      <div id="up-login" style="color:var(--wood-l)">Войдите через Google, чтобы выкладывать работы.</div>
+      <div id="up-form" style="display:none">
+        <input type="text" id="cap" maxlength="80" placeholder="Подпись к работе (необязательно)"><br>
+        <label class="filebtn" for="file" id="filebtn">📂 Выбрать фото</label>
+        <input type="file" id="file" accept="image/*">
+        <div id="upst" style="margin-top:12px;font-weight:700"></div>
+        <div style="margin-top:10px"><button class="pbtn primary" id="pubbtn" onclick="publish()" disabled>🪵 Повесить на стену</button></div>
+      </div>
+    </div>
+    <h3 style="margin:18px 0 10px">Мои работы на стене:</h3>
+    <div class="grid" id="myworks"></div>
+  </section>
+
+  <section class="panel" id="p-fav">
+    <div class="grid" id="favgrid"></div>
+    <div class="empty" id="favempty">Нажмите ⭐ на любой работе — и она будет ждать вас здесь.</div>
+  </section>
+
+  <footer>🌲 Ёлки-Палки · деревянная соцсеть семьи Деревяшкиных · <span id="yy"></span></footer>
+</div>
