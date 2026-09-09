@@ -398,7 +398,7 @@ window.share=u=>{if(navigator.share)navigator.share({title:'Ёлки-Палки'
 window.like=id=>{
   const u=auth.currentUser;if(!u)return alert('Войдите через Google, чтобы ставить сердечки.');
   const r=db.ref('photos/'+id+'/likes/'+u.uid);
-  r.once('value').then(s=>{if(s.exists())r.remove();else r.set(u.displayName||u.email)});
+  r.once('value').then(s=>{if(s.exists())r.remove();else{r.set(u.displayName||u.email);jingle(false);toast('🦜 ПИАСТРЫ! +2 — звенят автору')}});
 };
 window.del=id=>{
   const r=db.ref('photos/'+id);
