@@ -285,4 +285,101 @@ body:not(.evening) .tab.active{background:rgba(63,107,79,.15);border:2px solid r
   </section>
 
   <footer>🌲 Ёлки-Палки · деревянная соцсеть семьи Деревяшкиных · <span id="yy"></span></footer>
-</div>
+</div><script type="module">
+const CFG={apiKey:"AIzaSyB2X3o7KwYFkMfsskKoWpQYBrws8L-Mn9w",authDomain:"photo-gallery-18193.firebaseapp.com",projectId:"photo-gallery-18193",databaseURL:"https://photo-gallery-18193-default-rtdb.firebaseio.com",storageBucket:"photo-gallery-18193.firebasestorage.app",messagingSenderId:"329094770221",appId:"1:329094770221:web:b9d076f195f968668212a4"};
+const IMGBB="b3ef16e01059cc97d198428f28ebc07e";
+firebase.initializeApp(CFG);
+const db=firebase.database(),auth=firebase.auth();
+
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.getElementById('toasts').appendChild(t);setTimeout(()=>t.remove(),2600)};
+
+let photos=[],profiles={},favs=JSON.parse(localStorage.getItem('ep-favs')||'[]').map(Number);
+let page=0,sort='new',myFile=null;
+const PER=12;
+
+window.toggleTheme=()=>{const b=document.body;b.classList.toggle('evening');localStorage.setItem('ep-theme',b.classList.contains('evening')?'e':'d');renderVillage();renderMy();};
+if(localStorage.getItem('ep-theme')!=='d')document.body.classList.add('evening');
+
+window.go=id=>{document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.p===id));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='p-village')renderVillage();if(id==='p-my')renderMy();if(id==='p-fav')renderFavs();window.scrollTo(0,0)};
+
+window.signIn=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/popup-closed-by-user'){try{await auth.signInWithRedirect(p);return}catch(e2){}}alert('Вход не удался. Проверьте, что домен разрешён в Firebase (Authorized domains).')}};
+window.signOut_=()=>auth.signOut();
+auth.getRedirectResult().catch(()=>{});
+auth.onAuthStateChanged(u=>{
+  if(u){ensureUser(u);checkBan(u.uid)}
+  renderAuth();renderVillage();renderMy();
+});
+function renderAuth(){
+  const b=document.getElementById('authbox');
+  if(auth.currentUser){const u=auth.currentUser;b.innerHTML=`<img class="hava" src="${esc(u.photoURL||'')}" onclick="openProfile('${u.uid}')" title="Моя каморка"><button class="pbtn small" onclick="signOut_()" title="Выйти">🚪</button>`;document.getElementById('tab-me').textContent='🚪 '+(u.displayName||'Каморка').split(' ')[0]}
+  else{b.innerHTML=`<button class="gbtn" onclick="signIn()">🔑 Войти через Google</button>`;document.getElementById('tab-me').textContent='🔑 Войти'}
+}
+function ensureUser(u){
+  const r=db.ref('users/'+u.uid);
+  r.once('value').then(s=>{if(!s.exists())r.set({name:u.displayName||'Без имени',email:u.email||'',photo:u.photoURL||'',bio:'',joined:Date.now()});else{const uu={};if(u.displayName)uu.name=u.displayName;if(u.photoURL)uu.photo=u.photoURL;if(Object.keys(uu).length)r.update(uu)}});
+  db.ref('admins/'+u.uid).once('value').then(s=>{window.__admin=(s.val()===true)});
+}
+function checkBan(uid){db.ref('banned/'+uid).on('value',s=>{if(s.val()===true){alert('Вы забанены.');auth.signOut()}})}
+db.ref('users').on('value',s=>{profiles=s.val()||{};renderVillage();renderMy()});
+const prof=uid=>(uid&&profiles[uid])||null;
+const ava=(uid,sz)=>{const p=prof(uid);return (p&&p.photo)?`<img class="ava" src="${esc(p.photo)}" style="width:${sz}px;height:${sz}px">`:''};
+const isAdmin=()=>!!window.__admin;
+function jingle(big){try{const ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();const t=ctx.currentTime;const fs=big?[1318,1760,2093]:[1568,2093];fs.forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t+i*.09);g.gain.exponentialRampToValueAtTime(.22,t+i*.09+.02);g.gain.exponentialRampToValueAtTime(.0001,t+i*.09+.5);o.connect(g);g.connect(ctx.destination);o.start(t+i*.09);o.stop(t+i*.09+.6);});}catch(e){}}
+function piastresOf(uid){return photos.filter(p=>p.uid===uid).reduce((s,p)=>s+10+2*Object.keys(p.likes||{}).length,0)}
+
+db.ref('photos').on('value',s=>{photos=s.val()?Object.values(s.val()):[];renderVillage();renderMy();renderFavs();renderBoard()});
+db.ref('chat').on('value',s=>{const d=s.val();const m=d?Object.values(d):[];const c=document.getElementById('chat');c.innerHTML=m.map(x=>{const a=x.photo?`<img class="ava" src="${esc(x.photo)}">`:'';return `<div class="cmsg">${a}<span class="n">${esc(x.author)}</span><span class="x">${esc(x.text)}</span><time>${esc(x.time||'')}</time></div>`}).join('');c.scrollTop=c.scrollHeight});
+
+window.sendChat=()=>{
+  const i=document.getElementById('chat-in'),t=i.value.trim();if(!t)return;
+  const u=auth.currentUser;
+  if(!u)return alert('Войдите через Google, чтобы писать в чат.');
+  db.ref('chat/'+Date.now()).set({author:u.displayName||u.email,photo:u.photoURL||'',text:t.slice(0,300),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})});
+  i.value='';
+};
+
+window.setSort=m=>{sort=m;page=0;renderVillage()};
+function filtered(){
+  const q=(document.getElementById('q').value||'').toLowerCase();
+  let f=photos.filter(p=>!q||(p.author||'').toLowerCase().includes(q)||(p.caption||'').toLowerCase().includes(q)||(p.rubric||'').toLowerCase().includes(q));
+  f.sort((a,b)=>sort==='top'?(Object.keys(b.likes||{}).length-Object.keys(a.likes||{}).length||b.id-a.id):(b.id-a.id));
+  return f;
+}
+function renderBoard(){
+  const b=document.getElementById('board');
+  if(!photos.length){b.textContent='Пока пусто — повесьте первую работу!';return}
+  const week=photos.filter(p=>p.id>Date.now()-7*24*3600*1000);const medal=['🥇','🥈','🥉'];
+  const pool=week.length?week:photos;const top=pool.slice().sort((a,x)=>Object.keys(x.likes||{}).length-Object.keys(a.likes||{}).length).slice(0,6);
+  b.innerHTML='<div style="font-size:13px;margin-bottom:10px;color:var(--wood-l)">👥 Жителей: '+Object.keys(profiles).length+' · 🖼 Работ: '+photos.length+' · 🗓 За неделю: '+week.length+'</div>'+top.map((p,i)=>'<div style="display:inline-block;vertical-align:top;width:110px;margin:0 10px 12px 0;text-align:center"><div style="position:relative"><img src="'+esc(p.img)+'" onclick="showLB(\''+esc(p.img)+'\')" style="width:110px;height:110px;object-fit:cover;border-radius:14px;cursor:zoom-in;border:2px solid var(--gold)">'+((i<3)?'<span style="position:absolute;top:-8px;left:-8px;font-size:22px">'+medal[i]+'</span>':'')+'</div><div style="font-size:12px;margin-top:4px"><b>'+esc(p.author)+'</b></div><div style="font-size:12px;color:var(--accent)">❤ '+Object.keys(p.likes||{}).length+'</div></div>').join('');
+}
+function cardHTML(p){
+  const likes=p.likes||{};const lks=Object.entries(likes);
+  const myUid=auth.currentUser?auth.currentUser.uid:null;
+  const mine=myUid&&likes[myUid];
+  const who=lks.length?('❤ '+lks.slice(0,4).map(([ ,n])=>esc(n)).join(', ')+(lks.length>4?' ещё '+(lks.length-4):'')):'пока никому не понравилось';
+  const fav=favs.includes(p.id);
+  const canDel=isAdmin()||(myUid&&p.uid===myUid);
+  const comms=(p.comments||[]).map(cm=>{
+    const rp=(cm.replies||[]).map(r=>`<div class="comm">${ava(r.uid,18)}<b onclick="openProfile('${esc(r.uid||'')}')">${esc(r.author)}</b><span class="t">${esc(r.text)}</span><time>${esc(r.time||'')}</time></div>`).join('');
+    const mineC=isAdmin()||(myUid&&cm.uid===myUid);
+    return `<div class="comm">${ava(cm.uid,20)}<b onclick="openProfile('${esc(cm.uid||'')}')">${esc(cm.author)}</b>${cm.uid?'':'<span class="guestmark">гость</span>'}<span class="t">${esc(cm.text)}</span><time>${esc(cm.time||'')}</time><span class="acts">${mineC?`<button onclick="delComm(${p.id},'${esc(cm.id)}')">✕</button>`:''}<button onclick="showReply(${p.id},'${esc(cm.id)}')">↩</button></span></div>${rp?`<div class="replies">${rp}</div>`:''}`;
+  }).join('');
+  return `<div class="card">
+    <img src="${esc(p.img)}" onclick="showLB('${esc(p.img)}')">
+    <div class="body">
+      ${p.caption?`<div class="cap">«${esc(p.caption)}»</div>`:''}
+      <div class="au" onclick="openProfile('${esc(p.uid||'')}')">${ava(p.uid,26)}${esc(p.author)}</div>
+      <div class="who">${p.date||''}${p.rubric?` <span class="rubbadge">${esc(p.rubric)}</span>`:''}</div>
+      <div class="row">
+        <button class="likebtn ${mine?'mine':''}" onclick="like(${p.id})">❤️ ${lks.length}</button>
+        <button class="ibtn" onclick="fav(${p.id})">${fav?'⭐':'☆'}</button>
+        <button class="ibtn" onclick="share('${esc(p.img)}')">📤</button>
+        ${canDel?`<button class="ibtn" onclick="del(${p.id})">🗑️</button>`:''}
+      </div>
+      <div class="who" style="font-weight:400">${who}</div>
+      <div class="comms" id="comms-${p.id}">${comms||'<span class="who">Комментариев нет — будьте первым.</span>'}</div>
+      <div class="cin"><input id="ci-${p.id}" placeholder="Написать комментарий..." maxlength="200" onkeydown="if(event.key==='Enter')addComm(${p.id})"><button onclick="addComm(${p.id})">➤</button></div>
+    </div>
+  </div>`;
+}
