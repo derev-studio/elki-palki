@@ -536,7 +536,7 @@ window.startScan=async()=>{
   reader.readAsDataURL(myFile);
 };
 
-window.publish2=async()=>{
+async function loadBmp(f){try{return await createImageBitmap(f)}catch(e){const u0=URL.createObjectURL(f);return await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=u0})}}async function makeBlob(b,w,h,q){const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(b,0,0,w,h);return await new Promise(r=>c.toBlob(r,'image/jpeg',q))}async function makeSizes(f){const b=await loadBmp(f);const ow=b.width,oh=b.height;const mk=m=>{if(Math.max(ow,oh)<=m)return null;const k=m/Math.max(ow,oh);return makeBlob(b,Math.round(ow*k),Math.round(oh*k),m>=1900?0.9:(m>=1000?0.85:0.8))};const l=await mk(2048);const md=await mk(1280);const s=await mk(640);return{l:l||f,m:md||l||f,s:s||md||l||f}} window.publish2=async()=>{
   if(!myFile||!auth.currentUser||!curCat)return;
   const u=auth.currentUser,btn=document.getElementById('pubbtn2');
   btn.disabled=true;
