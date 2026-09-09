@@ -23,7 +23,8 @@ body{
   min-height:100vh; transition:background .4s,color .4s;
   background-image:radial-gradient(circle at 20% 10%, rgba(255,255,255,.25), transparent 40%);
 }
-body.evening{background-image:radial-gradient(1.5px 1.5px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 40% 70%,#cfe3ff,transparent),radial-gradient(1.5px 1.5px at 60% 20%,#fff,transparent),radial-gradient(1px 1px at 80% 50%,#fff,transparent),radial-gradient(2px 2px at 90% 80%,#ffe9b0,transparent),radial-gradient(1px 1px at 10% 80%,#cfe3ff,transparent),radial-gradient(1.5px 1.5px at 33% 55%,#fff,transparent),radial-gradient(1px 1px at 70% 35%,#fff,transparent);animation:twinkle 3s infinite alternate} @keyframes twinkle{from{opacity:.75}to{opacity:1}}
+body.evening{background-image:radial-gradient(1.5px 1.5px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 40% 70%,#cfe3ff,transparent),radial-gradient(1.5px 1.5px at 60% 20%,#fff,transparent),radial-gradient(1px 1px at 80% 50%,#fff,transparent),radial-gradient(2px 2px at 90% 80%,#ffe9b0,transparent),radial-gradient(1px 1px at 10% 80%,#cfe3ff,transparent),radial-gradient(1.5px 1.5px at 33% 55%,#fff,transparent),radial-gradient(1px 1px at 70% 35%,#fff,transparent);animation:twinkle 3s infinite alternate}
+@keyframes twinkle{from{opacity:.75}to{opacity:1}}
 h1,h2,h3,.serif{font-family:Georgia,'Times New Roman',serif}
 .wrap{max-width:1150px;margin:0 auto;padding:18px}
 header{
@@ -33,24 +34,25 @@ header{
   border:3px solid var(--wood-d); position:sticky; top:10px; z-index:100;
 }
 header h1{font-size:34px;text-shadow:1px 2px 0 rgba(0,0,0,.25)}
-.tagline{font-size:12px;opacity:.9}
-header{position:relative}.hctl{display:flex;gap:10px;align-items:center;position:absolute;right:14px;top:14px}.hctl .pbtn{margin:0;display:inline-flex;align-items:center}#authbox{display:inline-flex;align-items:center;gap:6px}@media(max-width:600px){.hctl{position:static;justify-content:center;margin-top:6px}}#authbox{display:inline-flex;align-items:center;gap:8px}#authbox{display:inline-flex;align-items:center;gap:8px}
+.tagline{font-size:13px;opacity:.9}
+.hctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
 .pbtn{
   background:var(--card); color:var(--bark); border:2px solid var(--wood-d);
   border-radius:14px; padding:7px 16px; font-weight:700; cursor:pointer; font-size:14px; transition:.2s;
   box-shadow:0 3px 0 var(--wood-d);
 }
 .pbtn:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--wood-d)}
-.pbtn:active{transform:translateY(1px);box-shadow:0 1px 0 var(--wood-d)}
+.pbtn:active{transform:translateY(3px);box-shadow:0 0 0 var(--wood-d)}
 .pbtn.primary{background:var(--accent);color:#fff;border-color:#8f3a26;box-shadow:0 3px 0 #8f3a26}
-.pbtn.primary:hover{box-shadow:0 5px 0 #8f3a26}
+.pbtn.primary:active{box-shadow:0 0 0 #8f3a26}
 .pbtn.small{padding:4px 12px;font-size:13px}
 .gbtn{background:#fff;color:#333;border:2px solid var(--wood-d);border-radius:14px;padding:7px 16px;font-weight:700;cursor:pointer;font-size:14px;box-shadow:0 3px 0 var(--wood-d)}
+.gbtn:active{transform:translateY(3px);box-shadow:0 0 0 var(--wood-d)}
 .hava{width:38px;height:38px;border-radius:50%;object-fit:cover;border:2px solid #ffd98a;cursor:pointer}
 nav{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0;justify-content:center}
 .tab{
   background:var(--bg2);border:2px solid var(--line);border-radius:14px;padding:9px 20px;
-  font-weight:700;cursor:pointer;color:var(--bark);transition:.2s;font-size:15px;
+  font-weight:700;cursor:pointer;color:var(--bark);transition:.15s;font-size:15px;
 }
 .tab.active{background:var(--wood);color:#fdf3df;border-color:var(--wood-d);box-shadow:0 3px 0 var(--wood-d)}
 .panel{display:none}
@@ -149,7 +151,14 @@ footer{text-align:center;margin:26px 0 10px;font-size:13px;color:var(--wood-l)}
 body.evening .bubble{background:#2c2118;color:#e8dcc8}
 .bubble:empty{opacity:.35}
 .rverdict{font-family:Georgia,serif;font-weight:700;color:var(--accent);font-size:17px}
-.rubbadge{font-size:10px;background:var(--pine);color:#fff;border-radius:8px;padding:1px 8px;margin-left:4px}.rimg{width:150px;height:220px;overflow:hidden;border-radius:14px;background:#0a1220;position:relative}body:not(.evening) .rimg{background:#efe4cc}body:not(.evening) .rimg img{mix-blend-mode:multiply}body.evening .rimg img{mix-blend-mode:screen}.rbot.talking .rimg{box-shadow:0 0 24px rgba(127,232,214,.55)}.mouthov{position:absolute;width:22px;height:11px;background:linear-gradient(180deg,#fff 0 45%,#241a12 45% 100%);border:2px solid #241a12;border-radius:45% 45% 50% 50%/40% 40% 60% 60%;opacity:0;transition:opacity .15s}.mouthov.on{opacity:1;animation:tmouth .35s infinite}.rmale .mouthov{left:67%;top:56%;margin-left:-11px}.rfemale .mouthov{left:42%;top:54.5%;margin-left:-10px;width:20px;height:10px}@keyframes tmouth{0%,100%{transform:scaleY(.9)}50%{transform:scaleY(.2)}}@keyframes rbob{0%,100%{transform:translateY(0) rotate(-2deg) scale(1)}30%{transform:translateY(-6px) rotate(1.8deg) scale(1.03)}60%{transform:translateY(-3px) rotate(-1deg) scale(1.01)}}.rimg img{width:200%;height:auto;display:block}.rfemale img{margin-left:-100%}body:not(.evening) .rimg{background:#efe4cc}.rimg{animation:ridle 4s infinite ease-in-out}@keyframes ridle{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}.rbot.talking .rimg{animation:rbob .55s infinite}@keyframes rbob{0%,100%{transform:translateY(0) rotate(-1.2deg)}50%{transform:translateY(-7px) rotate(1.6deg)}}
+.rubbadge{font-size:10px;background:var(--pine);color:#fff;border-radius:8px;padding:1px 8px;margin-left:4px}
+/* новое: мягкая активная вкладка, вжимание, неон слогана */
+.tab:not(.active){box-shadow:0 3px 0 var(--line)}
+.tab:active{transform:translateY(3px);box-shadow:0 0 0 var(--wood-d)}
+.tab.active{background:rgba(127,227,214,.12);border:2px solid rgba(127,227,214,.45);color:#e6f7f2;box-shadow:0 0 8px rgba(127,227,214,.18)}
+body:not(.evening) .tab.active{background:rgba(63,107,79,.15);border:2px solid rgba(63,107,79,.5);color:var(--bark);box-shadow:0 0 8px rgba(63,107,79,.2)}
+.tagline{color:#7fe3d6;text-shadow:0 0 8px rgba(127,227,214,.9),0 0 22px rgba(127,227,214,.45);letter-spacing:1.5px;animation:neonpulse 4s infinite ease-in-out}
+@keyframes neonpulse{0%,100%{opacity:1}50%{opacity:.7}}
 @media(max-width:600px){.wrap{padding:10px}.grid{grid-template-columns:1fr 1fr;gap:10px}.card img{height:150px}header{position:static}.rbot{width:90px}}
 </style>
 </head>
@@ -171,7 +180,8 @@ body.evening .bubble{background:#2c2118;color:#e8dcc8}
     <div class="stats">
       <div class="chip"><b id="pf-works">0</b>работ</div>
       <div class="chip"><b id="pf-likes">0</b>лайков</div>
-      <div class="chip"><b id="pf-comms">0</b>коммент.</div><div class="chip"><b id="pf-pi" style="color:var(--gold)">0</b>💰 пиастров</div>
+      <div class="chip"><b id="pf-comms">0</b>коммент.</div>
+      <div class="chip"><b id="pf-pi" style="color:var(--gold)">0</b>💰 пиастров</div>
     </div>
     <div id="pf-bio-view" style="font-style:italic;color:var(--wood-l);margin-bottom:8px"></div>
     <div id="pf-bio-wrap" style="display:none">
@@ -187,7 +197,7 @@ body.evening .bubble{background:#2c2118;color:#e8dcc8}
   <header>
     <div>
       <h1>🌲 Ёлки-Палки</h1>
-      <div class="tagline">маленькая деревня в бесконечной вселенной</div>
+      <div class="tagline">Маленькая деревня в бесконечной вселенной</div>
     </div>
     <div class="hctl">
       <button class="pbtn small" id="themeBtn" onclick="toggleTheme()" title="Ночь / день">🌞</button>
@@ -196,20 +206,20 @@ body.evening .bubble{background:#2c2118;color:#e8dcc8}
   </header>
 
   <nav>
-    <span class="tab active" data-p="p-village" onclick="go('p-village')">🏠 Деревня</span>
-    <span class="tab" data-p="p-crit" onclick="go('p-crit')">🎭 Разбор</span>
+    <span class="tab active" id="tab-me" data-p="p-my" onclick="go('p-my')">🚪 Моя каморка</span>
+    <span class="tab" data-p="p-village" onclick="go('p-village')">🏠 Главная</span>
+    <span class="tab" data-p="p-crit" onclick="go('p-crit')">🧖 Сауна</span>
     <span class="tab" data-p="p-chat" onclick="go('p-chat')">💬 Общая изба</span>
-    <span class="tab" data-p="p-my" onclick="go('p-my')">👤 Моя изба</span>
     <span class="tab" data-p="p-fav" onclick="go('p-fav')">⭐ Избранное</span>
   </nav>
 
-  <section class="panel active" id="p-village">
+  <section class="panel" id="p-village">
     <div class="doska">
-      <h3>📌 Доска объявлений</h3>
-      <div id="board">Деревня только строится. Повесьте первую работу!</div>
+      <h3>🏆 Лучшие фотографии</h3>
+      <div id="board">Пока пусто — повесьте первую работу!</div>
     </div>
     <div class="search">
-      <input id="q" placeholder="🔍 Поиск по автору или подписи..." oninput="page=0;renderVillage()">
+      <input id="q" placeholder="🔍 Поиск по автору, подписи или залу..." oninput="page=0;renderVillage()">
       <button class="pbtn" onclick="setSort('new')">📅 Новые</button>
       <button class="pbtn" onclick="setSort('top')">❤️ Лучшие</button>
     </div>
@@ -222,8 +232,8 @@ body.evening .bubble{background:#2c2118;color:#e8dcc8}
   </section>
 
   <section class="panel" id="p-crit">
-    <div class="doska"><h3>🎭 Разбор</h3><div>Роботы-смотрители встречают каждую новую работу в «Моя изба»: определяют категорию и обсуждают вслух.</div></div>
-    <div class="empty">Смотрите новые разборы в «Моя изба» → «Показать роботам».</div>
+    <div class="doska"><h3>🧖 Сауна</h3><div>Здесь работы будут париться — анонимный разбор без имён: критикуем работу, не человека. Откроется, когда деревня подрастёт.</div></div>
+    <div class="empty">Сауна топит печь...</div>
   </section>
 
   <section class="panel" id="p-chat">
@@ -234,7 +244,7 @@ body.evening .bubble{background:#2c2118;color:#e8dcc8}
     </div>
   </section>
 
-  <section class="panel" id="p-my">
+  <section class="panel active" id="p-my">
     <div id="my-head" class="doska"></div>
     <div class="upzone" id="upzone">
       <h3 style="margin-bottom:12px">📸 Повесить новую работу на стену</h3>
@@ -275,296 +285,4 @@ body.evening .bubble{background:#2c2118;color:#e8dcc8}
   </section>
 
   <footer>🌲 Ёлки-Палки · деревянная соцсеть семьи Деревяшкиных · <span id="yy"></span></footer>
-</div><script type="module">
-const CFG={apiKey:"AIzaSyB2X3o7KwYFkMfsskKoWpQYBrws8L-Mn9w",authDomain:"photo-gallery-18193.firebaseapp.com",projectId:"photo-gallery-18193",databaseURL:"https://photo-gallery-18193-default-rtdb.firebaseio.com",storageBucket:"photo-gallery-18193.firebasestorage.app",messagingSenderId:"329094770221",appId:"1:329094770221:web:b9d076f195f968668212a4"};
-const IMGBB="b3ef16e01059cc97d198428f28ebc07e";
-firebase.initializeApp(CFG);
-const db=firebase.database(),auth=firebase.auth();
-
-const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.getElementById('toasts').appendChild(t);setTimeout(()=>t.remove(),2600)};
-
-let photos=[],profiles={},favs=JSON.parse(localStorage.getItem('ep-favs')||'[]').map(Number);
-let page=0,sort='new',myFile=null;
-const PER=12;
-
-window.toggleTheme=()=>{const b=document.body;b.classList.toggle('evening');localStorage.setItem('ep-theme',b.classList.contains('evening')?'e':'d');renderVillage();renderMy();};
-if(localStorage.getItem('ep-theme')!=='d')document.body.classList.add('evening');
-
-window.go=id=>{document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.p===id));document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');if(id==='p-village')renderVillage();if(id==='p-my')renderMy();if(id==='p-fav')renderFavs();window.scrollTo(0,0)};
-
-window.signIn=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}catch(e){if(e.code==='auth/popup-blocked'||e.code==='auth/popup-closed-by-user'){try{await auth.signInWithRedirect(p);return}catch(e2){}}alert('Вход не удался. Проверьте, что домен разрешён в Firebase (Authorized domains).')}};
-window.signOut_=()=>auth.signOut();
-auth.getRedirectResult().catch(()=>{});
-auth.onAuthStateChanged(u=>{
-  if(u){ensureUser(u);checkBan(u.uid)}
-  renderAuth();renderVillage();renderMy();
-});
-function renderAuth(){
-  const b=document.getElementById('authbox');
-  if(auth.currentUser){const u=auth.currentUser;b.innerHTML=`<img class="hava" src="${esc(u.photoURL||'')}" onclick="openProfile('${u.uid}')" title="Моя изба"><button class="pbtn small" onclick="signOut_()" title="Выйти">🚪</button>`}
-  else b.innerHTML=`<button class="gbtn" onclick="signIn()">🔑 Войти через Google</button>`;
-}
-function ensureUser(u){
-  const r=db.ref('users/'+u.uid);
-  r.once('value').then(s=>{if(!s.exists())r.set({name:u.displayName||'Без имени',email:u.email||'',photo:u.photoURL||'',bio:'',joined:Date.now()});else{const uu={};if(u.displayName)uu.name=u.displayName;if(u.photoURL)uu.photo=u.photoURL;if(Object.keys(uu).length)r.update(uu)}});
-  db.ref('admins/'+u.uid).once('value').then(s=>{window.__admin=(s.val()===true)});
-}
-function checkBan(uid){db.ref('banned/'+uid).on('value',s=>{if(s.val()===true){alert('Вы забанены.');auth.signOut()}})}
-db.ref('users').on('value',s=>{profiles=s.val()||{};renderVillage();renderMy()});
-const prof=uid=>(uid&&profiles[uid])||null;
-const ava=(uid,sz)=>{const p=prof(uid);return (p&&p.photo)?`<img class="ava" src="${esc(p.photo)}" style="width:${sz}px;height:${sz}px">`:''};
-const isAdmin=()=>!!window.__admin;function jingle(big){try{const ctx=new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==='suspended')ctx.resume();const t=ctx.currentTime;const fs=big?[1318,1760,2093]:[1568,2093];fs.forEach((f,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,t+i*.09);g.gain.exponentialRampToValueAtTime(.22,t+i*.09+.02);g.gain.exponentialRampToValueAtTime(.0001,t+i*.09+.5);o.connect(g);g.connect(ctx.destination);o.start(t+i*.09);o.stop(t+i*.09+.6);});}catch(e){}}function piastresOf(uid){return photos.filter(p=>p.uid===uid).reduce((s,p)=>s+10+2*Object.keys(p.likes||{}).length,0)}
-
-db.ref('photos').on('value',s=>{photos=s.val()?Object.values(s.val()):[];renderVillage();renderMy();renderFavs();renderBoard()});
-db.ref('chat').on('value',s=>{const d=s.val();const m=d?Object.values(d):[];const c=document.getElementById('chat');c.innerHTML=m.map(x=>{const a=x.photo?`<img class="ava" src="${esc(x.photo)}">`:'';return `<div class="cmsg">${a}<span class="n">${esc(x.author)}</span><span class="x">${esc(x.text)}</span><time>${esc(x.time||'')}</time></div>`}).join('');c.scrollTop=c.scrollHeight});
-
-window.sendChat=()=>{
-  const i=document.getElementById('chat-in'),t=i.value.trim();if(!t)return;
-  const u=auth.currentUser;
-  if(!u)return alert('Войдите через Google, чтобы писать в чат.');
-  db.ref('chat/'+Date.now()).set({author:u.displayName||u.email,photo:u.photoURL||'',text:t.slice(0,300),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})});
-  i.value='';
-};
-
-window.setSort=m=>{sort=m;page=0;renderVillage()};
-function filtered(){
-  const q=(document.getElementById('q').value||'').toLowerCase();
-  let f=photos.filter(p=>!q||(p.author||'').toLowerCase().includes(q)||(p.caption||'').toLowerCase().includes(q)||(p.rubric||'').toLowerCase().includes(q));
-  f.sort((a,b)=>sort==='top'?(Object.keys(b.likes||{}).length-Object.keys(a.likes||{}).length||b.id-a.id):(b.id-a.id));
-  return f;
-}
-function renderBoard(){
-  if(!photos.length){document.getElementById('board').textContent='Деревня только строится. Повесьте первую работу!';return}
-  const best=photos.slice().sort((a,b)=>Object.keys(b.likes||{}).length-Object.keys(a.likes||{}).length)[0];
-  const newest=photos.slice().sort((a,b)=>b.id-a.id)[0];
-  document.getElementById('board').innerHTML=`🏆 Лучшая работа: «${esc(best.caption||'без подписи')}» — ${esc(best.author)} · 🆕 Свежая: «${esc(newest.caption||'без подписи')}» — ${esc(newest.author)} · 👥 Жителей: ${Object.keys(profiles).length} · 🖼 Работ: ${photos.length}`;
-}
-function cardHTML(p){
-  const likes=p.likes||{};const lks=Object.entries(likes);
-  const myUid=auth.currentUser?auth.currentUser.uid:null;
-  const mine=myUid&&likes[myUid];
-  const who=lks.length?('❤ '+lks.slice(0,4).map(([ ,n])=>esc(n)).join(', ')+(lks.length>4?' ещё '+(lks.length-4):'')):'пока никому не понравилось';
-  const fav=favs.includes(p.id);
-  const canDel=isAdmin()||(myUid&&p.uid===myUid);
-  const comms=(p.comments||[]).map(cm=>{
-    const rp=(cm.replies||[]).map(r=>`<div class="comm">${ava(r.uid,18)}<b onclick="openProfile('${esc(r.uid||'')}')">${esc(r.author)}</b><span class="t">${esc(r.text)}</span><time>${esc(r.time||'')}</time></div>`).join('');
-    const mineC=isAdmin()||(myUid&&cm.uid===myUid);
-    return `<div class="comm">${ava(cm.uid,20)}<b onclick="openProfile('${esc(cm.uid||'')}')">${esc(cm.author)}</b>${cm.uid?'':'<span class="guestmark">гость</span>'}<span class="t">${esc(cm.text)}</span><time>${esc(cm.time||'')}</time><span class="acts">${mineC?`<button onclick="delComm(${p.id},'${esc(cm.id)}')">✕</button>`:''}<button onclick="showReply(${p.id},'${esc(cm.id)}')">↩</button></span></div>${rp?`<div class="replies">${rp}</div>`:''}`;
-  }).join('');
-  return `<div class="card">
-    <img src="${esc(p.img)}" onclick="showLB('${esc(p.img)}')">
-    <div class="body">
-      ${p.caption?`<div class="cap">«${esc(p.caption)}»</div>`:''}
-      <div class="au" onclick="openProfile('${esc(p.uid||'')}')">${ava(p.uid,26)}${esc(p.author)}</div>
-      <div class="who">${p.date||''}${p.rubric?` <span class="rubbadge">${esc(p.rubric)}</span>`:''}</div>
-      <div class="row">
-        <button class="likebtn ${mine?'mine':''}" onclick="like(${p.id})">❤️ ${lks.length}</button>
-        <button class="ibtn" onclick="fav(${p.id})">${fav?'⭐':'☆'}</button>
-        <button class="ibtn" onclick="share('${esc(p.img)}')">📤</button>
-        ${canDel?`<button class="ibtn" onclick="del(${p.id})">🗑️</button>`:''}
-      </div>
-      <div class="who" style="font-weight:400">${who}</div>
-      <div class="comms" id="comms-${p.id}">${comms||'<span class="who">Комментариев нет — будьте первым.</span>'}</div>
-      <div class="cin"><input id="ci-${p.id}" placeholder="Написать комментарий..." maxlength="200" onkeydown="if(event.key==='Enter')addComm(${p.id})"><button onclick="addComm(${p.id})">➤</button></div>
-    </div>
-  </div>`;
-}window.renderVillage=()=>{
-  const f=filtered();
-  const pages=Math.max(1,Math.ceil(f.length/PER));
-  if(page<0)page=0;if(page>pages-1)page=pages-1;
-  document.getElementById('pgnum').textContent=(page+1)+' / '+pages;
-  const slice=f.slice(page*PER,page*PER+PER);
-  document.getElementById('village').innerHTML=slice.length?slice.map(cardHTML).join(''):'<div class="empty">Пока пусто. Зайдите в «Моя изба» и повесьте первую работу.</div>';
-};
-function renderMy(){
-  const u=auth.currentUser;
-  const head=document.getElementById('my-head');
-  if(u){const p=prof(u.uid)||{name:u.displayName};head.innerHTML=`<h3>👤 ${esc(p.name||u.displayName)}</h3><div style="font-size:14px"><a href="javascript:void(0)" style="color:var(--accent)" onclick="openProfile('${u.uid}')">открыть мою избу</a></div>`;
-    document.getElementById('up-login').style.display='none';document.getElementById('up-form').style.display='block';}
-  else{head.innerHTML='<h3>👤 Гость</h3>';document.getElementById('up-login').style.display='block';document.getElementById('up-form').style.display='none'}
-  const mine=u?photos.filter(p=>p.uid===u.uid):[];
-  document.getElementById('myworks').innerHTML=mine.length?mine.map(cardHTML).join(''):'<div class="empty">У вас пока нет работ.</div>';
-}
-function renderFavs(){
-  const f=photos.filter(p=>favs.includes(p.id));
-  document.getElementById('favgrid').innerHTML=f.length?f.map(cardHTML).join(''):'';
-  document.getElementById('favempty').style.display=f.length?'none':'block';
-}
-window.fav=id=>{const i=favs.indexOf(id);if(i>-1)favs.splice(i,1);else favs.push(id);localStorage.setItem('ep-favs',JSON.stringify(favs));renderVillage();renderMy();renderFavs()};
-window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex';document.body.style.overflow='hidden'};
-window.share=u=>{if(navigator.share)navigator.share({title:'Ёлки-Палки',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>toast('📋 Ссылка скопирована'))};
-
-window.like=id=>{
-  const u=auth.currentUser;if(!u)return alert('Войдите через Google, чтобы ставить сердечки.');
-  const r=db.ref('photos/'+id+'/likes/'+u.uid);
-  r.once('value').then(s=>{if(s.exists())r.remove();else{r.set(u.displayName||u.email);jingle(false);toast('🦜 ПИАСТРЫ! +2 — звенят автору')}});
-};
-window.del=id=>{
-  const r=db.ref('photos/'+id);
-  r.once('value').then(s=>{const p=s.val();if(!p)return;const u=auth.currentUser;
-    if(!(isAdmin()||(u&&p.uid===u.uid)))return alert('Можно удалять только свои работы.');
-    if(!confirm('Убрать работу со стены?'))return;r.remove().then(()=>toast('🗑️ Убрано'))});
-};
-window.addComm=pid=>{
-  const i=document.getElementById('ci-'+pid);const t=i.value.trim();if(!t)return alert('Напишите комментарий.');
-  const u=auth.currentUser;if(!u)return alert('Войдите через Google, чтобы комментировать.');
-  const r=db.ref('photos/'+pid);
-  r.once('value').then(s=>{const p=s.val();if(!p)return;const cs=p.comments||[];
-    cs.push({id:Date.now()+'_'+Math.random().toString(36).slice(2,6),author:u.displayName||u.email,uid:u.uid,text:t.slice(0,200),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}),replies:[]});
-    r.update({comments:cs});i.value=''});
-};
-window.delComm=(pid,cid)=>{
-  if(!confirm('Удалить комментарий?'))return;
-  const r=db.ref('photos/'+pid);
-  r.once('value').then(s=>{const p=s.val();if(!p)return;r.update({comments:(p.comments||[]).filter(c=>c.id!==cid)})});
-};
-window.showReply=(pid,cid)=>{
-  const box=document.getElementById('comms-'+pid);
-  if(box.querySelector('.cin.reply'))return;
-  const w=document.createElement('div');w.className='cin reply';
-  w.innerHTML=`<input id="ri-${pid}" placeholder="Ответить..." maxlength="200" onkeydown="if(event.key==='Enter')sendReply(${pid},'${cid}')"><button onclick="sendReply(${pid},'${cid}')">➤</button>`;
-  box.appendChild(w);w.querySelector('input').focus();
-};
-window.sendReply=(pid,cid)=>{
-  const i=document.getElementById('ri-'+pid);const t=i.value.trim();if(!t)return alert('Напишите ответ.');
-  const u=auth.currentUser;if(!u)return alert('Войдите через Google.');
-  const r=db.ref('photos/'+pid);
-  r.once('value').then(s=>{const p=s.val();if(!p)return;const cs=p.comments||[];const k=cs.findIndex(c=>c.id===cid);
-    if(k<0)return;cs[k].replies=cs[k].replies||[];
-    cs[k].replies.push({author:u.displayName||u.email,uid:u.uid,text:t.slice(0,200),time:new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})});
-    r.update({comments:cs})});
-};
-
-window.openProfile=uid=>{
-  const p=prof(uid);if(!p){toast('Изба не найдена');return}
-  const mine=auth.currentUser&&auth.currentUser.uid===uid;
-  document.getElementById('pf-ava').src=p.photo||'';document.getElementById('pf-ava').style.display=p.photo?'block':'none';
-  document.getElementById('pf-name').textContent=p.name||'—';
-  document.getElementById('pf-mail').textContent='';
-  document.getElementById('pf-since').textContent=p.joined?('в деревне с '+new Date(p.joined).toLocaleDateString('ru-RU')):'';
-  const works=photos.filter(x=>x.uid===uid);
-  document.getElementById('pf-works').textContent=works.length;
-  document.getElementById('pf-likes').textContent=works.reduce((s,x)=>s+Object.keys(x.likes||{}).length,0);
-  document.getElementById('pf-comms').textContent=works.reduce((s,x)=>s+((x.comments||[]).length),0);document.getElementById('pf-pi').textContent=piastresOf(uid);
-  const bv=document.getElementById('pf-bio-view'),bw=document.getElementById('pf-bio-wrap');
-  if(mine){bv.style.display='none';bw.style.display='block';document.getElementById('pf-bio').value=p.bio||''}
-  else{bv.style.display='block';bw.style.display='none';bv.textContent=p.bio||'Житель пока ничего о себе не рассказал.'}
-  document.getElementById('pf-grid').innerHTML=works.length?works.map(x=>`<img src="${esc(x.img)}" onclick="closeProfile();showLB('${esc(x.img)}')">`).join(''):'<div class="empty">Работ пока нет.</div>';
-  document.getElementById('pmodal').classList.add('show');
-};
-window.closeProfile=()=>document.getElementById('pmodal').classList.remove('show');
-window.saveBio=()=>{if(!auth.currentUser)return;db.ref('users/'+auth.currentUser.uid).update({bio:document.getElementById('pf-bio').value.trim()}).then(()=>toast('💾 Сохранено'))};
-
-/* ================= РОБОТЫ ================= */
-let voiceOn=true,clf=null,curCat='';
-const CATS={'portrait photography of a person':'Портретный зал','landscape nature scenic view':'Пейзажи','macro photography of insects or details':'Макромир','urban architecture and buildings':'Архитектура','wildlife animals and birds':'Животный мир','still life and indoor objects':'Натюрморт','sports and physical activity':'Спорт','plants flowers and botanical':'Оранжерея','abstract art or headless human form':'Загадка','nude art fine art boudoir':'Жанр Ню'};
-const LBL=Object.keys(CATS);
-
-function robotSVG(g,acc){return `<svg viewBox="0 0 120 150" class="robot">
-<defs><linearGradient id="m${g}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d7e0ea"/><stop offset=".55" stop-color="#93a5b8"/><stop offset="1" stop-color="#5c6e80"/></linearGradient></defs>
-<line x1="60" y1="12" x2="60" y2="22" stroke="#5c6e80" stroke-width="3"/><circle cx="60" cy="10" r="4" fill="${acc}"/>
-<rect x="32" y="22" width="56" height="42" rx="13" fill="url(#m${g})" stroke="#3d4a58" stroke-width="2"/>
-<g class="eyes"><circle cx="48" cy="40" r="5" fill="#1a2332"/><circle cx="72" cy="40" r="5" fill="#1a2332"/><circle cx="49.5" cy="38.5" r="1.5" fill="#7fe3d6"/><circle cx="73.5" cy="38.5" r="1.5" fill="#7fe3d6"/></g>
-<rect class="mouth" x="52" y="52" width="16" height="4" rx="2" fill="#3d4a58"/>
-<rect x="26" y="68" width="68" height="52" rx="14" fill="url(#m${g})" stroke="#3d4a58" stroke-width="2"/>
-<circle cx="60" cy="88" r="7" fill="${acc}"/>
-<rect x="10" y="72" width="14" height="34" rx="7" fill="url(#m${g})" stroke="#3d4a58" stroke-width="2"/>
-<g class="armR"><rect x="96" y="72" width="14" height="34" rx="7" fill="url(#m${g})" stroke="#3d4a58" stroke-width="2"/><circle cx="103" cy="108" r="6" fill="${acc}"/></g>
-<rect x="40" y="124" width="14" height="22" rx="6" fill="#5c6e80"/>
-<rect x="66" y="124" width="14" height="22" rx="6" fill="#5c6e80"/>
-</svg>`}
-
-let ruV=null;
-if('speechSynthesis' in window){const ld=()=>{ruV=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith('ru'))||null};ld();speechSynthesis.onvoiceschanged=ld;}
-function speak(t,who){if(!voiceOn||!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ru-RU';u.volume=0.75;if(who==='L'){const fv=(speechSynthesis.getVoices().find(v=>/female|milena|katya|alena|marina|svetlana|жен/i.test(v.name))||ruV);if(fv)u.voice=fv;u.pitch=1.35;u.rate=0.95}else{if(ruV)u.voice=ruV;u.pitch=0.9;u.rate=1.05}{const tk=(window.spT=(window.spT||0)+1);const hid=()=>{if(tk!==window.spT)return;const m=document.querySelector('.rbot.talking .mouthov');if(m)m.classList.remove('on')};u.onend=hid;setTimeout(hid,(t.length*95)+500);speechSynthesis.speak(u)}}catch(e){}}
-window.toggleVoice=()=>{voiceOn=!voiceOn;document.getElementById('voiceBtn').textContent=voiceOn?'🔊 Голоса: вкл':'🔇 Голоса: выкл';if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel()};
-
-function say(who,text){const b=document.getElementById(who==='L'?'bubL':'bubR');const rb=document.getElementById(who==='L'?'rleft':'rright');document.querySelectorAll('.rbot').forEach(x=>x.classList.remove('talking'));document.querySelectorAll('.mouthov').forEach(m=>m.classList.remove('on'));rb.classList.add('talking');const m=rb.querySelector('.mouthov');if(m)m.classList.add('on');b.textContent=text;speak(text,who)}
-function rlog(t){const l=document.getElementById('rlog');l.innerHTML+=t+'<br>';l.scrollTop=l.scrollHeight}
-
-async function getClf(){
-  if(clf)return clf;
-  rlog('[мозги] гружу нейросеть... первый раз может быть долго');
-  try{
-    const mod=await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1');
-    mod.env.allowLocalModels=false;
-    clf=await mod.pipeline('zero-shot-image-classification','Xenova/clip-vit-base-patch32');
-    rlog('[мозги] готово ✅');
-  }catch(e){rlog('[мозги] ошибка: '+e.message)}
-  return clf;
-}
-
-window.startScan=async()=>{
-  if(!myFile||!auth.currentUser)return;
-  const reader=new FileReader();
-  reader.onload=async e=>{
-    const url=e.target.result;
-    document.getElementById('rscene').style.display='block';
-    document.getElementById('rleft').innerHTML='<div class="rimg rmale"><img src="https://derev-studio.github.io/elki-palki/robots'+((localStorage.getItem('ep-theme')==='d')?'2':'')+'.png" alt="смотритель"><div class="mouthov"></div></div>';
-    document.getElementById('rright').innerHTML='<div class="rimg rfemale"><img src="https://derev-studio.github.io/elki-palki/robots'+((localStorage.getItem('ep-theme')==='d')?'2':'')+'.png" alt="смотрительница"><div class="mouthov"></div></div>';
-    document.getElementById('scan-img').src=url;
-    document.getElementById('rverdict').textContent='';
-    document.getElementById('pubbtn2').disabled=true;
-    document.getElementById('bubL').textContent='';document.getElementById('bubR').textContent='';
-    document.getElementById('rlog').innerHTML='';
-    document.getElementById('laser').style.display='block';
-    rlog('[сканер] изображение получено');
-    setTimeout(()=>window.scrollTo({top:document.getElementById('rscene').offsetTop-80,behavior:'smooth'}),100);
-    const script=[['L','Ой, смотри, новая работа пришла!'],['R','Так, глянем-с. Сканирую...'],['L','Какая прелесть. Свет, композиция...'],['R','Хм. Признаю — неплохо. Для человека.']];
-    script.forEach((s,i)=>setTimeout(()=>{say(s[0],s[1]);rlog('[разговор] '+s[1])},i*1700));
-    const pipe=await getClf();
-    let cat='Пейзажи';
-    if(pipe){
-      try{
-        rlog('[сканер] определяю категорию...');
-        const out=await pipe(url,LBL);
-        cat=CATS[out[0].label]||'Пейзажи';
-        rlog('[вердикт] '+cat+' ('+Math.round(out[0].score*100)+'%)');
-      }catch(e2){rlog('[вердикт] по умолчанию: Пейзажи');}
-    }
-    setTimeout(()=>{
-      document.getElementById('laser').style.display='none';
-      curCat=cat;
-      say('L','Вердикт: '+cat+'. Несём в этот зал!');
-      setTimeout(()=>{say('R','Согласен! Вешаем на стену.');document.getElementById('rverdict').textContent='🚪 Категория: «'+cat+'»';document.getElementById('pubbtn2').disabled=false;},2200);
-    },1800);
-  };
-  reader.readAsDataURL(myFile);
-};
-
-window.publish2=async()=>{
-  if(!myFile||!auth.currentUser||!curCat)return;
-  const u=auth.currentUser,btn=document.getElementById('pubbtn2');
-  btn.disabled=true;
-  toast('⏳ Загружаю в облако...');
-  let url='';
-  try{const fd=new FormData();fd.append('image',myFile);const res=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});const d=await res.json();if(d.success&&d.data.url)url=d.data.url;}catch(e){}
-  if(!url){alert('Не загрузилось. Проверьте интернет.');btn.disabled=false;return}
-  const cap=document.getElementById('cap').value.trim();
-  const photo={id:Date.now(),img:url,uid:u.uid,author:u.displayName||'Без имени',caption:cap,rubric:curCat,date:new Date().toLocaleDateString('ru-RU'),likes:{},comments:{}};
-  try{
-    await db.ref('photos/'+photo.id).set(photo);
-    myFile=null;curCat='';document.getElementById('cap').value='';
-    document.getElementById('filebtn').textContent='📂 Выбрать фото';
-    document.getElementById('scanbtn').disabled=true;
-    document.getElementById('rscene').style.display='none';
-    jingle(true);toast('🦜 ПИАСТРЫ! +10 · Зал: '+photo.rubric);
-    document.querySelector('[data-p="p-village"]').click();
-  }catch(e){alert('Ошибка сохранения.');btn.disabled=false}
-};
-
-document.getElementById('file').addEventListener('change',e=>{
-  myFile=e.target.files[0]||null;
-  document.getElementById('filebtn').textContent=myFile?('✅ '+myFile.name):'📂 Выбрать фото';
-  document.getElementById('scanbtn').disabled=!myFile;
-  document.getElementById('upst').textContent='';
-});
-
-document.addEventListener('contextmenu',e=>{if(e.target.tagName==='IMG')e.preventDefault()});
-document.addEventListener('dragstart',e=>{if(e.target.tagName==='IMG')e.preventDefault()});
-document.getElementById('yy').textContent=new Date().getFullYear();
-renderAuth();renderVillage();renderMy();
-</script>
-</body>
-</html>
+</div>
