@@ -511,7 +511,7 @@ window.startScan=async()=>{
     document.getElementById('laser').style.display='block';
     rlog('[сканер] изображение получено');
     setTimeout(()=>window.scrollTo({top:document.getElementById('rscene').offsetTop-80,behavior:'smooth'}),100);
-    const script=[['L','Смотри-ка, новая работа пришла...'],['R','Опять работа... Ладно, смотрю.'],['L','Провожу лазерный анализ...'],['R','Хм. Неожиданно неплохо.']];
+    const script=[['L','Ой, смотри, новая работа пришла!'],['R','Так, глянем-с. Сканирую...'],['L','Какая прелесть. Свет, композиция...'],['R','Хм. Признаю — неплохо. Для человека.']];
     script.forEach((s,i)=>setTimeout(()=>{say(s[0],s[1]);rlog('[разговор] '+s[1])},i*1700));
     const pipe=await getClf();
     let cat='Пейзажи';
