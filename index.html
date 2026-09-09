@@ -501,7 +501,7 @@ window.startScan=async()=>{
   reader.onload=async e=>{
     const url=e.target.result;
     document.getElementById('rscene').style.display='block';
-    document.getElementById('rleft').innerHTML='<div class="rimg rmale"><img src="https://derev-studio.github.io/elki-palki/robots'+((localStorage.getItem('ep-theme')==='d')?'2':'')+'.png" alt="смотритель"></div>';
+    document.getElementById('rleft').innerHTML='<div class="rimg rmale"><img src="https://derev-studio.github.io/elki-palki/robots'+((localStorage.getItem('ep-theme')==='d')?'2':'')+'.png" alt="смотритель"><div class="mouthov"></div></div>';
     document.getElementById('rright').innerHTML='<div class="rimg rfemale"><img src="https://derev-studio.github.io/elki-palki/robots'+((localStorage.getItem('ep-theme')==='d')?'2':'')+'.png" alt="смотрительница"></div>';
     document.getElementById('scan-img').src=url;
     document.getElementById('rverdict').textContent='';
