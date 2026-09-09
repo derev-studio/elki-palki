@@ -406,7 +406,7 @@ function renderFavs(){
   document.getElementById('favempty').style.display=f.length?'none':'block';
 }
 window.fav=id=>{const i=favs.indexOf(id);if(i>-1)favs.splice(i,1);else favs.push(id);localStorage.setItem('ep-favs',JSON.stringify(favs));renderVillage();renderMy();renderFavs()};
-window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex';document.body.style.overflow='hidden'};
+window.showLB=src=>{document.getElementById('lbimg').src=src;const a=document.getElementById('lbdl');a.removeAttribute('href');a.removeAttribute('download');fetch(src).then(r=>r.blob()).then(b=>{const u=URL.createObjectURL(b);a.href=u;a.setAttribute('download','elki-palki.jpg')}).catch(()=>{a.href=src});document.getElementById('lb').style.display='flex';document.body.style.overflow='hidden'};
 window.share=u=>{if(navigator.share)navigator.share({title:'Ёлки-Палки',url:u}).catch(()=>{});else navigator.clipboard.writeText(u).then(()=>toast('📋 Ссылка скопирована'))};
 
 window.like=id=>{
