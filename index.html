@@ -501,7 +501,7 @@ window.startScan=async()=>{
   reader.onload=async e=>{
     const url=e.target.result;
     document.getElementById('rscene').style.display='block';
-    document.getElementById('rleft').innerHTML=robotSVG('a','#3f6b4f');
+    document.getElementById('rleft').innerHTML='<div class="rimg rmale"><img src="robots'+((localStorage.getItem('ep-theme')==='d')?'2':'')+'.png" alt="смотритель"></div>';
     document.getElementById('rright').innerHTML=robotSVG('b','#c1553a');
     document.getElementById('scan-img').src=url;
     document.getElementById('rverdict').textContent='';
