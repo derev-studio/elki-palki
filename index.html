@@ -244,7 +244,7 @@ body.evening .bubble{background:#2c2118;color:#e8dcc8}
         <label class="filebtn" for="file" id="filebtn">📂 Выбрать фото</label>
         <input type="file" id="file" accept="image/*">
         <div id="upst" style="margin-top:12px;font-weight:700"></div>
-        <div style="margin-top:10px"><button class="pbtn primary" id="scanbtn" onclick="startScan()" disabled>🤖 Показать роботам</button></div>
+        <div style="margin-top:10px"><button class="pbtn primary" id="scanbtn" onclick="if('speechSynthesis' in window){const u0=new SpeechSynthesisUtterance(' ');u0.volume=0;speechSynthesis.speak(u0)};startScan()" disabled>🤖 Показать роботам</button></div>
       </div>
     </div>
     <div id="rscene" style="display:none">
