@@ -465,7 +465,7 @@ window.openProfile=uid=>{
   const bv=document.getElementById('pf-bio-view'),bw=document.getElementById('pf-bio-wrap');
   if(mine){bv.style.display='none';bw.style.display='block';document.getElementById('pf-bio').value=p.bio||''}
   else{bv.style.display='block';bw.style.display='none';bv.textContent=p.bio||'Житель пока ничего о себе не рассказал.'}
-  document.getElementById('pf-grid').innerHTML=works.length?works.map(x=>`<img src="${esc(x.img)}" onclick="closeProfile();showLB('${esc(x.img)}')">`).join(''):'<div class="empty">Работ пока нет.</div>';
+  document.getElementById('pf-grid').innerHTML=works.length?works.map(x=>`<img src="${esc(x.imgs||x.imgm||x.img)}" onclick="closeProfile();showLB('${esc(x.img)}')">`).join(''):'<div class="empty">Работ пока нет.</div>';
   document.getElementById('pmodal').classList.add('show');
 };
 window.closeProfile=()=>document.getElementById('pmodal').classList.remove('show');
