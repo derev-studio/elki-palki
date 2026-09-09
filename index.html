@@ -446,7 +446,7 @@ window.openProfile=uid=>{
   const works=photos.filter(x=>x.uid===uid);
   document.getElementById('pf-works').textContent=works.length;
   document.getElementById('pf-likes').textContent=works.reduce((s,x)=>s+Object.keys(x.likes||{}).length,0);
-  document.getElementById('pf-comms').textContent=works.reduce((s,x)=>s+((x.comments||[]).length),0);
+  document.getElementById('pf-comms').textContent=works.reduce((s,x)=>s+((x.comments||[]).length),0);document.getElementById('pf-pi').textContent=piastresOf(uid);
   const bv=document.getElementById('pf-bio-view'),bw=document.getElementById('pf-bio-wrap');
   if(mine){bv.style.display='none';bw.style.display='block';document.getElementById('pf-bio').value=p.bio||''}
   else{bv.style.display='block';bw.style.display='none';bv.textContent=p.bio||'Житель пока ничего о себе не рассказал.'}
