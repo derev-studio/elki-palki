@@ -542,7 +542,7 @@ async function loadBmp(f){try{return await createImageBitmap(f)}catch(e){const u
   btn.disabled=true;
   toast('⏳ Загружаю в облако...');
   let url='';
-  try{const fd=new FormData();fd.append('image',myFile);const res=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});const d=await res.json();if(d.success&&d.data.url)url=d.data.url;}catch(e){}
+  try{toast('⏳ Готовлю копии фото...');const sz=await makeSizes(myFile);const up=async b=>{const fd=new FormData();fd.append('image',b,'photo.jpg');const res=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});const d=await res.json();return(d.success&&d.data.url)?d.data.url:''};url=await up(sz.l);window.__imgm=await up(sz.m);window.__imgs=await up(sz.s);if(!window.__imgm)window.__imgm=url;if(!window.__imgs)window.__imgs=window.__imgm;}catch(e){}
   if(!url){alert('Не загрузилось. Проверьте интернет.');btn.disabled=false;return}
   const cap=document.getElementById('cap').value.trim();
   const photo={id:Date.now(),img:url,uid:u.uid,author:u.displayName||'Без имени',caption:cap,rubric:curCat,date:new Date().toLocaleDateString('ru-RU'),likes:{},comments:{}};
