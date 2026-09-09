@@ -477,7 +477,7 @@ function robotSVG(g,acc){return `<svg viewBox="0 0 120 150" class="robot">
 
 let ruV=null;
 if('speechSynthesis' in window){const ld=()=>{ruV=speechSynthesis.getVoices().find(v=>v.lang&&v.lang.toLowerCase().startsWith('ru'))||null};ld();speechSynthesis.onvoiceschanged=ld;}
-function speak(t,who){if(!voiceOn||!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ru-RU';if(ruV)u.voice=ruV;u.pitch=who==='L'?1.5:0.7;u.rate=who==='L'?1.12:0.95;speechSynthesis.speak(u)}catch(e){}}
+function speak(t,who){if(!voiceOn||!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ru-RU';u.volume=0.75;if(who==='L'){const fv=(speechSynthesis.getVoices().find(v=>/female|milena|katya|alena|marina|svetlana|жен/i.test(v.name))||ruV);if(fv)u.voice=fv;u.pitch=1.35;u.rate=0.95}else{if(ruV)u.voice=ruV;u.pitch=0.9;u.rate=1.15}speechSynthesis.speak(u)}catch(e){}}
 window.toggleVoice=()=>{voiceOn=!voiceOn;document.getElementById('voiceBtn').textContent=voiceOn?'🔊 Голоса: вкл':'🔇 Голоса: выкл';if(!voiceOn&&'speechSynthesis' in window)speechSynthesis.cancel()};
 
 function say(who,text){const b=document.getElementById(who==='L'?'bubL':'bubR');const rb=document.getElementById(who==='L'?'rleft':'rright');document.querySelectorAll('.rbot').forEach(x=>x.classList.remove('talking'));rb.classList.add('talking');b.textContent=text;speak(text,who)}
