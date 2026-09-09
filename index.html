@@ -549,7 +549,7 @@ window.publish2=async()=>{
     document.getElementById('filebtn').textContent='📂 Выбрать фото';
     document.getElementById('scanbtn').disabled=true;
     document.getElementById('rscene').style.display='none';
-    toast('🎉 Работа на стене! Зал: '+photo.rubric);
+    jingle(true);toast('🦜 ПИАСТРЫ! +10 · Зал: '+photo.rubric);
     document.querySelector('[data-p="p-village"]').click();
   }catch(e){alert('Ошибка сохранения.');btn.disabled=false}
 };
