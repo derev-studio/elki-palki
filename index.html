@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+аа<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
@@ -163,7 +163,7 @@ body:not(.evening) .tab.active{background:rgba(63,107,79,.15);border:2px solid r
 </style>
 </head>
 <body>
-<div id="lb" onclick="this.style.display='none';document.body.style.overflow='auto'"><img id="lbimg"></div>
+<div id="lb" onclick="if(event.target===this||event.target.id==='lbimg'){this.style.display='none';document.body.style.overflow='auto'}"><img id="lbimg"><br><a id="lbdl" style="display:inline-block;margin-top:16px;background:#8b5e34;color:#fdf3df;padding:10px 24px;border-radius:14px;font-weight:700;text-decoration:none;font-family:Georgia,serif;cursor:pointer">⬇ Скачать фото</a></div>
 <div id="toasts"></div>
 
 <div class="modal" id="pmodal" onclick="if(event.target===this)closeProfile()">
