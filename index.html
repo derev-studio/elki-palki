@@ -366,7 +366,7 @@ function cardHTML(p){
     return `<div class="comm">${ava(cm.uid,20)}<b onclick="openProfile('${esc(cm.uid||'')}')">${esc(cm.author)}</b>${cm.uid?'':'<span class="guestmark">гость</span>'}<span class="t">${esc(cm.text)}</span><time>${esc(cm.time||'')}</time><span class="acts">${mineC?`<button onclick="delComm(${p.id},'${esc(cm.id)}')">✕</button>`:''}<button onclick="showReply(${p.id},'${esc(cm.id)}')">↩</button></span></div>${rp?`<div class="replies">${rp}</div>`:''}`;
   }).join('');
   return `<div class="card">
-    <img src="${esc(p.img)}" onclick="showLB('${esc(p.img)}')">
+    <img src="${esc(p.imgs||p.img)}" srcset="${esc(p.imgs||p.img)} 640w, ${esc(p.imgm||p.img)} 1280w, ${esc(p.img)} 2048w" sizes="(max-width:600px) 48vw, 280px" onclick="showLB('${esc(p.img)}')">
     <div class="body">
       ${p.caption?`<div class="cap">«${esc(p.caption)}»</div>`:''}
       <div class="au" onclick="openProfile('${esc(p.uid||'')}')">${ava(p.uid,26)}${esc(p.author)}</div>
