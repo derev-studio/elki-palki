@@ -60,7 +60,7 @@ input[type=file]{display:none}
 <div class="wrap">
 <div class="upzone" id="upzone">
 <h3 style="margin:0 0 8px">📸 Показать свой кактус</h3>
-<div id="uplogin">Войдите через Google, чтобы добавить фото.</div>
+<div id="uplogin">Войдите через Google, чтобы добавить фото.<br><small style="color:#8b5e34">(кнопка «🔑 Войти через Google» — справа вверху)</small></div>
 <div id="upform" style="display:none">
 <input type="text" id="cap" maxlength="80" placeholder="Подпись: «мой старичок, 12 лет»..."><br>
 <label class="filebtn" for="file" id="filebtn">📂 Выбрать фото</label>
@@ -96,7 +96,7 @@ input[type=file]{display:none}
 </div>
 <h3>🖼 Работы жителей:</h3>
 <div class="grid" id="gal"></div>
-<div class="empty" id="galempty">Пока пусто — будьте первым!</div>
+<div class="empty" id="galempty">Лента Кактусярия пока пустая — это отдельная галерея для кактусов.<br>Войдите через Google (кнопка справа сверху) и станьте первым!</div>
 </div>
 
 <script type="module">
@@ -108,7 +108,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;'
 const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.getElementById('toasts').appendChild(t);setTimeout(()=>t.remove(),2600)};
 const RODS="Airampoa,Brasiliopuntia,Consolea,Miqueliopuntia,Opuntia,Salmonopuntia,Tacinga,Cylindropuntia,Grusonia,Micropuntia,Pereskiopsis,Quiabentia,Austrocylindropuntia,Cumulopuntia,Maihueniopsis,Pterocactus,Tephrocactus,Maihuenia,Blossfeldia,Calymmanthium,Lymanbensonia,Copiapoa,Astrophytum,Aztekium,Echinocactus,Geohintonia,Sclerocactus,Toumeya,Ferocactus,Glandulicactus,Kroenleinia,Leuchtenbergia,Stenocactus,Thelocactus,Acharagma,Ariocarpus,Cochemiea,Coryphantha,Cumarinia,Epithelantha,Escobaria,Kadenicarpus,Lophophora,Mammillaria,Mammilloydia,Neolloydia,Obregonia,Oehmea,Ortegocactus,Pediocactus,Pelecyphora,Rapicactus,Strombocactus,Turbinicarpus,Austrocactus,Brachycereus,Corryocactus,Eulychnia,Jasminocereus,Neoraimondia,Pfeiffera,Strophocactus,Armatocereus,Castellanosia,Leptocereus,Acanthocereus,Aporocactus,Disocactus,Epiphyllum,Hylocereus,Kimnachia,Pseudorhipsalis,Selenicereus,Weberocereus,Backebergia,Bergerocactus,Carnegiea,Cephalocereus,Echinocereus,Escontria,Isolatocereus,Lemaireocereus,Lophocereus,Marginatocereus,Marshallocereus,Myrtillocactus,Nyctocereus,Pachycereus,Peniocereus,Polaskia,Pterocereus,Stenocereus,Frailea,Hatiora,Lepismium,Rhipsalidopsis,Rhipsalis,Schlumbergera,Eriosyce,Neowerdermannia,Parodia,Yavia,Uebelmannia,Aylostera,Browningia,Rebutia,Weingartia,Gymnocalycium,Arrojadoa,Brasilicereus,Cereus,Cipocereus,Coleocephalocereus,Discocactus,Espostoopsis,Facheiroa,Floribunda,Lagenosocereus,Leocereus,Melocactus,Micranthocereus,Pierrebraunia,Pilosocereus,Praecereus,Siccobaccatus,Stephanocereus,Stetsonia,Xiquexique,Reicheocactus,Acanthocalycium,Arthrocereus,Borzicactus,Cephalocleistocactus,Cleistocactus,Cremnocereus,Denmoza,Echinopsis,Espostoa,Haageocereus,Harrisia,Lasiocereus,Leucostele,Matucana,Mila,Oreocereus,Oroya,Pygmaeocereus,Rauhocereus,Samaipaticereus,Setiechinopsis,Vatricania,Weberbauerocereus,Winterocereus,Yungasocereus".split(",");
 document.getElementById('rodlist').innerHTML=RODS.map(r=>'<option value="'+r+'">').join('');
-window.signIn=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}catch(e){toast('Вход не удался');}};
+window.signIn=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}catch(e){toast('Пробую другой способ входа...');try{await auth.signInWithRedirect(p)}catch(e2){toast('Вход не удался')}}};
 window.signOut_=()=>auth.signOut();
 auth.onAuthStateChanged(u=>{renderAuth();if(u)ensureUser(u)});
 function ensureUser(u){const r=db.ref('users/'+u.uid);r.once('value').then(s=>{if(!s.exists())r.set({name:u.displayName||'Без имени',email:u.email||'',photo:u.photoURL||'',bio:'',joined:Date.now()});else{const uu={};if(u.displayName)uu.name=u.displayName;if(u.photoURL)uu.photo=u.photoURL;if(Object.keys(uu).length)r.update(uu)}})}
