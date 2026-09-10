@@ -147,7 +147,7 @@ window.showView=function(v){document.getElementById('gal').style.display=v==='ga
 (function(){const g=document.getElementById('gal');ALL.forEach(a=>{if(!a.n.photo)return;const c=document.createElement('div');c.className='gcard';c.innerHTML='<img src="'+a.n.photo+'" loading="lazy"><div class="nm"><i>'+a.n.name+'</i>'+(window.RU&&RU[a.n.name]?'<br><span style="color:#8b5e34;font-size:11px">'+RU[a.n.name]+'</span>':'')+'</div>';c.onclick=()=>{showPanel(a.n);document.getElementById('panel').scrollIntoView({behavior:'smooth'})};g.appendChild(c)});const noPh=ALL.filter(a=>!a.n.kids.length&&!a.n.photo);if(noPh.length){const d=document.createElement('div');d.style.cssText='grid-column:1/-1;font-size:13px;color:#c9a86a;line-height:1.8';d.innerHTML='<b>Ещё без фото ('+noPh.length+' родов):</b> '+noPh.slice(0,50).map(a=>'<i style="cursor:pointer;border-bottom:1px dashed #8b5e34" onclick="showPanelByName(\''+a.n.name+'\')">'+a.n.name+'</i>').join(' · ')+(noPh.length>50?' …':'');g.appendChild(d)}})();
 showView('gal');
 document.getElementById('q').addEventListener('input',e=>{
- const v=e.target.value.trim().toLowerCase();document.querySelectorAll('.node.hl').forEach(x=>x.classList.remove('hl'));
+ const v=e.target.value.trim().toLowerCase();showView('tree');document.querySelectorAll('.node.hl').forEach(x=>x.classList.remove('hl'));
  if(v.length<2)return;
  const f=ALL.filter(a=>a.n.name.toLowerCase().includes(v)||(RU[a.n.name]||'').toLowerCase().includes(v));
  // раскрыть всех предков через DOM: ищем кнопку по тексту
