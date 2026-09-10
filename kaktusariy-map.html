@@ -73,7 +73,8 @@ function thumbIcon(smallUrl,shape,name){
  if(!smallUrl){const e=shape==='ball'?'⚪':shape==='pad'?'🟢':'🌵';return L.divIcon({className:'',html:'<div style="text-align:center"><div style="font-size:20px;text-shadow:0 0 3px #fff,0 1px 2px #fff">'+e+'</div>'+lab+'</div>',iconSize:[30,42],iconAnchor:[15,12]})}
  const r=shape==='ball'?'50%':shape==='pad'?'40% 40% 40% 40% / 60% 60% 60% 60%':'9px';
  const rot=shape==='pad'?'transform:rotate(-8deg);':'';
- return L.divIcon({className:'',html:'<div style="text-align:center"><div style="width:30px;height:30px;border-radius:'+r+';border:2px solid #1e5631;overflow:hidden;background:#e8f0e0;box-shadow:0 1px 4px rgba(0,0,0,.45);margin:0 auto;'+rot+'"><img loading="lazy" src="'+smallUrl+'" onerror="if(!this.dataset.r){this.dataset.r=1;var s=this.src;setTimeout(function(){this.src=s}.bind(this),1600)}" style="width:100%;height:100%;object-fit:cover"></div>'+lab+'</div>',iconSize:[30,44],iconAnchor:[15,13]})}
+ const fb2=arguments.length>3?arguments[3]:'';
+ return L.divIcon({className:'',html:'<div style="text-align:center"><div style="width:30px;height:30px;border-radius:'+r+';border:2px solid #1e5631;overflow:hidden;background:#e8f0e0 url() center/cover;box-shadow:0 1px 4px rgba(0,0,0,.45);margin:0 auto;'+rot+'"><img loading="lazy" src="'+smallUrl+'" onerror="if(!this.dataset.f1){this.dataset.f1=1;this.src=\''+fb2+'\'}else if(!this.dataset.f2){this.dataset.f2=1;this.src=\''+(fb2?smallUrl:'')+'\'}else{this.style.display=\'none\'}" style="width:100%;height:100%;object-fit:cover"></div>'+lab+'</div>',iconSize:[30,44],iconAnchor:[15,13]})}
 function bigUrl(ph){let u=ph.url||ph.medium_url;if(!u)return'';return u.replace(/\/(square|small|medium)\./,'/large/')}
 function bigOriginal(ph){return ph.original_url||bigUrl(ph)}
 function wes(u,w){if(!u)return'';return 'https://images.weserv.nl/?url='+encodeURIComponent(u.replace(/^https?:\/\//,''))+(w?'&w='+w:'')+'&fit=inside'}
@@ -100,7 +101,10 @@ async function loadSet(btnId,taxa,note,per){
   const seen={};all=all.filter(o=>{if(!o.decimalLatitude||!o.decimalLongitude)return false;const kk=o.key;if(seen[kk])return false;seen[kk]=1;return true});
   const lg=L.layerGroup();
   all.forEach(o=>{const m0=(o.media&&o.media[0])||{};const shape=shapeFor(o.scientificName||o.genericName||'');const nm=(o.scientificName||o.genericName||'').split(' ').slice(0,2).join(' ');const credit=(m0.creator||o.recordedBy||'—')+' · '+(m0.license||o.license||'CC')+' · GBIF';const th=gbifImg(o,100);const big=gbifImg(o,900)||gbifImg(o,300);const zoom=gbifImg(o,1200)||big;
-   const m=L.marker([o.decimalLatitude,o.decimalLongitude],{icon:thumbIcon(th,shape,nm)});
+   const ident=(m0.identifier||'');
+   const inatSq=ident.indexOf('inaturalist')>=0?ident.replace(/\/(original|large|medium|small)\./,'/square.'):'';
+   const th2=inatSq||th;
+   const m=L.marker([o.decimalLatitude,o.decimalLongitude],{icon:thumbIcon(th2,shape,nm,th)});
    m.bindTooltip(nm||'кактус',{direction:'top',offset:[0,-14]});
    m.on('click',()=>showPanel({title:(shape==='ball'?'💎 ':'🌵 ')+(o.scientificName||o.genericName||'Кактус'),desc:(o.country||'')+(o.locality?' · '+o.locality:'')+'<br>📷 '+credit+'<br><span style="font-size:12px;color:#8b5e34">фото принадлежит автору · используется по открытой лицензии с подписью</span>',photos:big?[{u:big,mid:gbifImg(o,300),fb:th,zoom:zoom,zcap:(o.scientificName||'').replace(/'/g,''),c:credit+' · нажмите на фото — во весь экран'}]:[]}));
    m.addTo(lg)});
