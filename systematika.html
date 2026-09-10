@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Кактусярий — Систематика</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:Georgia,serif;background:#17233a;color:#f3e9d2;margin:0;min-height:100vh}
+.wrap{display:flex;flex-wrap:wrap;max-width:1200px;margin:0 auto;gap:16px;padding:16px}
+.treebox{flex:1 1 560px;background:#1e2a44;border:3px solid #3b5f8a;border-radius:22px;padding:20px;max-height:88vh;overflow:auto}
+.panel{flex:1 1 320px;background:#2a1f14;border:3px solid #8b5e34;border-radius:22px;padding:20px;position:sticky;top:16px;align-self:flex-start;max-height:88vh;overflow:auto}
+h1{font-size:22px;margin:4px 0 2px}
+.tip{font-size:13px;color:#9db4d0;font-style:italic}
+.search{width:100%;font-family:inherit;font-size:16px;padding:10px 14px;border-radius:12px;border:2px solid #3b5f8a;background:#0f1830;color:#f3e9d2;margin:12px 0}
+.stat{font-size:13px;color:#c9a86a;margin-bottom:8px}
+ul.tree{list-style:none;padding-left:0;margin:0}
+ul.tree ul{list-style:none;padding-left:26px;margin:0;position:relative}
+ul.tree ul::before{content:'';position:absolute;left:9px;top:0;bottom:8px;width:2px;background:#3b5f8a}
+li{margin:3px 0;position:relative}
+li::before{content:'';position:absolute;left:-17px;top:16px;width:16px;height:2px;background:#3b5f8a}
+.node{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:14px;cursor:pointer;background:#24365a;border:1px solid #3b5f8a;font-size:15px;user-select:none;transition:.15s}
+.node:hover{background:#2e4470}
+.node.sf{background:#3a2a17;border-color:#8b5e34}
+.node.tr{background:#2c3e25;border-color:#5c7a4a}
+.node.st{background:#3a2438;border-color:#7a4a78}
+.node.gen{background:#132a1c;border-color:#3f6b4f;font-style:italic}
+.node.hl{outline:3px solid #ffd76e;background:#5a4a13}
+.kids{display:none}
+li.open>.kids{display:block}
+.arr{font-size:11px;color:#9db4d0}
+.ph{width:100%;border-radius:14px;border:2px solid #8b5e34}
+.phwrap{position:relative}
+.phcap{font-size:11px;color:#c9a86a;margin-top:4px}
+.phcap a{color:#e8a97e}
+.phtitle{font-size:24px;font-style:italic;margin:2px 0}
+.phrus{color:#c9a86a;font-size:15px}
+.path{font-size:13px;color:#9db4d0;background:#1e2a44;border-radius:10px;padding:8px 12px;margin:10px 0;line-height:1.7}
+.path b{color:#ffd76e}
+.sib{font-size:14px;background:#1e2a44;border-radius:10px;padding:8px 12px;margin:10px 0}
+.sib i{cursor:pointer;color:#8fd0a0;border-bottom:1px dashed #8fd0a0}
+.addbtn{font-family:inherit;font-size:16px;font-weight:700;background:#3f6b4f;color:#fff;border:none;border-radius:14px;padding:11px 22px;cursor:pointer;box-shadow:0 4px 0 #2c4a38;margin-top:12px;width:100%}
+.addbtn:active{transform:translateY(3px);box-shadow:none}
+.note{font-size:14px;color:#e8d9b8;margin:8px 0}
+.demo{position:fixed;bottom:12px;right:12px;background:#5c2e2e;color:#ffd9c9;font-size:12px;padding:8px 14px;border-radius:12px;opacity:.9}
+@media(max-width:900px){.panel{position:static;max-height:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div style="background:#fdf8ec;border-bottom:3px solid #8b5e34;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:500">
+<b style="font-size:17px;color:#6b4423">🌵 Кактусярий · 🌳 Систематика</b>
+<span style="flex:1"></span>
+<a href="kaktusariy.html" style="font-family:inherit;font-size:14px;font-weight:700;background:#8b5e34;color:#fdf3df;border-radius:13px;padding:8px 16px;text-decoration:none">🌵 В начало</a>
+<a href="kaktusariy-map.html" style="font-family:inherit;font-size:14px;font-weight:700;background:#3f6b4f;color:#fff;border-radius:13px;padding:8px 16px;text-decoration:none">🗺 Карта</a>
+<a href="index.html" style="font-family:inherit;font-size:14px;font-weight:700;background:#8b5e34;color:#fdf3df;border-radius:13px;padding:8px 16px;text-decoration:none">🌲 В деревню</a>
+</div>
+<div class="treebox">
+<h1>🌳 Живое дерево кактусовых</h1>
+<div class="tip">Нажимайте на ветки — они раскрываются. Нажмите на род — справа откроется его карточка.</div>
+<input class="search" id="q" placeholder="🔍 Найти род, напр. Ariocarpus или Маммиллярия">
+<div class="stat" id="stat"></div>
+<ul class="tree" id="root"></ul>
+</div>
+<div class="panel" id="panel"></div>
+</div>
+
+<script>
+const P=(u,c)=>({photo:u,credit:c});
+const TREE={name:'Кактусовые · Cactaceae',cls:'sf',ru:'семейство · ~155 родов · ~1500 видов',kids:[
+{name:'Leuenbergerioideae',cls:'sf',ru:'лойенбергериевые · Карибы',kids:['Leuenbergeria']},
+{name:'Pereskioideae',cls:'sf',ru:'перескиевые · «первобытные» с листьями',kids:['Pereskia']},
+{name:'Opuntioideae',cls:'sf',ru:'опунциевые',kids:[
+ {name:'Opuntieae',cls:'tr',kids:['Airampoa','Brasiliopuntia','Consolea','Miqueliopuntia',{name:'Opuntia',ru:'опунция',note:'~200 видов · «индийская смоква»',...P('https://upload.wikimedia.org/wikipedia/commons/2/22/Opuntia_littoralis_var_vaseyi_4.jpg','Stan Shebs, Wikimedia Commons, CC BY-SA')},'Salmonopuntia','Tacinga']},
+ {name:'Cylindropuntieae',cls:'tr',kids:['Cylindropuntia','Grusonia','Micropuntia','Pereskiopsis','Quiabentia']},
+ {name:'Pterocacteae',cls:'tr',kids:['Austrocylindropuntia','Cumulopuntia','Maihueniopsis','Pterocactus','Tephrocactus']}]},
+{name:'Maihuenioideae',cls:'sf',ru:'мауэниоидные · подушки Патагонии',kids:['Maihuenia']},
+{name:'Blossfeldioideae',cls:'sf',ru:'блосфельдиевые · САМЫЙ МАЛЕНЬКИЙ кактус мира',kids:['Blossfeldia']},
+{name:'Cactoideae',cls:'sf',ru:'настоящие кактусы · сердце семейства',kids:[
+ {name:'Lymanbensonieae',cls:'tr',ru:'цветок прорывается из стебля!',kids:['Calymmanthium','Lymanbensonia']},
+ {name:'Copiapoeae',cls:'tr',ru:'туманная пустыня Атакама, Чили',kids:['Copiapoa']},
+ {name:'Cacteae',cls:'tr',ru:'шары Мексики и США',kids:[
+  {name:'*Echinocactinae',cls:'st',kids:['Astrophytum','Aztekium','Echinocactus','Geohintonia','Sclerocactus']},
+  {name:'Ferocactinae',cls:'st',kids:[{name:'Ferocactus',ru:'ферокактус',note:'~30 видов · «свирепые бочонки»',...P('https://upload.wikimedia.org/wikipedia/commons/6/61/Ferocactus_glaucescens_Prg1.jpg','Karelj, Wikimedia Commons, CC BY-SA')},'Glandulicactus',{name:'Kroenleinia',ru:'кроенлейния',note:'1 вид · «золотой бочонок», бывш. Echinocactus grusonii',...P('https://upload.wikimedia.org/wikipedia/commons/2/25/Echinocactus_grusonii_%28aka%29.jpg','André Karwath, Wikimedia Commons, CC BY-SA')},'Leuchtenbergia','Stenocactus','Thelocactus']},
+  {name:'Cactinae',cls:'st',ru:'маммилляриоидные · ЗДЕСЬ РЕДКОСТИ 💎',kids:['Acharagma',{name:'Ariocarpus',ru:'ариокарпус',note:'живые камни · 💎 редкость'},'Cochemiea','Coryphantha','Cumarinia','Epithelantha','Escobaria','Kadenicarpus',{name:'Lophophora',ru:'лофофора',note:'пейот · 💎 редкость'},{name:'Mammillaria',ru:'маммиллярия',note:'~180 видов · крупнейший род',...P('https://upload.wikimedia.org/wikipedia/commons/9/96/Mammillaria_tayloriorum.jpg','R. Schade, Wikimedia Commons, CC BY-SA')},'Mammilloydia','Neolloydia',{name:'Obregonia',ru:'обрегония',note:'«чешуйчатый артишок» · 💎 редкость'},'Oehmea','Ortegocactus','Pediocactus',{name:'Pelecyphora',ru:'пелицифора',note:'💎 редкость, родина — Мексика'},'Rapicactus','Strombocactus',{name:'Turbinicarpus',ru:'турбинкарпус',note:'💎 по слову старшего'}]}]},
+ {name:'Phyllocacteae',cls:'tr',ru:'лесные, эпифиты, колонны',kids:[
+  {name:'*Corryocactinae',cls:'st',kids:['Austrocactus','Brachycereus','Corryocactus','Eulychnia','Jasminocereus','Neoraimondia','Pfeiffera','Strophocactus']},
+  {name:'Leptocereinae',cls:'st',kids:['Armatocereus','Castellanosia','Leptocereus']},
+  {name:'Hylocereinae',cls:'st',ru:'орхидейные кактусы и питахайя',kids:['Acanthocereus','Aporocactus','Disocactus','Epiphyllum','Hylocereus','Kimnachia','Pseudorhipsalis','Selenicereus','Weberocereus']},
+  {name:'Echinocereinae',cls:'st',kids:['Backebergia','Bergerocactus','Carnegiea','Cephalocereus','Echinocereus','Escontria','Isolatocereus','Lemaireocereus','Lophocereus','Marginatocereus','Marshallocereus','Myrtillocactus','Nyctocereus','Pachycereus','Peniocereus','Polaskia','Pterocereus','Stenocereus']}]},
+ {name:'Fraileeae',cls:'tr',kids:['Frailea']},
+ {name:'Rhipsalideae',cls:'tr',ru:'лианы лесов · единственные без колючек',kids:['Hatiora','Lepismium','Rhipsalidopsis','Rhipsalis','Schlumbergera']},
+ {name:'Notocacteae',cls:'tr',kids:['Eriosyce','Neowerdermannia','Parodia','Yavia']},
+ {name:'Cereeae',cls:'tr',ru:'южноамериканские колонны и шары',kids:[
+  {name:'Uebelmanniinae',cls:'st',kids:['Uebelmannia']},
+  {name:'Aylosterinae',cls:'st',kids:['Aylostera']},
+  {name:'Rebutiinae',cls:'st',kids:['Browningia','Rebutia','Weingartia']},
+  {name:'Gymnocalyciinae',cls:'st',kids:['Gymnocalycium']},
+  {name:'Cereinae',cls:'st',kids:['Arrojadoa','Brasilicereus','Cereus','Cipocereus','Coleocephalocereus','Discocactus','Espostoopsis','Facheiroa','Floribunda','Lagenosocereus','Leocereus','Melocactus','Micranthocereus','Pierrebraunia','Pilosocereus','Praecereus','Siccobaccatus','Stephanocereus','Stetsonia','Xiquexique']},
+  {name:'Reicheocactinae',cls:'st',kids:['Reicheocactus']},
+  {name:'Trichocereinae',cls:'st',kids:['Acanthocalycium','Arthrocereus','Borzicactus','Cephalocleistocactus','Cleistocactus','Cremnocereus','Denmoza','Echinopsis','Espostoa','Haageocereus','Harrisia','Lasiocereus','Leucostele','Matucana','Mila','Oreocereus','Oroya','Pygmaeocereus','Rauhocereus','Samaipaticereus','Setiechinopsis','Vatricania','Weberbauerocereus','Winterocereus','Yungasocereus']}]}]}]};
+const RU={'Ariocarpus':'ариокарпус','Lophophora':'лофофора','Obregonia':'обрегония','Pelecyphora':'пелицифора','Turbinicarpus':'турбинкарпус','Mammillaria':'маммиллярия','Ferocactus':'ферокактус','Kroenleinia':'кроенлейния','Opuntia':'опунция','Echinocereus':'эхиноцереус','Astrophytum':'астрофитум','Gymnocalycium':'гимнокалициум','Echinopsis':'эхинопсис','Cereus':'цереус','Parodia':'пародия','Epiphyllum':'эпифиллум','Schlumbergera':'шлюмбергера','Rhipsalis':'рипсалис','Hylocereus':'гилоцереус','Carnegiea':'карнегия','Lophocereus':'лофоцереус','Stenocereus':'стеноцереус','Melocactus':'мелокактус','Copiapoa':'копьяпоа','Eriosyce':'эриосице','Thelocactus':'телокактус','Aztekium':'ацтекиум','Leuchtenbergia':'лойхтенбергия','Sclerocactus':'склерокактус','Coryphantha':'корифанта','Escobaria':'эскобария','Pediocactus':'педиокактус','Epithelantha':'эпителанта','Strombocactus':'стромбокактус','Rebutia':'ребутия','Weingartia':'вайнгартия','Browningia':'браунингия','Espostoa':'эспостоя','Oreocereus':'ореоцереус','Matucana':'матукана','Cleistocactus':'клейстокактус','Haageocereus':'хагеоцереус','Pilosocereus':'пилозоцереус','Discocactus':'дискокактус','Tephrocactus':'тефрокактус','Pterocactus':'терокактус','Cylindropuntia':'цилиндропунция','Grusonia':'грузония','Consolea':'консолея','Pereskia':'переския','Blossfeldia':'блосфельдия','Maihuenia':'мауэния','Frailea':'фраилея','Hatiora':'хатиора','Lepismium':'леписмиум','Uebelmannia':'убельмания','Aylostera':'айлостера','Denmoza':'денмоза','Oroya':'оройя','Yavia':'явия'};
+let NID=0;
+function norm(n,parent){if(typeof n==='string')n={name:n};n.id=++NID;n.parent=parent;n.kids=(n.kids||[]).map(k=>norm(k,n));return n}
+const ROOT=norm(TREE,null);
+function countGen(n){if(!n.kids.length)return 1;return n.kids.reduce((s,k)=>s+countGen(k),0)}
+const ALL=[];(function walk(n,path){ALL.push({n,path});n.kids.forEach(k=>walk(k,path+' › '+n.name))})(ROOT,'');
+document.getElementById('stat').textContent='Родов в пробе: '+countGen(ROOT)+' · с фото: '+ALL.filter(a=>a.n.photo).length+' (растём понемногу)';
+function el(n){const li=document.createElement('li');
+ if(n.kids.length){const b=document.createElement('span');b.className='node '+(n.cls||'');b.innerHTML='<span class="arr">▸</span><b>'+n.name+'</b>'+(n.ru?'<span style="color:#c9a86a;font-size:12px">'+n.ru+'</span>':'');
+  b.onclick=()=>{li.classList.toggle('open');b.querySelector('.arr').textContent=li.classList.contains('open')?'▾':'▸';if(li.classList.contains('open')&&!n._shown){n._shown=1;showPanel(n)}};li.appendChild(b);
+  const ul=document.createElement('ul');ul.className='kids';n.kids.forEach(k=>ul.appendChild(el(k)));li.appendChild(ul)}
+ else{const b=document.createElement('span');b.className='node gen'+(n.photo?'':' dim');b.innerHTML=(n.photo?'🌵 ':'🍃 ')+'<i>'+n.name+'</i>'+(RU[n.name]?' <span style="color:#8fd0a0;font-size:12px">'+RU[n.name]+'</span>':'')+(n.note?'<span style="color:#ffd76e;font-size:11px">'+n.note.slice(0,40)+'…</span>':'');
+  b.onclick=()=>showPanel(n);li.appendChild(b)}
+ return li}
+document.getElementById('root').appendChild(el(ROOT));
+function findPathTo(li,id){}
+function showPanel(n){const p=document.getElementById('panel');
+ const path=[];let c=n;while(c){path.unshift(c);c=c.parent}
+ const sibs=n.parent?n.parent.kids.filter(k=>k!==n&&k.kids.length===0):[];
+ p.innerHTML='<div class="phwrap">'+(n.photo?'<img class="ph" src="'+n.photo+'">':'<div style="background:#1e2a44;border:2px dashed #8b5e34;border-radius:14px;padding:34px 10px;text-align:center;color:#9db4d0">📷<br>фото скоро появится</div>')+(n.photo?'<div class="phcap">'+n.credit+'</div>':'')+'</div>'
+ +'<div class="phtitle">'+n.name+'</div>'
+ +(RU[n.name]?'<div class="phrus">'+RU[n.name]+'</div>':'')
+ +(n.note?'<div class="note">'+n.note+'</div>':'')
+ +'<div class="path">Где живёт: '+'<b>'+path.map(x=>x.name).join('</b> → <b>')+'</b></div>'
+ +(sibs.length?'<div class="sib"><b>Родня рядом</b> (та же ветка):<br>'+sibs.slice(0,8).map(s=>'<i onclick="showPanelByName(\''+s.name+'\')">'+s.name+'</i>').join(' · ')+(sibs.length>8?' …':'')+'</div>':'')
+ +'<button class="addbtn" onclick="alert(\'Скоро: жители смогут прикреплять свои фото к роду.\')">➕ Добавить своё фото к роду</button>'}
+window.showPanelByName=function(nm){const f=ALL.find(a=>a.n.name===nm);if(f)showPanel(f.n)};
+document.getElementById('q').addEventListener('input',e=>{
+ const v=e.target.value.trim().toLowerCase();document.querySelectorAll('.node.hl').forEach(x=>x.classList.remove('hl'));
+ if(v.length<2)return;
+ const f=ALL.filter(a=>a.n.name.toLowerCase().includes(v)||(RU[a.n.name]||'').toLowerCase().includes(v));
+ // раскрыть всех предков через DOM: ищем кнопку по тексту
+ document.querySelectorAll('#root li').forEach(li=>li.classList.remove('open'));
+ f.slice(0,6).forEach(a=>{let c=a.n;const chain=[];while(c){chain.unshift(c.name);c=c.parent}
+  // открываем дерево по именам
+  const lis=document.querySelectorAll('#root li');let container=document.getElementById('root');
+  for(let i=0;i<chain.length;i++){const nm=chain[i];let found=null;
+   container.querySelectorAll(':scope > li').forEach(li=>{const b=li.querySelector(':scope > .node');if(b&&b.textContent.includes(nm))found=li});
+   if(!found)break;found.classList.add('open');const ar=found.querySelector(':scope > .node .arr');if(ar)ar.textContent='▾';
+   const node=found.querySelector(':scope > .node');if(i===chain.length-1){node.classList.add('hl');showPanel(a.n)}
+   container=found.querySelector(':scope > ul')||found}});
+ if(f[0])document.getElementById('panel').scrollIntoView({behavior:'smooth',block:'nearest'})});
+</script>
+<div style="max-width:1200px;margin:0 auto;padding:0 16px 24px;font-size:12px;color:#8b5e34">Составлено по: de Vos J.M. et al. (2025), Korotkova N. et al. (2021), Nyffeler &amp; Eggli (2010) · фото: Wikimedia Commons (авторы указаны) · проверяет старший кактусовод С. Деревяшкин</div>
+</body>
+</html>
