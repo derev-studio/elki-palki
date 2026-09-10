@@ -45,10 +45,10 @@ li.open>.kids{display:block}
 .demo{position:fixed;bottom:12px;right:12px
 .vbtn{font-family:inherit;font-size:14px;font-weight:700;border-radius:13px;padding:8px 16px;cursor:pointer;border:2px solid #8b5e34;background:#fdf8ec;color:#6b4423}
 .vbtn.on{background:#8b5e34;color:#fdf3df}
-#gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:12px}
-.gcard{background:#fff;border:2px solid #8b5e34;border-radius:14px;overflow:hidden;cursor:pointer;transition:.15s}
+#gal{display:block;columns:3;column-gap:12px;margin-top:12px}@media(max-width:1100px){#gal{columns:2}}@media(max-width:640px){#gal{columns:1}}
+.gcard{break-inside:avoid;margin-bottom:12px;background:#fff;border:2px solid #8b5e34;border-radius:14px;overflow:hidden;cursor:pointer;transition:.15s}
 .gcard:hover{transform:translateY(-3px);border-color:#3f6b4f;box-shadow:0 6px 14px rgba(60,40,20,.25)}
-.gcard img{width:100%;height:120px;object-fit:cover;display:block}
+.gcard img{width:100%;height:auto;display:block}
 .gcard .nm{padding:6px 8px;font-size:13px;line-height:1.3}
 @media(max-width:900px){.panel{position:static;max-height:none}};background:#5c2e2e;color:#ffd9c9;font-size:12px;padding:8px 14px;border-radius:12px;opacity:.9}
 @media(max-width:900px){.panel{position:static;max-height:none}}
@@ -57,7 +57,7 @@ li.open>.kids{display:block}
 <body>
 <div class="wrap">
 <div style="background:#fdf8ec;border-bottom:3px solid #8b5e34;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:500">
-<b style="font-size:17px;color:#6b4423">🌵 Кактусярий · 🌳 Систематика</b>
+<b style="font-size:17px;color:#6b4423">🌵 Кактусярий · 🌳 Систематика · витрина v2</b>
 <span style="flex:1"></span>
 <a href="kaktusariy.html" style="font-family:inherit;font-size:14px;font-weight:700;background:#8b5e34;color:#fdf3df;border-radius:13px;padding:8px 16px;text-decoration:none">🌵 В начало</a>
 <a href="kaktusariy-map.html" style="font-family:inherit;font-size:14px;font-weight:700;background:#3f6b4f;color:#fff;border-radius:13px;padding:8px 16px;text-decoration:none">🗺 Карта</a>
@@ -140,7 +140,7 @@ function showPanel(n){const p=document.getElementById('panel');
  +(sibs.length?'<div class="sib"><b>Родня рядом</b> (та же ветка):<br>'+sibs.slice(0,8).map(s=>'<i onclick="showPanelByName(\''+s.name+'\')">'+s.name+'</i>').join(' · ')+(sibs.length>8?' …':'')+'</div>':'')
  +'<button class="addbtn" onclick="alert(\'Скоро: жители смогут прикреплять свои фото к роду.\')">➕ Добавить своё фото к роду</button>'}
 window.showPanelByName=function(nm){const f=ALL.find(a=>a.n.name===nm);if(f)showPanel(f.n)};
-window.showView=function(v){document.getElementById('gal').style.display=v==='gal'?'grid':'none';document.getElementById('root').style.display=v==='tree'?'block':'none';document.getElementById('vGal').className='vbtn'+(v==='gal'?' on':'');document.getElementById('vTree').className='vbtn'+(v==='tree'?' on':'')};
+window.showView=function(v){document.getElementById('gal').style.display=v==='gal'?'block':'none';document.getElementById('root').style.display=v==='tree'?'block':'none';document.getElementById('vGal').className='vbtn'+(v==='gal'?' on':'');document.getElementById('vTree').className='vbtn'+(v==='tree'?' on':'')};
 (function(){const g=document.getElementById('gal');ALL.forEach(a=>{if(!a.n.photo)return;const c=document.createElement('div');c.className='gcard';c.innerHTML='<img src="'+a.n.photo+'" loading="lazy"><div class="nm"><i>'+a.n.name+'</i>'+(window.RU&&RU[a.n.name]?'<br><span style="color:#8b5e34;font-size:11px">'+RU[a.n.name]+'</span>':'')+'</div>';c.onclick=()=>{showPanel(a.n);document.getElementById('panel').scrollIntoView({behavior:'smooth'})};g.appendChild(c)});const noPh=ALL.filter(a=>!a.n.kids.length&&!a.n.photo);if(noPh.length){const d=document.createElement('div');d.style.cssText='grid-column:1/-1;font-size:13px;color:#8b5e34;line-height:1.8';d.innerHTML='<b>Ещё без фото ('+noPh.length+' родов):</b> '+noPh.slice(0,50).map(a=>'<i style="cursor:pointer;border-bottom:1px dashed #8b5e34" onclick="showPanelByName(\''+a.n.name+'\')">'+a.n.name+'</i>').join(' · ')+(noPh.length>50?' …':'');g.appendChild(d)}})();
 showView('gal');
 document.getElementById('q').addEventListener('input',e=>{
