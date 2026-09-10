@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Кактусярий — живая карта</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+<style>
+html,body{margin:0;padding:0;height:100%;font-family:Georgia,serif;background:#e8e0cc;color:#3d2c1e}
+#topbar{background:#fdf8ec;border-bottom:3px solid #8b5e34;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#topbar h1{font-size:17px;margin:0;flex:1 1 160px;min-width:150px}
+#ver{font-size:11px;color:#c1553a;font-weight:700}
+.btn{font-family:inherit;font-size:14px;font-weight:700;border:none;border-radius:13px;padding:8px 15px;cursor:pointer}
+.btn.green{background:#3f6b4f;color:#fff;box-shadow:0 3px 0 #2c4a38}
+.btn.brown{background:#8b5e34;color:#fdf3df;box-shadow:0 3px 0 #5e3d22}
+.btn.gold{background:#9a7b1e;color:#fff;box-shadow:0 3px 0 #6d5713}
+.btn:active{transform:translateY(2px);box-shadow:none}
+#main{display:flex;height:calc(100% - 60px)}
+#side{width:330px;min-width:260px;background:#fdf8ec;border-right:3px solid #8b5e34;overflow:auto;padding:16px}
+#side h2{font-size:19px;margin:2px 0 6px}
+.desc{font-size:14px;line-height:1.55;margin:10px 0}
+.t2{font-size:12px;color:#8b5e34;font-style:italic}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{background:#f0e4c8;border:1px solid #8b5e34;border-radius:12px;padding:3px 9px;font-size:13px;font-style:italic}
+.ph{width:100%;border-radius:12px;border:2px solid #8b5e34;margin-top:8px}
+.phcap{font-size:11px;color:#8b5e34;margin-top:3px}
+.phcap a{color:#c1553a}
+#map{flex:1;position:relative}
+.pulse{width:16px;height:16px;border-radius:50%;background:#4ade80;border:3px solid #1e5631;animation:pl 2s infinite}
+.pulse.guest{background:#7ec8ff;border-color:#1d4e80}
+@keyframes pl{0%{box-shadow:0 0 0 0 rgba(74,222,128,.7)}70%{box-shadow:0 0 0 14px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
+.region-label{font-size:13px;font-weight:700;text-shadow:0 1px 3px #fff,0 0 6px #fff;white-space:nowrap}
+.arrow{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:#2f9e4f;font-size:20px;text-shadow:0 0 3px #fff,0 1px 2px #fff}
+@media(max-width:760px){#main{flex-direction:column}#side{width:100%;border-right:none;border-bottom:3px solid #8b5e34;max-height:36vh}#map{min-height:52vh}}
+</style>
+</head>
+<body>
+<div id="topbar">
+<h1>🌵 Кактусярий <span id="ver" style="font-size:11px;color:#c1553a">живая карта</span></h1>
+<a href="index.html" class="btn brown" style="text-decoration:none;display:inline-flex;align-items:center">🌲 В деревню</a><button class="btn green" id="play">▶ Заселение Земли</button>
+<button class="btn brown" id="addc">➕ Мой кактус</button>
+<button class="btn brown" id="mode">⛰ Горы и города</button>
+<button class="btn green" id="bWild">🌵 Дикие</button>
+
+<button class="btn gold" id="bRare">💎 Редкости</button>
+<button class="btn green" id="bSucc">🌱 Суккуленты</button><button class="btn brown" id="bCaud">🫚 Каудексы</button>
+</div>
+<div id="main">
+<div id="side">
+<h2>👋 Добро пожаловать</h2>
+<div class="desc">Живая карта семейства кактусовых на данных GBIF — международной научной базы музеев и университетов мира. Кнопки слоёв: <b>🌵 Дикие</b>, <b>💎 Редкости</b> — ваши любимцы, <b>🌱 Суккуленты</b> — литопсы Африки, <b>🫚 Каудексы</b> — толстые бочки под землёй.<br><br>Значки — <b>живые миниатюры с именами</b>: смотрите, какой кактус внутри, и жмите только на любимцев. Нажатие на фото слева — во весь экран. Колёсико — приближение.</div>
+<div class="t2">🌵 Кактусярий · данные и фото: GBIF — международная научная база (открытые лицензии, авторы указаны) · подложка: Esri / OpenStreetMap</div>
+</div>
+<div id="map"></div>
+</div>
+<script>
+if(typeof L==='undefined'){document.getElementById('side').innerHTML='<h2>⚠ Нет связи</h2><div class="desc">Карта грузится из интернета. Подключите интернет и обновите страницу.</div>'}
+else{
+const map=L.map('map',{worldCopyJump:true,maxZoom:17,minZoom:2}).setView([-14,-58],3);
+const sat=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Esri · Maxar · © OpenStreetMap',maxZoom:17}).addTo(map);
+const topo=L.tileLayer('https://tile.opentopomap.org/{z}/{x}/{y}.png',{attribution:'© OpenTopoMap (CC-BY-SA) · данные © OpenStreetMap',maxZoom:17});
+let satOn=true;
+document.getElementById('mode').onclick=()=>{const b=document.getElementById('mode');if(satOn){map.removeLayer(sat);topo.addTo(map);b.textContent='🛰 Спутник'}else{map.removeLayer(topo);sat.addTo(map);b.textContent='⛰ Горы и города'}satOn=!satOn};
+
+/* ---------- формы растений: рамка миниатюры ---------- */
+const BALL_RX=/echinocactus|kroenleinia|ferocactus|astrophytum|mammillaria|mammilloydia|lophophora|ariocarpus|gymnocalycium|parodia|rebutia|weingartia|aylostera|turbinicarpus|melocactus|copiapoa|matucana|eriosyce|uebelmannia|discocactus|frailea|obregonia|aztekium|pelecyphora|coryphantha|escobaria|pediocactus|sclerocactus|stenocactus|thelocactus|epithelantha|oreocereus|strophocactus|leuchtenbergia|geohintonia|conophytum|lithops|lithop/;
+const PAD_RX=/opuntia|cylindropuntia|tephrocactus|pereskiopsis|grusonia|consolea|tacinga/;
+function shapeFor(nm){nm=(nm||'').toLowerCase();if(PAD_RX.test(nm))return'pad';if(BALL_RX.test(nm))return'ball';return'col'}
+function thumbIcon(smallUrl,shape,name){
+ const lab='<div style="font-size:10px;line-height:1.1;color:#1e5631;font-weight:700;text-shadow:0 0 3px #fff,0 0 5px #fff;white-space:nowrap;margin-top:1px">'+(name||'')+'</div>';
+ if(!smallUrl){const e=shape==='ball'?'⚪':shape==='pad'?'🟢':'🌵';return L.divIcon({className:'',html:'<div style="text-align:center"><div style="font-size:20px;text-shadow:0 0 3px #fff,0 1px 2px #fff">'+e+'</div>'+lab+'</div>',iconSize:[30,42],iconAnchor:[15,12]})}
+ const r=shape==='ball'?'50%':shape==='pad'?'40% 40% 40% 40% / 60% 60% 60% 60%':'9px';
+ const rot=shape==='pad'?'transform:rotate(-8deg);':'';
+ return L.divIcon({className:'',html:'<div style="text-align:center"><div style="width:30px;height:30px;border-radius:'+r+';border:2px solid #1e5631;overflow:hidden;background:#e8f0e0;box-shadow:0 1px 4px rgba(0,0,0,.45);margin:0 auto;'+rot+'"><img loading="lazy" src="'+smallUrl+'" style="width:100%;height:100%;object-fit:cover"></div>'+lab+'</div>',iconSize:[30,44],iconAnchor:[15,13]})}
+function bigUrl(ph){let u=ph.url||ph.medium_url;if(!u)return'';return u.replace(/\/(square|small|medium)\./,'/large/')}
+function bigOriginal(ph){return ph.original_url||bigUrl(ph)}
+function wes(u,w){if(!u)return'';return 'https://images.weserv.nl/?url='+encodeURIComponent(u.replace(/^https?:\/\//,''))+(w?'&w='+w:'')+'&fit=inside'}
+function zoomPhoto(src,cap){let z=document.getElementById('pzoom');if(!z){z=document.createElement('div');z.id='pzoom';z.style.cssText='position:fixed;inset:0;background:rgba(14,21,38,.94);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:zoom-out;padding:18px';z.onclick=()=>{z.style.display='none'};document.body.appendChild(z)}z.innerHTML='<img src="'+src+'" style="max-width:96vw;max-height:86vh;border:4px solid #fdf8ec;border-radius:14px;box-shadow:0 10px 50px rgba(0,0,0,.7)"><div style="color:#f3e9d2;font-family:Georgia,serif;font-size:15px;margin-top:14px;text-align:center">'+cap+'<br><span style="font-size:12px;color:#c9a86a">нажмите в любом месте — закрыть</span></div>';z.style.display='flex'}
+
+/* ---------- загрузчик наблюдений: GBIF (международная научная база) ---------- */
+const layers={};
+const BTN_ORIG={};
+function hideAllLayers(){
+ Object.keys(layers).forEach(k=>{if(map.hasLayer(layers[k]))map.removeLayer(layers[k]);const bb=document.getElementById(k);if(bb&&bb.dataset.orig){bb.style.opacity='.65';bb.textContent=bb.dataset.orig}})}
+async function gbifKey(name){const r=await fetch('https://api.gbif.org/v1/species/match?name='+encodeURIComponent(name));const d=await r.json();return d.usageKey}
+function gbifImg(o,w){if(!(window.md5&&o.media&&o.media[0]))return'';return 'https://api.gbif.org/v1/image/cache/'+(w?w+'x/':'')+'occurrence/'+o.key+'/media/'+window.md5(o.media[0].identifier)}
+function ccOk(o){const m=(o.media&&o.media[0])||{};const l=((m.license||'')+(o.license||'')).toLowerCase();return !l||l.indexOf('cc')>=0||l.indexOf('public')>=0||l.indexOf('by')>=0}
+async function loadSet(btnId,taxa,note,per){
+ const b=document.getElementById(btnId);if(!b.dataset.orig)b.dataset.orig=b.textContent;
+ const key=btnId;
+ const wasOn=layers[key]&&map.hasLayer(layers[key]);
+ hideAllLayers();
+ if(wasOn)return;
+ b.textContent='⏳ '+b.textContent;b.disabled=true;
+ try{
+  let all=[];
+  for(const t of taxa){const k=await gbifKey(t.name);if(!k)continue;const r=await fetch('https://api.gbif.org/v1/occurrence/search?taxon_key='+k+'&media_type=StillImage&limit='+(t.n||per||40));const d=await r.json();all=all.concat((d.results||[]).filter(ccOk));if(all.length>200)break}
+  const seen={};all=all.filter(o=>{if(!o.decimalLatitude||!o.decimalLongitude)return false;const kk=o.key;if(seen[kk])return false;seen[kk]=1;return true});
+  const lg=L.layerGroup();
+  all.forEach(o=>{const m0=(o.media&&o.media[0])||{};const shape=shapeFor(o.scientificName||o.genericName||'');const nm=(o.scientificName||o.genericName||'').split(' ').slice(0,2).join(' ');const credit=(m0.creator||o.recordedBy||'—')+' · '+(m0.license||o.license||'CC')+' · GBIF';const th=gbifImg(o,100);const big=gbifImg(o,900)||gbifImg(o,300);const zoom=gbifImg(o,1200)||big;
+   const m=L.marker([o.decimalLatitude,o.decimalLongitude],{icon:thumbIcon(th,shape,nm)});
+   m.bindTooltip(nm||'кактус',{direction:'top',offset:[0,-14]});
+   m.on('click',()=>showPanel({title:(shape==='ball'?'💎 ':'🌵 ')+(o.scientificName||o.genericName||'Кактус'),desc:(o.country||'')+(o.locality?' · '+o.locality:'')+'<br>📷 '+credit+'<br><span style="font-size:12px;color:#8b5e34">фото принадлежит автору · используется по открытой лицензии с подписью</span>',photos:big?[{u:big,mid:gbifImg(o,300),fb:th,zoom:zoom,zcap:(o.scientificName||'').replace(/'/g,''),c:credit+' · нажмите на фото — во весь экран'}]:[]}));
+   m.addTo(lg)});
+  layers[key]=lg;hideAllLayers();lg.addTo(map);b.style.opacity='1';
+  b.textContent=b.textContent.replace('⏳ ','✖ ')+' ('+all.length+')';
+  map.flyTo([12,-25],3,{duration:1.4});
+  document.getElementById('side').innerHTML='<h2>'+b.textContent.replace('✖ ','')+'</h2><div class="desc">'+note+'</div><div class="t2">Нажмите кнопку ещё раз, чтобы убрать слой. Слои по одному.</div>';
+ }catch(e){b.textContent=b.textContent.replace('⏳ ','❌ ');setTimeout(()=>{b.textContent=b.textContent.replace('❌ ','')},2500)}
+ b.disabled=false}
+document.getElementById('bWild').onclick=()=>loadSet('bWild',[{name:'Cactaceae',n:150}],'Дикие кактусы мира — по данным GBIF, международной научной базы (музеи и университеты планеты). Фото открыты по лицензиям Creative Commons с подписью авторов. Миниатюры-подписи: круглые рамки — шаровидные, овальные — опунции.');
+document.getElementById('bRare').onclick=()=>loadSet('bRare',[{name:'Ariocarpus',n:40},{name:'Pelecyphora',n:25},{name:'Lophophora',n:30},{name:'Turbinicarpus',n:30},{name:'Obregonia',n:20},{name:'Aztekium',n:20}],'Ваши редкости 💎: ариокарпусы, пелицифоры, лофофоры, турбинкарпусы, обрегонии, азтекиумы — собранные с диких мест и из коллекций мира через научную базу GBIF.');
+document.getElementById('bSucc').onclick=()=>loadSet('bSucc',[{name:'Aizoaceae',n:120}],'Суккуленты Африки: литопсы — живые камни, конофитумы и аизовые. Это НЕ кактусы, а духовная родня (как вы и велели — отдельной кнопкой). Данные и фото: GBIF, открытые лицензии.');
+document.getElementById('bCaud').onclick=()=>loadSet('bCaud',[{name:'Pachypodium',n:40},{name:'Adenia',n:30},{name:'Fockea',n:25},{name:'Raphionacme',n:20},{name:'Brachystelma',n:25},{name:'Dorstenia',n:20}],'Каудексные чудеса: под землёй толстый бочонок-запас воды, сверху тонкие веточки. Пахиподиумы, адении, фокеи — Африка и Аравия. Данные: GBIF.');
+/* ---------- заселение Земли ---------- */
+const ORIGIN=[-19,-63];
+const HOME={title:'🌱 Родина семейства',latlng:ORIGIN,desc:'По новым данным предок кактусовых жил примерно здесь, в Андах, и был похож не на колонну, а на невысокую травку с толстым корнем.',chips:[],photos:[]};
+const REGIONS=[
+{id:'mex',title:'🇲🇽 Мексика и юго-запад США',latlng:[25,-103],via:[[-5,-79],[9,-88]],color:'#2f9e4f',desc:'Сердце семейства: здесь живёт больше всего родов. Здесь же — ваши любимые редкости 💎.',chips:['Ariocarpus 💎','Lophophora 💎','Pelecyphora 💎','Obregonia 💎','Turbinicarpus 💎','Mammillaria','Ferocactus','Astrophytum','Aztekium','Echinocactus','Kroenleinia','Thelocactus','Epithelantha','Strombocactus','Coryphantha','Escobaria','Pediocactus','Sclerocactus','Echinocereus'],photos:[{u:'https://upload.wikimedia.org/wikipedia/commons/2/25/Echinocactus_grusonii_%28aka%29.jpg',c:'Kroenleinia grusonii · André Karwath, Wikimedia Commons, CC BY-SA'},{u:'https://upload.wikimedia.org/wikipedia/commons/9/96/Mammillaria_tayloriorum.jpg',c:'Mammillaria tayloriorum · R. Schade, Wikimedia Commons, CC BY-SA'},{u:'https://upload.wikimedia.org/wikipedia/commons/6/61/Ferocactus_glaucescens_Prg1.jpg',c:'Ferocactus glaucescens · Karelj, Wikimedia Commons, CC BY-SA'}]},
+{id:'car',title:'🌴 Карибы',latlng:[19,-72],via:[[-2,-70]],color:'#2f9e4f',desc:'Самые «древние» на вид кактусы — с настоящими листьями.',chips:['Pereskia','Leuenbergeria'],photos:[]},
+{id:'gal',title:'🐢 Галапагосы',latlng:[-0.6,-90.8],via:[[-10,-85]],color:'#2f9e4f',desc:'Изолированные острова — эволюция пошла своим путём.',chips:['Brachycereus','Jasminocereus'],photos:[]},
+{id:'bra',title:'🇧🇷 Бразилия: атлантический лес',latlng:[-15,-40],via:[[-15,-50]],color:'#2f9e4f',desc:'Влажные леса! Кактусы здесь стали лианами без колючек.',chips:['Rhipsalis','Schlumbergera','Hatiora','Lepismium','Rhipsalidopsis','Cereus','Melocactus','Pilosocereus','Discocactus','Espostoopsis','Gymnocalycium','Rebutia','Weingartia','Aylostera','Uebelmannia','Frailea','Matucana','Oreocereus','Cleistocactus','Echinopsis'],photos:[]},
+{id:'ata',title:'🇨🇱 Пустыня Атакама',latlng:[-24,-69],via:[[-22,-66]],color:'#2f9e4f',desc:'Самое сухое место на Земле. Кактусы пьют туман.',chips:['Copiapoa','Eriosyce','Yavia','Neowerdermannia','Parodia'],photos:[]},
+{id:'pat',title:'🇦🇷 Патагония',latlng:[-42,-69],via:[[-30,-69]],color:'#2f9e4f',desc:'Южная граница семейства. Мауэнии терпят снег.',chips:['Maihuenia'],photos:[]},
+{id:'nor',title:'🇺🇸 Северная Америка',latlng:[38,-110],via:[[25,-103],[30,-108]],color:'#2f9e4f',desc:'Опунции дошли до Канады.',chips:['Opuntia','Cylindropuntia','Grusonia','Tephrocactus','Pterocactus','Carnegiea'],photos:[{u:'https://upload.wikimedia.org/wikipedia/commons/2/22/Opuntia_littoralis_var_vaseyi_4.jpg',c:'Opuntia littoralis · Stan Shebs, Wikimedia Commons, CC BY-SA'}]},
+{id:'afr',title:'💎 Африка: литопсы',latlng:[-29,25],via:[[-35,-15],[-33,10]],color:'#2f9e4f',guest:true,desc:'Гости! Литопсы — НЕ кактусы (Aizoaceae), но по духу родня: тоже живые камни.',chips:['Lithops 💎','Conophytum 💎'],photos:[]}];
+function pathPts(r){const pts=[ORIGIN].concat(r.via||[]);pts.push(r.latlng);return pts}
+function slice(pts,t){if(t<=0)return[pts[0]];let total=0;const seg=[];for(let i=1;i<pts.length;i++){const d=map.distance(pts[i-1],pts[i]);seg.push(d);total+=d}let need=total*t;const out=[pts[0]];for(let i=0;i<seg.length;i++){if(need>=seg[i]){out.push(pts[i+1]);need-=seg[i]}else{const k=need/seg[i];const a=pts[i],b=pts[i+1];out.push([a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k]);break}}return out}
+const arrow=L.marker(ORIGIN,{icon:L.divIcon({className:'',html:'<div class="arrow">➤</div>',iconSize:[22,22]}),interactive:false}).addTo(map);
+function bearing(a,b){return Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI+90}
+function showPanel(r){const p=document.getElementById('side');let h='<h2>'+r.title+'</h2><div class="desc">'+r.desc+'</div>';if(r.chips&&r.chips.length)h+='<div class="chips">'+r.chips.map(c=>'<span class="chip">'+c+'</span>').join('')+'</div>';if(r.photos&&r.photos.length)h+=r.photos.map(f=>'<div style="width:100%;height:280px;border:2px solid #8b5e34;border-radius:12px;overflow:hidden;background:#e8f0e0;display:flex;align-items:center;justify-content:center;margin-top:8px"><img src="'+f.u+'" onerror="this.onerror=function(){this.onerror=null;this.src=\''+f.fb+'\'};this.src=\''+f.mid+'\'" style="max-width:100%;max-height:100%;object-fit:contain;cursor:zoom-in" onclick="zoomPhoto(\''+(f.zoom||f.u)+'\',\''+(f.zcap||'').replace(/'/g,'')+'\')"></div><div class="phcap">'+f.c+'</div>').join('');if(r.guest)h+='<div class="t2" style="margin-top:8px">⚠ Литопсы — Aizoaceae, не Cactaceae. Честная сноска.</div>';p.innerHTML=h}
+L.marker(ORIGIN,{icon:L.divIcon({className:'',html:'<div class="pulse" style="background:#8fd0a0;border-color:#3f6b4f"></div>',iconSize:[16,16]})}).addTo(map).on('click',()=>showPanel(HOME));
+L.marker(ORIGIN,{icon:L.divIcon({className:'',html:'<div class="region-label">🌱 родина семейства</div>',iconSize:[130,20],iconAnchor:[0,10]})}).addTo(map);
+const lines=[];const marks=[];
+REGIONS.forEach(r=>{const pts=pathPts(r);const under=L.polyline([pts[0]],{color:'#ffffff',weight:6,opacity:.75}).addTo(map);const line=L.polyline([pts[0]],{color:r.color,weight:3.5,opacity:1,dashArray:r.guest?'6 8':null}).addTo(map);lines.push({line,under,pts,r});
+ const m=L.marker(r.latlng,{icon:L.divIcon({className:'',html:'<div class="pulse'+(r.guest?' guest':'')+'"></div>',iconSize:[16,16]}),opacity:0}).addTo(map).on('click',()=>showPanel(r));marks.push(m);
+ L.marker(r.latlng,{icon:L.divIcon({className:'',html:'<div class="region-label" style="color:#1e5631">'+r.title.split(' ').slice(0,2).join(' ')+'</div>',iconSize:[150,20],iconAnchor:[-10,10]}),interactive:false}).addTo(map)});
+let playing=false;
+function play(){if(playing)return;playing=true;lines.forEach(o=>{o.line.setLatLngs([o.pts[0]]);o.under.setLatLngs([o.pts[0]])});marks.forEach(m=>m.setOpacity(0));
+ lines.forEach((o,i)=>{setTimeout(()=>{const t0=performance.now();const dur=1800+i*250;
+  function fr(now){const t=Math.min(1,(now-t0)/dur);const pts=slice(o.pts,t);o.line.setLatLngs(pts);o.under.setLatLngs(pts);
+   if(pts.length>1){arrow.setLatLng(pts[pts.length-1]);const ae=arrow.getElement();if(ae){const a=ae.querySelector('.arrow');if(a)a.style.transform='rotate('+bearing(pts[pts.length-2],pts[pts.length-1])+'deg)'}}
+   if(t<1)requestAnimationFrame(fr);else{marks[i].setOpacity(1)}}
+  requestAnimationFrame(fr)},i*450)});
+ setTimeout(()=>{arrow.setOpacity(0);playing=false},450*lines.length+2600)}
+document.getElementById('play').onclick=play;
+
+/* ---------- Мой кактус ---------- */
+let myMarker=null;let myLines=[];
+function myForm(){document.getElementById('side').innerHTML='<h2>➕ Мой кактус</h2><div class="desc">Загрузите своего кактуса — и карта покажет его путь: от вашего дома к родине вида. Если это японский гибрид — дорога ляжет через Японию.</div><input id="mcname" placeholder="Название, напр. Astrophytum" style="width:100%;font-family:inherit;font-size:15px;padding:9px 12px;border-radius:12px;border:2px solid #8b5e34;background:#fff;margin:6px 0"><label style="font-size:14px;display:block;margin:6px 0"><input type="checkbox" id="mchyb"> это гибрид (японская селекция)</label><input type="file" id="mcphoto" accept="image/*" style="font-size:13px;margin:6px 0"><br><button class="btn green" style="margin-top:10px" onclick="mcGo()">🌍 Показать путь моего кактуса</button><div id="mcmsg" style="margin-top:10px;font-size:13px;color:#c1553a"></div>'}
+window.mcGo=()=>{try{
+ document.getElementById('mcmsg').textContent='⏳ Строю путь...';
+ const name=(document.getElementById('mcname').value||'Мой кактус').trim();const hyb=document.getElementById('mchyb').checked;const f=document.getElementById('mcphoto').files[0];
+ const isLith=(name.toLowerCase().includes('литоп')||name.toLowerCase().includes('lithop'));
+ const home=isLith?[-29,25]:[25,-103];const homeName=isLith?'Южная Африка, родина литопсов':'Мексика и Техас, родина вида';
+ const pts=hyb?[[31,34.9],[35.7,139.7],home]:[[31,34.9],home];
+ myLines.forEach(l=>map.removeLayer(l));myLines=[];
+ if(myMarker){map.removeLayer(myMarker)}
+ let imgTag='';
+ const showAll=()=>{
+  const under=L.polyline(pts,{color:'#ffffff',weight:7,opacity:.85}).addTo(map);const line=L.polyline(pts,{color:'#2f9e4f',weight:4}).addTo(map);myLines.push(under,line);
+  const story='<h2>🌵 '+name+'</h2>'+(imgTag?'<img class="ph" src="'+imgTag+'">':'')+'<div class="desc">🏠 <b>Дома:</b> Израиль — здесь он живёт у вас.<br><br>'+(hyb?'✈️ <b>Путь гибрида:</b> его вывели японские селекционеры в Японии, а прародина вида — '+homeName+'.<br><br>':'🌎 <b>Вот тут он родился:</b> ')+homeName+'. Зелёная линия — путь вашего кактуса до вас.</div>';
+  const me=L.marker([31,34.9],{icon:imgTag?L.divIcon({className:'',html:'<div style="width:38px;height:38px;border-radius:50%;border:3px solid #c1553a;overflow:hidden;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.5)"><img src="'+imgTag+'" style="width:100%;height:100%;object-fit:cover"></div>',iconSize:[38,38],iconAnchor:[19,19]}):L.divIcon({className:'',html:'<div style="font-size:24px">🏠</div>',iconSize:[28,28]})}).addTo(map);
+  me.bindTooltip('Ваш кактус',{direction:'top'});me.on('click',()=>{document.getElementById('side').innerHTML=story});
+  const hm=L.marker(home,{icon:L.divIcon({className:'',html:'<div style="font-size:24px;text-shadow:0 0 4px #fff">🌵</div>',iconSize:[28,28]})}).addTo(map);
+  hm.bindTooltip('Вот тут он родился: '+homeName,{direction:'top'});hm.on('click',()=>{document.getElementById('side').innerHTML=story});
+  map.flyTo([33,-8],3,{duration:1.6});
+  document.getElementById('side').innerHTML=story};
+ if(f){const r=new FileReader();r.onload=()=>{imgTag=r.result;showAll()};r.onerror=()=>{document.getElementById('mcmsg').textContent='❌ Фото не прочиталось'};r.readAsDataURL(f)}else{showAll()}
+ }catch(e){const m=document.getElementById('mcmsg');if(m)m.textContent='❌ Ошибка: '+e.message}};
+document.getElementById('addc').onclick=myForm;
+
+/* ---------- История и теплицы ---------- */
+const HIST=[
+{id:'col',title:'⛵ Колумб: первые кактусы Европы',pts:[[37.2,-6.9],[28.3,-16.3],[24.5,-38],[23.8,-60],[24.0,-74],[20.8,-74],[19.9,-70.9],[22.5,-79.5],[19.4,-81.3],[37.2,-6.9]],labels:[[37.2,-6.9,'Испания'],[24.0,-74,'Багамы'],[19.9,-70.9,'Эспаньола']],desc:'1492–1494. Эскадра Колумба в Карибах — первые европейцы, увидевшие кактусы (опунции).',chips:['Opuntia'],photos:[]},
+{id:'hum',title:'🧭 Гумбольдт и Бонплан: кактусы науки',pts:[[10.45,-64.18],[10.5,-66.9],[4.7,-74.1],[-0.2,-78.5],[-12,-77],[-33,-71.5],[19.4,-99.1],[23.1,-82.36],[40.4,-3.7]],labels:[[10.45,-64.18,'Кумана'],[19.4,-99.1,'Мехико']],desc:'1799–1804. Гумбольдт описал кактусы Венесуэлы, Анды и Мексику. Легенда: Бонплан перевёз живой мелокактус через океан в Париж.',chips:['Melocactus','Opuntia','Cereus'],photos:[]},
+{id:'kar',title:'🎒 Карвинский: золотая жатва Мексики',pts:[[53.55,9.99],[19.2,-96.1],[19.4,-99.1],[17.07,-96.7],[19.2,-96.1],[53.55,9.99]],labels:[[19.2,-96.1,'Веракрус'],[17.07,-96.7,'Оахака']],desc:'1826–1832. Его фамилией названы десятки видов: «karwinskianus» — его памятник.',chips:['Mammillaria karwinskiana','Echinocactus','Ferocactus'],photos:[]},
+{id:'hun',title:'🏠 Хантингтон: кактусовый рассадник мира',latlng:[34.129,-118.113],desc:'Сан-Марино, Калифорния. Один из крупнейших собраний кактусов планеты.',chips:['почти все роды мира'],photos:[]},
+{id:'kew',title:'🏠 Kew Gardens: кактусы под стеклом',latlng:[51.478,-0.298],desc:'Лондон. Королевские ботанические сады, коллекция с XVIII века.',chips:[],photos:[]},
+{id:'mon',title:'🏠 Монако: сад на скале',latlng:[43.727,7.42],desc:'Экзотический сад Монако, открыт в 1933 году.',chips:[],photos:[]}];
+const histLayer=L.layerGroup();
+HIST.forEach(h=>{if(h.pts){L.polyline(h.pts,{color:'#8b5e34',weight:3,dashArray:'8 7',opacity:.9}).addTo(histLayer);
+  (h.labels||[]).forEach(lb=>{L.marker([lb[0],lb[1]],{icon:L.divIcon({className:'',html:'<div class="region-label" style="color:#6b4423">'+lb[2]+'</div>',iconSize:[90,18]}),interactive:false}).addTo(histLayer)});
+  L.marker(h.pts[0],{icon:L.divIcon({className:'',html:'<div style="font-size:20px">⛵</div>',iconSize:[24,24]})}).addTo(histLayer).on('click',()=>showPanel(h));
+  L.marker(h.pts[h.pts.length-1],{icon:L.divIcon({className:'',html:'<div style="font-size:18px">🎒</div>',iconSize:[22,22]})}).addTo(histLayer).on('click',()=>showPanel(h))}
+ else{L.marker(h.latlng,{icon:L.divIcon({className:'',html:'<div style="font-size:20px">🏠</div>',iconSize:[24,24]})}).addTo(histLayer).on('click',()=>showPanel(h))}});
+L.marker([-14,-10],{icon:L.divIcon({className:'',html:'<div class="region-label" style="color:#1d4e80">⤏ гости: литопсы (не кактусы)</div>',iconSize:[180,18]}),interactive:false}).addTo(histLayer);
+let histOn=false;
+const histBtn=document.createElement('button');histBtn.className='btn brown';histBtn.id='hist';histBtn.textContent='📜 История';document.getElementById('topbar').appendChild(histBtn);
+histBtn.onclick=()=>{if(histOn){map.removeLayer(histLayer);histBtn.textContent='📜 История'}else{map.addLayer(histLayer);histBtn.textContent='✖ Убрать историю';showPanel({title:'📜 Исторический слой',desc:'Коричневые пунктирные линии — пути первооткрывателей: ⛵ Колумб, 🧭 Гумбольдт, 🎒 Карвинский. 🏠 — крупнейшие теплицы мира. Нажимайте значки.',chips:[],photos:[]})}histOn=!histOn};
+
+setTimeout(play,800);
+}
+</script>
+</body>
+</html>
