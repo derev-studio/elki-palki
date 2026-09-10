@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌵</text></svg>">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Кактусярий — Галерея жителей</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box}
+body{font-family:Georgia,serif;background:#f3e9d2;color:#3d2c1e;margin:0}
+#topbar{background:#fdf8ec;border-bottom:3px solid #8b5e34;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:600}
+#topbar b{font-size:17px;color:#6b4423}
+.btn{font-family:inherit;font-size:14px;font-weight:700;border:none;border-radius:13px;padding:9px 16px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.btn.green{background:#3f6b4f;color:#fff;box-shadow:0 3px 0 #2c4a38}
+.btn.brown{background:#8b5e34;color:#fdf3df;box-shadow:0 3px 0 #5e3d22}
+.btn.gold{background:#9a7b1e;color:#fff;box-shadow:0 3px 0 #6d5713}
+.btn:active{transform:translateY(2px);box-shadow:none}
+.btn:disabled{opacity:.5;cursor:default}
+.wrap{max-width:1150px;margin:0 auto;padding:16px}
+.upzone{border:3px dashed #8b5e34;border-radius:18px;padding:22px;background:#fdf8ec;margin-bottom:18px}
+.upzone input[type=text],.upzone select{font-family:inherit;font-size:15px;padding:10px 14px;border:2px solid #c9a86a;border-radius:12px;background:#fff;color:#3d2c1e;max-width:340px;width:100%;margin:4px 0}
+.chk{display:block;font-size:16px;margin:8px 0;cursor:pointer}
+.chk small{color:#8b5e34}
+.filebtn{display:inline-block;background:#3f6b4f;color:#fff;padding:11px 26px;border-radius:14px;cursor:pointer;font-weight:700;box-shadow:0 3px 0 #2c4a38;margin:6px 0}
+input[type=file]{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px}
+.card{background:#fdf8ec;border:3px solid #8b5e34;border-radius:18px;overflow:hidden;box-shadow:0 5px 14px rgba(60,40,20,.18);display:flex;flex-direction:column}
+.card img{width:100%;height:230px;object-fit:cover;display:block;cursor:zoom-in;background:#222}
+.card .body{padding:10px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+.cap{font-style:italic;color:#b8860b;font-size:14px}
+.who{font-size:13px;color:#8b5e34}
+.chip{display:inline-block;background:#e9dbbd;border:1px solid #8b5e34;border-radius:11px;padding:2px 9px;font-size:12px;font-style:italic;margin:2px 4px 2px 0;text-decoration:none;color:#6b4423}
+.likebtn{background:#e9dbbd;border:2px solid #c9a86a;border-radius:12px;padding:4px 12px;cursor:pointer;font-size:14px;font-weight:700}
+.likebtn.mine{background:#3f6b4f;color:#fff;border-color:#3f6b4f}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#lb{position:fixed;inset:0;z-index:600;background:rgba(20,12,6,.92);display:none;align-items:center;justify-content:center;cursor:zoom-out}
+#lb img{max-width:92vw;max-height:92vh;border-radius:16px;border:5px solid #8b5e34}
+.empty{text-align:center;padding:30px;color:#8b5e34;font-style:italic}
+#toasts{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:700;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:#3d2c1e;color:#f3e9d2;padding:10px 22px;border-radius:14px;font-weight:700;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+#authbox{display:inline-flex;align-items:center;gap:8px}
+@media(max-width:600px){.grid{grid-template-columns:1fr 1fr;gap:10px}.card img{height:150px}}
+</style>
+</head>
+<body>
+<div id="lb" onclick="this.style.display='none'"><img id="lbimg"></div>
+<div id="toasts"></div>
+<div id="topbar">
+<b>🌵 Кактусярий · Галерея жителей</b>
+<span style="flex:1"></span>
+<span id="authbox"></span>
+<a class="btn brown" href="systematika.html">🌳 Систематика</a>
+<a class="btn green" href="kaktusariy-map.html">🗺 Карта</a>
+<a class="btn brown" href="kaktusariy.html">🌵 В начало</a>
+<a class="btn brown" href="index.html">🌲 В деревню</a>
+</div>
+<div class="wrap">
+<div class="upzone" id="upzone">
+<h3 style="margin:0 0 8px">📸 Показать свой кактус</h3>
+<div id="uplogin">Войдите через Google, чтобы добавить фото.</div>
+<div id="upform" style="display:none">
+<input type="text" id="cap" maxlength="80" placeholder="Подпись: «мой старичок, 12 лет»..."><br>
+<label class="filebtn" for="file" id="filebtn">📂 Выбрать фото</label>
+<input type="file" id="file" accept="image/*">
+<div style="margin-top:10px">
+<label class="chk"><input type="checkbox" id="cGal" checked> 🖼 <b>В Галерею Кактусярия</b></label>
+<label class="chk"><input type="checkbox" id="cMap"> 🗺 <b>На Карту «🪴 Домашние»</b> <small>(примерное место — без точного адреса, приватность!)</small><br>
+<select id="place" style="display:none;max-width:280px">
+<option value="">— выберите страну/город примерно —</option>
+<option value="Израиль|31.5|34.8">🇮🇱 Израиль</option>
+<option value="Украина|49|32">🇺🇦 Украина</option>
+<option value="Россия|55.7|37.6">🇷🇺 Россия (центр)</option>
+<option value="Германия|51|10">🇩🇪 Германия</option>
+<option value="Испания|40|-3.7">🇪🇸 Испания</option>
+<option value="США|39.8|-98.6">🇺🇸 США</option>
+<option value="Канада|56|-106">🇨🇦 Канада</option>
+<option value="Мексика|23.6|-102.5">🇲🇽 Мексика</option>
+<option value="Бразилия|-10.8|-52.9">🇧🇷 Бразилия</option>
+<option value="Аргентина|-34|-64">🇦🇷 Аргентина</option>
+<option value="Чили|-31.8|-71">🇨🇱 Чили</option>
+<option value="ЮАР|-29|25">🇿🇦 ЮАР</option>
+<option value="Япония|36|138">🇯🇵 Япония</option>
+<option value="Индия|21|78">🇮🇳 Индия</option>
+<option value="Австралия|-25|134">🇦🇺 Австралия</option>
+<option value="Казахстан|48|68">🇰🇿 Казахстан</option>
+</select></label>
+<label class="chk"><input type="checkbox" id="cRod"> 🌳 <b>К роду в Систематике</b> <small>(карточка рода покажет фото жителей)</small><br>
+<input type="text" id="genus" list="rodlist" placeholder="Начните писать род, напр. Mammillaria" style="display:none;max-width:340px">
+<datalist id="rodlist"></datalist></label>
+</div>
+<div style="margin-top:12px"><button class="btn gold" id="pub" onclick="publish()" disabled>🪴 Опубликовать</button> <span id="upst" style="font-weight:700"></span></div>
+</div>
+</div>
+<h3>🖼 Работы жителей:</h3>
+<div class="grid" id="gal"></div>
+<div class="empty" id="galempty">Пока пусто — будьте первым!</div>
+</div>
+
+<script type="module">
+const CFG={apiKey:"AIzaSyB2X3o7KwYFkMfsskKoWpQYBrws8L-Mn9w",authDomain:"photo-gallery-18193.firebaseapp.com",projectId:"photo-gallery-18193",databaseURL:"https://photo-gallery-18193-default-rtdb.firebaseio.com",storageBucket:"photo-gallery-18193.firebasestorage.app",messagingSenderId:"329094770221",appId:"1:329094770221:web:b9d076f195f968668212a4"};
+const IMGBB="b3ef16e01059cc97d198428f28ebc07e";
+firebase.initializeApp(CFG);
+const db=firebase.database(),auth=firebase.auth();
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.getElementById('toasts').appendChild(t);setTimeout(()=>t.remove(),2600)};
+const RODS="Airampoa,Brasiliopuntia,Consolea,Miqueliopuntia,Opuntia,Salmonopuntia,Tacinga,Cylindropuntia,Grusonia,Micropuntia,Pereskiopsis,Quiabentia,Austrocylindropuntia,Cumulopuntia,Maihueniopsis,Pterocactus,Tephrocactus,Maihuenia,Blossfeldia,Calymmanthium,Lymanbensonia,Copiapoa,Astrophytum,Aztekium,Echinocactus,Geohintonia,Sclerocactus,Toumeya,Ferocactus,Glandulicactus,Kroenleinia,Leuchtenbergia,Stenocactus,Thelocactus,Acharagma,Ariocarpus,Cochemiea,Coryphantha,Cumarinia,Epithelantha,Escobaria,Kadenicarpus,Lophophora,Mammillaria,Mammilloydia,Neolloydia,Obregonia,Oehmea,Ortegocactus,Pediocactus,Pelecyphora,Rapicactus,Strombocactus,Turbinicarpus,Austrocactus,Brachycereus,Corryocactus,Eulychnia,Jasminocereus,Neoraimondia,Pfeiffera,Strophocactus,Armatocereus,Castellanosia,Leptocereus,Acanthocereus,Aporocactus,Disocactus,Epiphyllum,Hylocereus,Kimnachia,Pseudorhipsalis,Selenicereus,Weberocereus,Backebergia,Bergerocactus,Carnegiea,Cephalocereus,Echinocereus,Escontria,Isolatocereus,Lemaireocereus,Lophocereus,Marginatocereus,Marshallocereus,Myrtillocactus,Nyctocereus,Pachycereus,Peniocereus,Polaskia,Pterocereus,Stenocereus,Frailea,Hatiora,Lepismium,Rhipsalidopsis,Rhipsalis,Schlumbergera,Eriosyce,Neowerdermannia,Parodia,Yavia,Uebelmannia,Aylostera,Browningia,Rebutia,Weingartia,Gymnocalycium,Arrojadoa,Brasilicereus,Cereus,Cipocereus,Coleocephalocereus,Discocactus,Espostoopsis,Facheiroa,Floribunda,Lagenosocereus,Leocereus,Melocactus,Micranthocereus,Pierrebraunia,Pilosocereus,Praecereus,Siccobaccatus,Stephanocereus,Stetsonia,Xiquexique,Reicheocactus,Acanthocalycium,Arthrocereus,Borzicactus,Cephalocleistocactus,Cleistocactus,Cremnocereus,Denmoza,Echinopsis,Espostoa,Haageocereus,Harrisia,Lasiocereus,Leucostele,Matucana,Mila,Oreocereus,Oroya,Pygmaeocereus,Rauhocereus,Samaipaticereus,Setiechinopsis,Vatricania,Weberbauerocereus,Winterocereus,Yungasocereus".split(",");
+document.getElementById('rodlist').innerHTML=RODS.map(r=>'<option value="'+r+'">').join('');
+window.signIn=async()=>{const p=new firebase.auth.GoogleAuthProvider();try{await auth.signInWithPopup(p)}catch(e){toast('Вход не удался');}};
+window.signOut_=()=>auth.signOut();
+auth.onAuthStateChanged(u=>{renderAuth();if(u)ensureUser(u)});
+function ensureUser(u){const r=db.ref('users/'+u.uid);r.once('value').then(s=>{if(!s.exists())r.set({name:u.displayName||'Без имени',email:u.email||'',photo:u.photoURL||'',bio:'',joined:Date.now()});else{const uu={};if(u.displayName)uu.name=u.displayName;if(u.photoURL)uu.photo=u.photoURL;if(Object.keys(uu).length)r.update(uu)}})}
+function renderAuth(){const b=document.getElementById('authbox');if(auth.currentUser){const u=auth.currentUser;b.innerHTML='<img src="'+esc(u.photoURL||'')+'" style="width:34px;height:34px;border-radius:50%;border:2px solid #ffd98a"> <button class="btn brown" onclick="signOut_()">🚪 Выйти</button>';document.getElementById('uplogin').style.display='none';document.getElementById('upform').style.display='block'}else{b.innerHTML='<button class="btn green" onclick="signIn()">🔑 Войти через Google</button>';document.getElementById('uplogin').style.display='block';document.getElementById('upform').style.display='none'}}
+/* ---- выбор галочек ---- */
+const cMap=document.getElementById('cMap'),place=document.getElementById('place'),cRod=document.getElementById('cRod'),genus=document.getElementById('genus');
+cMap.addEventListener('change',()=>{place.style.display=cMap.checked?'inline-block':'none'});
+cRod.addEventListener('change',()=>{genus.style.display=cRod.checked?'inline-block':'none'});
+let myFile=null;
+document.getElementById('file').addEventListener('change',e=>{myFile=e.target.files[0]||null;document.getElementById('filebtn').textContent=myFile?('✅ '+myFile.name):'📂 Выбрать фото';document.getElementById('pub').disabled=!myFile});
+/* ---- сжатие (та же умная машина, что в деревне) ---- */
+async function loadBmp(f){try{return await createImageBitmap(f)}catch(e){const u0=URL.createObjectURL(f);return await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=u0})}}
+async function makeBlob(b,w,h,q){const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(b,0,0,w,h);return await new Promise(r=>c.toBlob(r,'image/jpeg',q))}
+async function makeSizes(f){const b=await loadBmp(f);const ow=b.width,oh=b.height;const mk=m=>{if(Math.max(ow,oh)<=m)return null;const k=m/Math.max(ow,oh);return makeBlob(b,Math.round(ow*k),Math.round(oh*k),m>=1900?0.9:(m>=1000?0.85:0.8))};const l=await mk(2048);const md=await mk(1280);const s=await mk(640);return{l:l||f,m:md||l||f,s:s||md||l||f}}
+window.publish=async()=>{
+ const u=auth.currentUser;if(!u||!myFile)return;
+ const toGal=document.getElementById('cGal').checked,toMap=cMap.checked,toRod=cRod.checked;
+ if(!toGal&&!toMap&&!toRod)return toast('Поставьте хотя бы одну галочку');
+ let pl=null;if(toMap){const v=place.value;if(!v)return toast('Выберите примерное место на карте');const a=v.split('|');pl={name:a[0],lat:+a[1],lng:+a[2]}}
+ let gn='';if(toRod){gn=genus.value.trim();if(!gn)return toast('Напишите род');gn=gn[0].toUpperCase()+gn.slice(1)}
+ const btn=document.getElementById('pub');btn.disabled=true;
+ try{
+  toast('⏳ Готовлю копии фото...');const sz=await makeSizes(myFile);
+  const up=async b=>{const fd=new FormData();fd.append('image',b,'photo.jpg');const res=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});const d=await res.json();return(d.success&&d.data.url)?d.data.url:''};
+  const url=await up(sz.l);const m=await up(sz.m)||url;const s=await up(sz.s)||m;
+  if(!url)throw new Error('imgbb');
+  toast('⏳ Сохраняю...');
+  const photo={id:Date.now(),img:url,imgm:m,imgs:s,uid:u.uid,author:u.displayName||'Без имени',caption:document.getElementById('cap').value.trim(),rubric:'Кактусярий',date:new Date().toLocaleDateString('ru-RU'),likes:{},comments:[],kat:1,place:pl,genus:gn||null};
+  await db.ref('photos/'+photo.id).set(photo);
+  myFile=null;document.getElementById('filebtn').textContent='📂 Выбрать фото';btn.disabled=true;
+  toast('🌵 Опубликовано! Спасибо, '+photo.author.split(' ')[0]);
+ }catch(e){toast('❌ Не загрузилось, проверьте интернет');btn.disabled=false}
+};
+/* ---- лента галереи ---- */
+db.ref('photos').on('value',s=>{const d=s.val();const list=d?Object.values(d).filter(p=>p&&p.kat).sort((a,b)=>b.id-a.id):[];
+ document.getElementById('galempty').style.display=list.length?'none':'block';
+ document.getElementById('gal').innerHTML=list.map(p=>{const lk=p.likes||{};const n=Object.keys(lk).length;const mine=auth.currentUser&&lk[auth.currentUser.uid];
+  return '<div class="card"><img src="'+esc(p.imgs||p.img)+'" srcset="'+esc(p.imgs||p.img)+' 640w, '+esc(p.imgm||p.img)+' 1280w, '+esc(p.img)+' 2048w" sizes="(max-width:600px) 48vw, 260px" onclick="showLB(\''+esc(p.img)+'\')"><div class="body">'
+  +(p.caption?'<div class="cap">«'+esc(p.caption)+'»</div>':'')
+  +'<div class="who">🧑 '+esc(p.author)+' · '+esc(p.date||'')+'</div>'
+  +(p.place?'<span class="chip">📍 '+esc(p.place.name)+'</span>':'')
+  +(p.genus?'<a class="chip" href="systematika.html?rod='+encodeURIComponent(p.genus)+'">🌳 '+esc(p.genus)+'</a>':'')
+  +'<div class="row"><button class="likebtn '+(mine?'mine':'')+'" onclick="like('+p.id+')">❤️ '+n+'</button></div>'
+  +'</div></div>'}).join('')});
+window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex'};
+window.like=id=>{const u=auth.currentUser;if(!u)return toast('Войдите через Google, чтобы ставить сердечки');const r=db.ref('photos/'+id+'/likes/'+u.uid);r.once('value').then(s=>{if(s.exists())r.remove();else r.set(u.displayName||u.email)})};
+</script>
+</body>
+</html>
