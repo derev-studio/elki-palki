@@ -85,7 +85,7 @@ input[type=file]{display:none}
 <div class="sub">Почта Кактусярия: тексты, фото, файлы и видео прямо в письмах.</div>
 <div class="row"><input type="text" id="nm" maxlength="24" placeholder="Как вас звать в деревне?"><button class="btn green" onclick="setName()">Войти</button></div>
 <div class="row" style="margin-top:12px"><button class="btn brown" id="gbtn" onclick="googleIn()">🔑 Войти через Google</button><span class="tiny">— имя навсегда и звёздочка хозяйке</span></div>
-<div class="tiny" style="margin-top:12px">Имя гостя хранится только на вашем устройстве. Фото и файлы — в деревенских шкафах, в базе — только ссылки.</div>
+<div class="tiny" style="margin-top:12px">Имя гостя хранится только на вашем устройстве. Фото и файлы — в деревенских шкафах, в базе — только ссылки. <b style="color:#3f8a52">версия 4 · плеер 🎵</b></div>
 </div>
 
 <div id="chatwrap">
@@ -232,7 +232,7 @@ window.sendMsg=async()=>{if(BANNED)return toast('🚫 Вам запрещено 
   let img='';let file='';let fname='';let mime='';
   if(myPhoto){prog('Фото грузится…');img=await photoToUrl(myPhoto);prog('')}
   if(myFile){fname=myFileName;mime=myFile.type||'';
-   if(myFile.size<=6*1024*1024&&/^(audio|video)\//.test(mime)){
+   if(myFile.size<=10*1024*1024&&/^(audio|video)\//.test(mime)){
     try{prog('Вкладываю в письмо…');
      const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(myFile)});
      const fid=db.ref().push().key;
