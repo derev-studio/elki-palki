@@ -46,26 +46,25 @@ input[type=file]{display:none}
 .tiny{font-size:12px;color:#8b5e34;line-height:1.6}
 .badge{background:#9a7b1e;color:#fff;border-radius:10px;padding:2px 10px;font-size:12px;font-weight:700}
 /* ── зелёный кактусовый стиль ── */
-body{background:#e6efdd}
-.bar{background:#2f6b3f;border-bottom-color:#1e4a2c}
+body{background:#eef4e6}
+.bar{background:#3a6b47;border-bottom-color:#2c5238}
 .bar b{color:#eaf6e4}
 .navbtn{background:#4a8a58 !important;color:#fff !important}
-.doska{background:#f4faee;border-color:#3f7a4d;box-shadow:0 6px 0 #c4d9b2}
+.doska{background:#f7fbf2;border-color:#4a8a58;box-shadow:0 6px 0 #c4d9b2}
 h1{color:#2c5a38}
 .sub{color:#5a8a66}
 input[type=text]{border-color:#8fbf9a;background:#fff}
 .btn.green{background:#3f8a52;box-shadow:0 3px 0 #2c4a38}
 .btn.brown{background:#2f6b3f;box-shadow:0 3px 0 #1e4a2c}
 .btn.gold{background:#7ba83b;box-shadow:0 3px 0 #557a24}
-#chat{background:#dcead2;border-color:#8fbf9a}
-.msg{background:#ffffff;border-color:#8fbf9a}
-.msg.mine{background:linear-gradient(135deg,#3f8a52,#5aa864);border-color:#2f6b3f;color:#fff}
+#chat{background:#e9f1de;border-color:#a9c9a4}
+.msg{background:#fffef8;border-color:#a9c9a4}
+.msg.mine{background:linear-gradient(135deg,#4a9a5e,#79bc7c);border-color:#2f6b3f;color:#fff}
 .msg.mine .nm{color:#dff0dc}
 .msg.mine .tm{color:#cfe6cc}
 .msg .fl{background:#3f8a52}
 .filebtn{background:#3f8a52}
-.spines{height:14px;background:linear-gradient(-45deg,transparent 8px,#2f6b3f 0) 0 0/16px 14px repeat-x,linear-gradient(45deg,transparent 8px,#2f6b3f 0) 8px 0/16px 14px repeat-x;margin:-2px -2px 0}
-.spines.flip{transform:scaleY(-1);margin:0 -2px -2px}
+.spinebar{height:16px;overflow:hidden;line-height:0}
 </style>
 </head>
 <body>
@@ -103,13 +102,15 @@ input[type=text]{border-color:#8fbf9a;background:#fff}
 <button class="btn gold" style="margin-top:8px" onclick="invite()">🔗 Скопировать тайную ссылку</button>
 <button class="btn brown" style="margin-top:8px" onclick="location.href='kaktusogramm.html'">🚪 Выйти к общей почте</button>
 </div>
-<div class="spines"></div><div id="chat"></div><div class="spines flip"></div>
+<div class="spinebar"></div><div id="chat"></div><div class="spinebar"></div>
+<div class="spinebar"></div>
 <div class="row">
 <label class="filebtn" for="f">📷 Фото</label><input type="file" id="f" accept="image/*">
 <label class="filebtn" for="vf" style="background:#9a7b1e">🎬 Видео/файл</label><input type="file" id="vf">
-<input type="text" id="txt" maxlength="1000" placeholder="Написать письмо... ссылка на YouTube развернётся сама" style="flex:1;min-width:160px">
+<textarea id="txt" maxlength="1000" placeholder="Написать письмо... ссылка на YouTube развернётся сама" style="flex:1;min-width:160px;font-family:inherit;font-size:16px;padding:10px 14px;border:2px solid #a9c9a4;border-radius:12px;background:#fff;color:#3d2c1e;resize:none;height:44px;max-height:132px"></textarea>
 <button class="btn green" id="send" onclick="sendMsg()">🌵 Отправить</button>
 </div>
+<div class="spinebar"></div>
 <div class="tiny" id="attachname" style="margin-top:4px"></div>
 <div class="row" style="margin-top:14px;border-top:2px dashed #c9a86a;padding-top:12px">
 <span class="tiny">🚪 <b>Тайник</b> — секретный разговор по тайной ссылке. Секретное слово:</span>
@@ -143,6 +144,7 @@ function updSnd(){document.getElementById('sndbtn').textContent=SND?'🔊 Сту
 function linkify(t){
  let h=esc(t);
  h=h.replace(/(https?:\/\/[^\s<]+)/g,(u)=>{
+  if(/pixeldrain\.com\/api\//.test(u))return '<video controls preload="metadata" src="'+u+'"></video>';
   let m=u.match(/(?:youtube\.com\/watch\?\S*v=|youtu\.be\/)([\w-]{6,})/);
   if(m)return '<span class="pl"><iframe width="300" height="169" src="https://www.youtube.com/embed/'+m[1]+'" frameborder="0" allowfullscreen style="max-width:100%"></iframe></span>';
   m=u.match(/(?:vk\.com\/video|vkvideo\.ru\/video)(-?\d+)_(\d+)/);
@@ -181,10 +183,10 @@ async function photoToUrl(f){const im=await new Promise((res,rej)=>{const u=URL.
  const k=Math.min(1,1280/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
  const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));const fd=new FormData();fd.append('image',b,'p.jpg');
  const r=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});const d=await r.json();if(!(d.success&&d.data.url))throw 0;return d.data.url}
-async function fileToUrl(f){if(f.size>180*1024*1024)throw new Error('Файл больше 180 МБ — для больших видео лучше YouTube, а ссылку сюда');
- const fd=new FormData();fd.append('reqtype','fileupload');fd.append('fileToUpload',f);
- const r=await fetch('https://catbox.moe/user/api.php',{method:'POST',body:fd});const t=(await r.text()).trim();
- if(!/^https?:\/\//.test(t))throw new Error('Шкаф не принял файл');return t}
+async function fileToUrl(f){if(f.size>190*1024*1024)throw new Error('Файл больше 190 МБ — большие видео лучше на YouTube, а ссылку сюда');
+ try{const fd=new FormData();fd.append('reqtype','fileupload');fd.append('fileToUpload',f);const r=await fetch('https://catbox.moe/user/api.php',{method:'POST',body:fd});const t=(await r.text()).trim();if(/^https?:\/\//.test(t))return t}catch(e){}
+ try{const fd2=new FormData();fd2.append('file',f);const r2=await fetch('https://pixeldrain.com/api/file',{method:'POST',body:fd2});const d2=await r2.json();if(d2&&d2.id)return 'https://pixeldrain.com/api/file/'+d2.id}catch(e){}
+ throw new Error('Шкафы заняты — попробуйте ещё раз или киньте ссылку на YouTube')}
 window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex'};
 /* ---------- чат ---------- */
 function fmt(ts){const d=new Date(ts);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}
@@ -210,9 +212,14 @@ window.sendMsg=async()=>{if(BANNED)return toast('🚫 Вам запрещено 
   myLast=Date.now()+10000;
   await db.ref('gram/rooms/'+ROOM+'/messages').push({name:NAME,text:t+extra,img,ts:Date.now()});
   document.getElementById('txt').value='';myPhoto=null;myFile=null;myFileName='';document.getElementById('f').value='';document.getElementById('vf').value='';updAttach();
- }catch(e){toast('❌ '+(e.message||'Не отправилось — проверьте интернет'))}
+ }catch(e){const code=((e&&e.code)||'')+'';const msg=(e&&e.message)||'';
+ if(/PERMISSION|denied/i.test(code)||/PERMISSION|denied/i.test(msg))toast('⛔ База не пускает письмо! Хозяйке: добавить «gram» в правила Firebase — инструкция в архиве');
+ else if(msg)toast('❌ '+msg);else toast('❌ Не отправилось — проверьте интернет')}
  btn.disabled=false;btn.textContent='➤ Отправить'};
-document.getElementById('txt').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg()});
+const TA=document.getElementById('txt');TA.addEventListener('input',()=>{TA.style.height='auto';TA.style.height=Math.min(132,TA.scrollHeight)+'px'});TA.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}});
+function spineSVG(){let s='<svg width="100%" height="16" preserveAspectRatio="none" viewBox="0 0 900 16">';for(let i=0;i<150;i++){const x=i*6+3;s+='<path d="M'+x+' 16 Q'+(x-2)+' 7 '+x+' 0.5 Q'+(x+2)+' 7 '+x+' 16 Z" fill="#3f7a4d"/>'}return s+'</svg>'}
+function paintSpines(){document.querySelectorAll('.spinebar').forEach(el=>{el.innerHTML=spineSVG()})}
+paintSpines();
 /* ---------- старт ---------- */
 if(NAME){document.getElementById('nm').value=NAME;enter()}
 </script>
