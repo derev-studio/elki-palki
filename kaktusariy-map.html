@@ -6,6 +6,9 @@
 <title>Кактусярий — живая карта мира кактусов</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
 <style>
 html,body{margin:0;padding:0;height:100%;font-family:Georgia,serif;background:#e8e0cc;color:#3d2c1e}
@@ -33,6 +36,8 @@ html,body{margin:0;padding:0;height:100%;font-family:Georgia,serif;background:#e
 @keyframes pl{0%{box-shadow:0 0 0 0 rgba(74,222,128,.7)}70%{box-shadow:0 0 0 14px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)}}
 .region-label{font-size:13px;font-weight:700;text-shadow:0 1px 3px #fff,0 0 6px #fff;white-space:nowrap}
 .arrow{width:22px;height:22px;display:flex;align-items:center;justify-content:center;color:#2f9e4f;font-size:20px;text-shadow:0 0 3px #fff,0 1px 2px #fff}
+.marker-cluster-small,.marker-cluster-medium,.marker-cluster-large{background:rgba(139,94,52,.72)}
+.marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div{background:rgba(107,68,35,.92);color:#fdf3df;font-weight:700;font-family:Georgia,serif}
 @media(max-width:760px){#main{flex-direction:column}#side{width:100%;border-right:none;border-bottom:3px solid #8b5e34;max-height:36vh}#map{min-height:52vh}}
 </style>
 </head>
@@ -50,7 +55,7 @@ html,body{margin:0;padding:0;height:100%;font-family:Georgia,serif;background:#e
 <div id="main">
 <div id="side">
 <h2>👋 Добро пожаловать</h2>
-<div class="desc">Живая карта семейства кактусовых на данных GBIF — международной научной базы музеев и университетов мира. Кнопки слоёв: <b>🌵 Дикие</b>, <b>💎 Редкости</b> — ваши любимцы, <b>🌱 Суккуленты</b> — литопсы Африки, <b>🫚 Каудексы</b> — толстые бочки под землёй.<br><br>Значки — <b>живые миниатюры с именами</b>: смотрите, какой кактус внутри, и жмите только на любимцев. Нажатие на фото слева — во весь экран. Колёсико — приближение.</div>
+<div class="desc">Живая карта семейства кактусовых на данных GBIF — международной научной базы музеев и университетов мира. Кнопки слоёв: <b>🌵 Дикие</b>, <b>💎 Редкости</b> — ваши любимцы, <b>🌱 Суккуленты</b> — литопсы Африки, <b>🫚 Каудексы</b> — толстые бочки под землёй.<br><br>Значки — <b>живые миниатюры с именами</b>: смотрите, какой кактус внутри, и жмите только на любимцев. Совпавшие по месту растения складываются в пучок с цифрой — нажмите на пучок, чтобы разложить. Нажатие на фото слева — во весь экран. Колёсико — приближение.</div>
 <div class="t2">🌵 Кактусярий · данные и фото: GBIF — международная научная база (открытые лицензии, авторы указаны) · подложка: Esri / OpenStreetMap</div>
 </div>
 <div id="map"></div>
@@ -80,6 +85,9 @@ function bigOriginal(ph){return ph.original_url||bigUrl(ph)}
 function wes(u,w){if(!u)return'';return 'https://images.weserv.nl/?url='+encodeURIComponent(u.replace(/^https?:\/\//,''))+(w?'&w='+w:'')+'&fit=inside'}
 function zoomPhoto(src,cap){let z=document.getElementById('pzoom');if(!z){z=document.createElement('div');z.id='pzoom';z.style.cssText='position:fixed;inset:0;background:rgba(14,21,38,.94);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:zoom-out;padding:18px';z.onclick=()=>{z.style.display='none'};document.body.appendChild(z)}z.innerHTML='<img src="'+src+'" style="max-width:96vw;max-height:86vh;border:4px solid #fdf8ec;border-radius:14px;box-shadow:0 10px 50px rgba(0,0,0,.7)"><div style="color:#f3e9d2;font-family:Georgia,serif;font-size:15px;margin-top:14px;text-align:center">'+cap+'<br><span style="font-size:12px;color:#c9a86a">нажмите в любом месте — закрыть</span></div>';z.style.display='flex'}
 
+/* ---------- кластеризация: растения в одной точке — в пучок, по клику раскладываются ---------- */
+function makeGroup(){return(typeof L.markerClusterGroup==='function')?L.markerClusterGroup({showCoverageOnHover:false,maxClusterRadius:44,showCoverageOnHover:false}):L.layerGroup()}
+
 /* ---------- загрузчик наблюдений: GBIF (международная научная база) ---------- */
 const layers={};
 const BTN_ORIG={};
@@ -87,6 +95,7 @@ function hideAllLayers(){
  Object.keys(layers).forEach(k=>{if(map.hasLayer(layers[k]))map.removeLayer(layers[k]);const bb=document.getElementById(k);if(bb&&bb.dataset.orig){bb.style.opacity='.65';bb.textContent=bb.dataset.orig}})}
 async function gbifKey(name){const r=await fetch('https://api.gbif.org/v1/species/match?name='+encodeURIComponent(name));const d=await r.json();return d.usageKey}
 function gbifImg(o,w){if(!(window.md5&&o.media&&o.media[0]))return'';return 'https://api.gbif.org/v1/image/cache/'+(w?w+'x/':'')+'occurrence/'+o.key+'/media/'+window.md5(o.media[0].identifier)}
+
 function ccOk(o){const m=(o.media&&o.media[0])||{};const l=((m.license||'')+(o.license||'')).toLowerCase();return !l||l.indexOf('cc')>=0||l.indexOf('public')>=0||l.indexOf('by')>=0}
 async function loadSet(btnId,taxa,note,per){
  const b=document.getElementById(btnId);if(!b.dataset.orig)b.dataset.orig=b.textContent;
@@ -99,7 +108,7 @@ async function loadSet(btnId,taxa,note,per){
   let all=[];
   for(const t of taxa){const k=await gbifKey(t.name);if(!k)continue;const r=await fetch('https://api.gbif.org/v1/occurrence/search?taxon_key='+k+'&media_type=StillImage&limit='+(t.n||per||40));const d=await r.json();all=all.concat((d.results||[]).filter(ccOk));if(all.length>200)break}
   const seen={};all=all.filter(o=>{if(!o.decimalLatitude||!o.decimalLongitude)return false;const kk=o.key;if(seen[kk])return false;seen[kk]=1;return true});
-  const lg=L.layerGroup();
+  const lg=makeGroup();
   all.forEach(o=>{const m0=(o.media&&o.media[0])||{};const shape=shapeFor(o.scientificName||o.genericName||'');const nm=(o.scientificName||o.genericName||'').split(' ').slice(0,2).join(' ');const credit=(m0.creator||o.recordedBy||'—')+' · '+(m0.license||o.license||'CC')+' · GBIF';const th=gbifImg(o,100);const big=gbifImg(o,900)||gbifImg(o,300);const zoom=gbifImg(o,1200)||big;
    const ident=(m0.identifier||'');
    const inatSq=ident.indexOf('inaturalist')>=0?ident.replace(/\/(original|large|medium|small)\./,'/square.'):'';
@@ -111,7 +120,7 @@ async function loadSet(btnId,taxa,note,per){
   layers[key]=lg;hideAllLayers();lg.addTo(map);b.style.opacity='1';
   b.textContent=b.textContent.replace('⏳ ','✖ ')+' ('+all.length+')';
   map.flyTo([12,-25],3,{duration:1.4});
-  document.getElementById('side').innerHTML='<h2>'+b.textContent.replace('✖ ','')+'</h2><div class="desc">'+note+'</div><div class="t2">Нажмите кнопку ещё раз, чтобы убрать слой. Слои по одному.</div>';
+  document.getElementById('side').innerHTML='<h2>'+b.textContent.replace('✖ ','')+'</h2><div class="desc">'+note+'</div><div class="t2">Нажмите кнопку ещё раз, чтобы убрать слой. Слои по одному. Совпавшие растения — пучком с цифрой: нажмите, чтобы разложить.</div>';
  }catch(e){b.textContent=b.textContent.replace('⏳ ','❌ ');setTimeout(()=>{b.textContent=b.textContent.replace('❌ ','')},2500)}
  b.disabled=false}
 document.getElementById('bWild').onclick=()=>loadSet('bWild',[{name:'Cactaceae',n:150}],'Дикие кактусы мира — по данным GBIF, международной научной базы (музеи и университеты планеты). Фото открыты по лицензиям Creative Commons с подписью авторов. Миниатюры-подписи: круглые рамки — шаровидные, овальные — опунции.');
@@ -195,7 +204,7 @@ let histOn=false;
 const histBtn=document.createElement('button');histBtn.className='btn brown';histBtn.id='hist';histBtn.textContent='📜 История';document.getElementById('topbar').appendChild(histBtn);
 histBtn.onclick=()=>{if(histOn){map.removeLayer(histLayer);histBtn.textContent='📜 История'}else{map.addLayer(histLayer);histBtn.textContent='✖ Убрать историю';showPanel({title:'📜 Исторический слой',desc:'Коричневые пунктирные линии — пути первооткрывателей: ⛵ Колумб, 🧭 Гумбольдт, 🎒 Карвинский. 🏠 — крупнейшие теплицы мира. Нажимайте значки.',chips:[],photos:[]})}histOn=!histOn};
 
-/* ---------- 🪴 Домашние кактусы жителей ---------- */ (function(){const b=document.getElementById('bHome');let layer=null,on=false; b.onclick=async function(){if(on){if(layer)map.removeLayer(layer);b.textContent='🪴 Домашние';on=false;return} b.textContent='⏳ 🪴';hideAllLayers(); try{const r=await fetch('https://photo-gallery-18193-default-rtdb.firebaseio.com/photos.json');const d=await r.json(); const list=Object.values(d||{}).filter(function(o){return o&&o.kat&&o.place&&o.place.lat}); layer=L.layerGroup();let n=0; list.forEach(function(o){const ic=L.divIcon({className:'',html:'<div style="text-align:center"><div style="width:34px;height:34px;border-radius:50%;border:2px solid #9a7b1e;overflow:hidden;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.5)"><img src="'+(o.imgs||o.img)+'" style="width:100%;height:100%;object-fit:cover"></div><div style="font-size:10px;font-weight:700;color:#6b4423;text-shadow:0 0 3px #fff,0 0 5px #fff;white-space:nowrap">'+(o.author||'')+'</div></div>',iconSize:[34,48],iconAnchor:[17,14]}); const m=L.marker([o.place.lat,o.place.lng],{icon:ic});m.bindTooltip(o.caption||o.genus||'🌵',{direction:'top',offset:[0,-16]}); m.on('click',function(){showPanel({title:'🪴 '+(o.author||'Житель'),desc:(o.caption?('«'+o.caption+'»<br>'):'')+(o.genus?('Род: <b>'+o.genus+'</b><br>'):'')+'📍 '+o.place.name+'<br><span style="font-size:12px;color:#8b5e34">домашний кактус жителя · примерное место, без точного адреса</span>',chips:[],photos:o.img?[{u:o.img,c:(o.author||'')+' · фото жителя'}]:[]})}); m.addTo(layer);n++}); layer.addTo(map);on=true;b.textContent='✖ 🪴 ('+n+')'; document.getElementById('side').innerHTML='<h2>🪴 Домашние кактусы жителей</h2><div class="desc">Ваши домашние кактусы из Галереи. Место указано примерно — страна или край, без точного адреса (приватность!). Всего: <b>'+n+'</b>. Нажмите кнопку ещё раз, чтобы убрать слой.</div>'; }catch(e){b.textContent='🪴 Домашние';alert('Не загрузилось: '+e.message)}}})(); setTimeout(play,800);
+/* ---------- 🪴 Домашние кактусы жителей ---------- */ (function(){const b=document.getElementById('bHome');let layer=null,on=false; b.onclick=async function(){if(on){if(layer)map.removeLayer(layer);b.textContent='🪴 Домашние';on=false;return} b.textContent='⏳ 🪴';hideAllLayers(); try{const r=await fetch('https://photo-gallery-18193-default-rtdb.firebaseio.com/photos.json');const d=await r.json(); const list=Object.values(d||{}).filter(function(o){return o&&o.kat&&o.place&&o.place.lat}); layer=makeGroup();let n=0; list.forEach(function(o){const ic=L.divIcon({className:'',html:'<div style="text-align:center"><div style="width:34px;height:34px;border-radius:50%;border:2px solid #9a7b1e;overflow:hidden;background:#fff;box-shadow:0 1px 5px rgba(0,0,0,.5)"><img src="'+(o.imgs||o.img)+'" style="width:100%;height:100%;object-fit:cover"></div><div style="font-size:10px;font-weight:700;color:#6b4423;text-shadow:0 0 3px #fff,0 0 5px #fff;white-space:nowrap">'+(o.author||'')+'</div></div>',iconSize:[34,48],iconAnchor:[17,14]}); const m=L.marker([o.place.lat,o.place.lng],{icon:ic});m.bindTooltip(o.caption||o.genus||'🌵',{direction:'top',offset:[0,-16]}); m.on('click',function(){showPanel({title:'🪴 '+(o.author||'Житель'),desc:(o.caption?('«'+o.caption+'»<br>'):'')+(o.genus?('Род: <b>'+o.genus+'</b><br>'):'')+'📍 '+o.place.name+'<br><span style="font-size:12px;color:#8b5e34">домашний кактус жителя · примерное место, без точного адреса</span>',chips:[],photos:o.img?[{u:o.img,c:(o.author||'')+' · фото жителя'}]:[]})}); m.addTo(layer);n++}); layer.addTo(map);on=true;b.textContent='✖ 🪴 ('+n+')'; document.getElementById('side').innerHTML='<h2>🪴 Домашние кактусы жителей</h2><div class="desc">Ваши домашние кактусы из Галереи. Место указано примерно — страна или край, без точного адреса (приватность!). Совпавшие соседи складываются в пучок — нажмите, чтобы разложить. Всего: <b>'+n+'</b>. Нажмите кнопку ещё раз, чтобы убрать слой.</div>'; }catch(e){b.textContent='🪴 Домашние';alert('Не загрузилось: '+e.message)}}})(); setTimeout(play,800);
 }
 </script>
 </body>

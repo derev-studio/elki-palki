@@ -5,6 +5,8 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌵</text></svg>">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кактусярий — Систематика v5</title>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
 *{box-sizing:border-box}
 body{font-family:Georgia,serif;background:#17233a;color:#f3e9d2;margin:0;min-height:100vh}
@@ -71,6 +73,7 @@ li.open>.kids{display:block}
 .addbtn:active{transform:translateY(3px);box-shadow:none}
 .note{font-size:14px;color:#e8d9b8;margin:8px 0}
 .panelstart{text-align:center;color:#9db4d0;padding:30px 10px;font-size:15px;line-height:1.8}
+.urph{border-radius:12px;border:2px solid #3f6b4f;cursor:zoom-in;width:100%;display:block;margin-top:8px}
 @media(max-width:900px){.panel{position:static;max-height:none}}
 </style>
 </head>
@@ -78,8 +81,9 @@ li.open>.kids{display:block}
 <div class="bar">
 <b>🌵 Кактусярий · 🌳 Систематика · v5</b>
 <span style="flex:1"></span>
-<a href="kaktusariy.html" class="navbtn" style="background:#8b5e34;color:#fdf3df">🌵 В начало</a>
+<a href="kaktusariy-gallery.html" class="navbtn" style="background:#3f6b4f;color:#fff">🖼 Галерея</a>
 <a href="kaktusariy-map.html" class="navbtn" style="background:#3f6b4f;color:#fff">🗺 Карта</a>
+<a href="kaktusariy.html" class="navbtn" style="background:#8b5e34;color:#fdf3df">🌵 В начало</a>
 <a href="index.html" class="navbtn" style="background:#8b5e34;color:#fdf3df">🌲 В деревню</a>
 </div>
 <div class="searchwrap">
@@ -103,6 +107,7 @@ li.open>.kids{display:block}
 </div>
 <script>
 const P=(u,c)=>({photo:u,credit:c});
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const TREE={name:'Кактусовые · Cactaceae',cls:'sf',ru:'семейство · ~155 родов · ~1500 видов',kids:[
 {name:'Leuenbergerioideae',cls:'sf',ru:'лойенбергериевые · Карибы',kids:['Leuenbergeria']},
 {name:'Pereskioideae',cls:'sf',ru:'перескиевые · «первобытные» с листьями',kids:['Pereskia']},
@@ -144,10 +149,33 @@ const ROOT=norm(TREE,null);
 const ALL=[];(function walk(n){ALL.push({n});n.kids.forEach(k=>walk(k))})(ROOT);
 const GENERA=ALL.filter(a=>!a.n.kids.length).map(a=>a.n).sort((a,b)=>a.name.localeCompare(b.name));
 const WITHPHOTO=GENERA.filter(n=>n.photo).length;
-document.getElementById('stat').textContent='Родов всего: '+GENERA.length+' · с фото: '+WITHPHOTO+' · без фото: '+(GENERA.length-WITHPHOTO);
+
+/* ── кактусы жителей из Галереи (Firebase) ── */
+let USERPH={};let userPhTotal=0;let lastN=null;
+function updStat(){const withUser=GENERA.filter(g=>(USERPH[g.name]||[]).length).length;
+ document.getElementById('stat').textContent='Родов всего: '+GENERA.length+' · с фото: '+WITHPHOTO+' · без фото: '+(GENERA.length-WITHPHOTO)+' · кактусов жителей: '+userPhTotal+(withUser?' · в '+withUser+' родах':'')}
+updStat();
+function userPhHTML(n){const up=USERPH[n.name]||[];
+ if(!up.length)return'';
+ return '<div style="margin-top:14px"><div style="font-size:15px;color:#8fd0a0;font-weight:700">📸 Кактусы жителей рода '+n.name+' ('+up.length+'):</div>'
+ +up.slice(0,6).map(p=>'<img class="urph" loading="lazy" src="'+esc(p.imgs||p.img)+'" onclick="zoomPhoto(\''+esc(p.img)+'\',\''+esc(p.author)+' — житель деревни\')"><div class="phcap">«'+esc(p.caption||'мой кактус')+'» · '+esc(p.author)+'</div>').join('')
+ +(up.length>6?'<div class="tip" style="margin-top:6px">…и ещё '+(up.length-6)+' — в Галерее жителей</div>':'')+'</div>'}
+(function(){
+ try{
+  firebase.initializeApp({apiKey:"AIzaSyB2X3o7KwYFkMfsskKoWpQYBrws8L-Mn9w",authDomain:"photo-gallery-18193.firebaseapp.com",projectId:"photo-gallery-18193",databaseURL:"https://photo-gallery-18193-default-rtdb.firebaseio.com"});
+  firebase.database().ref('photos').on('value',s=>{
+   const d=s.val();USERPH={};userPhTotal=0;
+   Object.values(d||{}).forEach(p=>{if(p&&p.kat&&p.genus){const g=String(p.genus).trim();const g2=g[0].toUpperCase()+g.slice(1);(USERPH[g2]=USERPH[g2]||[]).push(p);userPhTotal++}});
+   updStat();
+   const r=new URLSearchParams(location.search).get('rod');
+   if(lastN)showPanel(lastN);
+   else if(r){const f=GENERA.find(g=>g.name.toLowerCase()===r.toLowerCase());if(f)showPanel(f)}
+  });
+ }catch(e){}
+})();
 
 /* ── панель-карточка ── */
-function showPanel(n){const p=document.getElementById('panel');
+function showPanel(n){lastN=n;const p=document.getElementById('panel');
  const path=[];let c=n;while(c){path.unshift(c);c=c.parent}
  const sibs=n.parent?n.parent.kids.filter(k=>k!==n&&k.kids.length===0):[];
  p.innerHTML='<div>'+(n.photo?'<img class="ph" style="cursor:zoom-in" src="'+n.photo+'" onclick="zoomPhoto(\''+n.photo+'\',\''+(n.credit||'').replace(/'/g,'')+'\')">':'<div style="background:#1e2a44;border:2px dashed #8b5e34;border-radius:14px;padding:34px 10px;text-align:center;color:#9db4d0">📷<br>фото скоро появится</div>')+(n.photo?'<div class="phcap">'+n.credit+'</div>':'')+'</div>'
@@ -156,6 +184,7 @@ function showPanel(n){const p=document.getElementById('panel');
  +(n.note?'<div class="note">'+n.note+'</div>':'')
  +'<div class="path">Где живёт: <b>'+path.map(x=>x.name).join('</b> → <b>')+'</b></div>'
  +(sibs.length?'<div class="sib"><b>Родня рядом</b> (та же ветка):<br>'+sibs.slice(0,10).map(s=>'<i onclick="openGenus(\''+s.name+'\')">'+s.name+'</i>').join(' · ')+(sibs.length>10?' …':'')+'</div>':'')
+ +userPhHTML(n)
  +'<button class="addbtn" onclick="location.href=\'kaktusariy-gallery.html\'">➕ Добавить своё фото к роду</button>'
  +'<div class="tip" style="text-align:center;margin-top:6px">кнопка ведёт в Галерею — там галочка «К роду в Систематике»</div>';
  if(window.innerWidth<900)p.scrollIntoView({behavior:'smooth',block:'nearest'})}
@@ -172,7 +201,7 @@ window.showView=function(v){['gal','az','tree'].forEach(x=>{const e=document.get
  GENERA.forEach(n=>{const L=n.name[0].toUpperCase();
   if(L!==letter){letter=L;const h=document.createElement('div');h.className='azletter';h.textContent=L;box.appendChild(h);const r=document.createElement('div');r.className='azrow';r.id='az-'+L;box.appendChild(r)}
   const c=document.createElement('span');c.className='azchip'+(n.photo?'':' nophoto');
-  c.innerHTML=(n.photo?'🌵':'🍃')+'<i>'+n.name+'</i>'+(RU[n.name]?'<span>'+RU[n.name]+'</span>':'');
+  c.innerHTML=(n.photo?'🌵':'🍃')+'<i>'+n.name+'</i>'+(RU[n.name]?'<span>'+RU[n.name]+'</span>':'')+((USERPH[n.name]||[]).length?'<span style="color:#ffd76e">📸'+(USERPH[n.name].length)+'</span>':'');
   c.onclick=()=>showPanel(n);
   document.getElementById('az-'+L).appendChild(c)})})();
 
@@ -227,6 +256,6 @@ showView('az');
  if(f)showPanel(f);
  else document.getElementById('panel').innerHTML='<div class="panelstart">🔍<br>Род «'+r.replace(/</g,'')+'» пока не найден.<br>Попробуй поиск выше.</div>'})();
 </script>
-<div style="max-width:1200px;margin:0 auto;padding:0 16px 24px;font-size:12px;color:#8b5e34">Составлено по: de Vos J.M. et al. (2025), Korotkova N. et al. (2021), Nyffeler &amp; Eggli (2010) · фото: Wikimedia Commons (авторы указаны) · проверяет старший кактусовод С. Деревяшкин</div>
+<div style="max-width:1200px;margin:0 auto;padding:0 16px 24px;font-size:12px;color:#8b5e34">Составлено по: de Vos J.M. et al. (2025), Korotkova N. et al. (2021), Nyffeler &amp; Eggli (2010) · фото: Wikimedia Commons (авторы указаны) · кактусы жителей — из Галереи Кактусярия · проверяет старший кактусовод С. Деревяшкин</div>
 </body>
 </html>
