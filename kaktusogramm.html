@@ -7,6 +7,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#f6f3ec;color:#33302a}
@@ -176,16 +177,25 @@ async function photoToUrl(f){const im=await new Promise((res,rej)=>{const u=URL.
  const k=Math.min(1,1280/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
  const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));const fd=new FormData();fd.append('image',b,'p.jpg');
  const r=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});const d=await r.json();if(!(d.success&&d.data.url))throw 0;return d.data.url}
-async function fileToUrl(f){if(f.size>190*1024*1024)throw new Error('Больше 190 МБ — уменьши видео или кинь ссылку на YouTube');
- try{const fd=new FormData();fd.append('file',f);
-  const j=await xhrUpload('https://pixeldrain.com/api/file',fd);const d2=JSON.parse(j);
-  if(d2&&d2.id){prog('');return{url:'https://pixeldrain.com/api/file/'+d2.id}}}catch(e){}
- prog('Первый шкаф молчит, еду в запасной…');
+const BUCKETS=['photo-gallery-18193.appspot.com','photo-gallery-18193.firebasestorage.app'];
+async function fbUpload(f){let lastErr=null;
+ for(const b of BUCKETS){try{
+  const st=firebase.app().storage('gs://'+b);
+  const safe=f.name.replace(/[^\w.\-а-яёА-ЯЁ]/g,'_').slice(-60);
+  const ref=st.ref('gram/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'_'+safe);
+  const task=ref.put(f);
+  await new Promise((res,rej)=>{task.on('state_changed',s=>{if(s.totalBytes)prog('Родной шкаф принимает… '+Math.round(s.bytesTransferred/s.totalBytes*100)+'%')},rej,res)});
+  prog('');return{url:await ref.getDownloadURL()}
+ }catch(e){lastErr=e}}
+ throw lastErr||new Error('storage')}
+async function fileToUrl(f){if(f.size>200*1024*1024)throw new Error('Больше 200 МБ — уменьши видео или кинь ссылку на YouTube');
+ try{return await fbUpload(f)}catch(e){}
+ prog('Родной шкаф молчит, еду в гостевой…');
  try{const fd2=new FormData();fd2.append('reqtype','fileupload');fd2.append('fileToUpload',f);
   const t=(await xhrUpload('https://catbox.moe/user/api.php',fd2)).trim();
   if(/^https?:\/\//.test(t)){prog('');return{url:t}}}catch(e){}
  prog('');
- throw new Error('Оба шкафа молчат — попробуй ещё раз или кинь ссылку на YouTube')}
+ throw new Error('Шкафы молчат — попробуй ещё раз или кинь ссылку на YouTube')}
 window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex'};
 function fmt(ts){const d=new Date(ts);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}
 function listen(){db.ref('gram/rooms/'+ROOM+'/messages').limitToLast(80).on('value',s=>{const d=s.val();
