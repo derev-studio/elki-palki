@@ -32,8 +32,14 @@ input[type=text]:focus,textarea:focus{border-color:#8fbf9a}
 .msg .nm{font-size:11.5px;color:#7d9a83;font-weight:700;margin-bottom:2px}
 .msg .tm{font-size:10px;color:#bdb5a2;margin-top:4px}
 .msg img{max-width:100%;border-radius:12px;cursor:zoom-in;display:block;margin-top:6px}
-.msg video{max-width:100%;border-radius:12px;display:block;margin-top:6px;background:#000}
+.msg video{max-width:100%;max-height:300px;border-radius:12px;display:block;margin-top:6px;background:#000}
 .msg .pl{display:block;margin-top:6px;border:none;border-radius:12px;overflow:hidden;max-width:100%}
+.au{display:inline-flex;align-items:center;gap:9px;margin-top:6px;background:#eef3ea;border:1px solid #d8e2d0;border-radius:999px;padding:6px 13px 6px 6px;min-width:240px;max-width:100%}
+.aub{width:32px;height:32px;border-radius:50%;border:none;background:#3f8a52;color:#fff;cursor:pointer;font-size:12px;flex:none;line-height:1}
+.aub:hover{background:#35743f}
+.aup{flex:1;height:5px;background:#d8e2d0;border-radius:99px;cursor:pointer;position:relative;min-width:90px}
+.aupf{position:absolute;left:0;top:0;bottom:0;background:#3f8a52;border-radius:99px;width:0}
+.aut{font-size:11px;color:#7d9a83;font-variant-numeric:tabular-nums}
 .msg .fl{display:inline-block;margin-top:6px;background:#eef3ea;color:#2c5a38;padding:6px 12px;border-radius:10px;font-size:12.5px;text-decoration:none;font-weight:600;word-break:break-all}
 .msg.mine{align-self:flex-end;background:#dff2d9;border-bottom-left-radius:16px;border-bottom-right-radius:4px}
 .msg.mine .nm{color:#4a7a56}
@@ -167,10 +173,12 @@ document.getElementById('vf').addEventListener('change',e=>{myFile=e.target.file
 function updAttach(){const a=[];if(myPhoto)a.push('📷 '+myPhoto.name);if(myFile)a.push('📎 '+myFileName);document.getElementById('attachname').textContent=a.join(' + ')}
 function prog(p){document.getElementById('attachname').textContent=p?('⏳ '+p):''}
 function xhrUpload(url,fd){return new Promise((res,rej)=>{
- const x=new XMLHttpRequest();const to=setTimeout(()=>{try{x.abort()}catch(e){};rej(new Error('timeout'))},600000);
- x.upload.onprogress=e=>{if(e.lengthComputable)prog('Шкаф принимает… '+Math.round(e.loaded/e.total*100)+'%')};
- x.onload=()=>{clearTimeout(to);if(x.status>=200&&x.status<300)res(x.responseText);else rej(new Error('http '+x.status))};
- x.onerror=()=>{clearTimeout(to);rej(new Error('net'))};
+ const x=new XMLHttpRequest();let alive=Date.now();
+ const to=setInterval(()=>{if(Date.now()-alive>25000){try{x.abort()}catch(e){}}},5000);
+ x.upload.onprogress=e=>{alive=Date.now();if(e.lengthComputable)prog('Шкаф принимает… '+Math.round(e.loaded/e.total*100)+'%')};
+ x.onload=()=>{clearInterval(to);if(x.status>=200&&x.status<300)res(x.responseText);else rej(new Error('http '+x.status))};
+ x.onerror=()=>{clearInterval(to);rej(new Error('net'))};
+ x.onabort=()=>{clearInterval(to);rej(new Error('abort'))};
  x.open('POST',url);x.send(fd)})}
 async function photoToUrl(f){const im=await new Promise((res,rej)=>{const u=URL.createObjectURL(f);const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=u});
  const k=Math.min(1,1280/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
@@ -185,13 +193,20 @@ async function gofileUp(f){
  if(d.status==='ok'&&d.data&&d.data.downloadPage)return d.data.downloadPage;
  throw new Error('gofile')}
 async function fileToUrl(f){if(f.size>200*1024*1024)throw new Error('Больше 200 МБ — уменьши видео или кинь ссылку на YouTube');
- try{prog('Шкаф принимает…');const u=await gofileUp(f);prog('');return{url:u,page:1}}catch(e){}
- prog('Первый шкаф молчит, еду в запасной…');
- try{const fd2=new FormData();fd2.append('reqtype','fileupload');fd2.append('fileToUpload',f);
+ try{prog('Шкаф принимает…');
+  const fd2=new FormData();fd2.append('reqtype','fileupload');fd2.append('fileToUpload',f);
   const t=(await xhrUpload('https://catbox.moe/user/api.php',fd2)).trim();
   if(/^https?:\/\//.test(t)){prog('');return{url:t}}}catch(e){}
+ prog('Первый шкаф молчит, еду в запасной…');
+ try{const u=await gofileUp(f);prog('');return{url:u,page:1}}catch(e){}
  prog('');
  throw new Error('Оба шкафа молчат — попробуй ещё раз или кинь ссылку на YouTube')}
+window.auTgl=function(b){const a=b.parentElement.querySelector('audio');document.querySelectorAll('.au audio').forEach(o=>{if(o!==a&&!o.paused)o.pause()});a.paused?a.play():a.pause()};
+window.auSeek=function(e,bar){const a=bar.parentElement.querySelector('audio');const r=bar.getBoundingClientRect();if(a.duration)a.currentTime=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width))*a.duration};
+window.auUpd=function(a){const w=a.parentElement;const f=w.querySelector('.aupf');const t=w.querySelector('.aut');const btn=w.querySelector('.aub');
+ btn.textContent=a.paused?'\u25b6':'\u275a\u275a';
+ if(a.duration)f.style.width=(a.currentTime/a.duration*100)+'%';
+ const s=Math.floor(a.currentTime);t.textContent=Math.floor(s/60)+':'+('0'+s%60).slice(-2)};
 window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex'};
 function fmt(ts){const d=new Date(ts);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}
 function listen(){db.ref('gram/rooms/'+ROOM+'/messages').limitToLast(80).on('value',s=>{const d=s.val();
@@ -203,7 +218,7 @@ function listen(){db.ref('gram/rooms/'+ROOM+'/messages').limitToLast(80).on('val
  const ch=document.getElementById('chat');ch.scrollTop=ch.scrollHeight})}
 function render(list){document.getElementById('chat').innerHTML=list.map(m=>{
  if(m.del)return '<div class="msg"><div class="nm">'+esc(m.name)+'</div><div class="removed">🧹 письмо убрано хозяйкой</div></div>';
- return '<div class="msg'+(m.name===NAME?' mine':'')+'">'+(ADM?'<button class="del" onclick="delMsg(\''+m.key+'\')" title="убрать">✕</button>':'')+'<div class="nm">'+esc(m.name)+'</div><div>'+linkify(m.text)+'</div>'+(m.img?'<img src="'+esc(m.img)+'" loading="lazy" onclick="showLB(\''+esc(m.img)+'\')">':'')+(m.file?(m.mime.indexOf('video')===0?'<video controls preload="metadata" src="'+esc(m.file)+'"></video>':(m.mime.indexOf('audio')===0?'<div style="margin-top:6px"><audio controls src="'+esc(m.file)+'" style="width:260px;max-width:100%"></audio></div>':'<a class="fl" href="'+esc(m.file)+'" target="_blank" rel="noopener">📎 '+esc(m.fname||'файл')+'</a>')):'')+'<div class="tm">'+fmt(m.ts)+'</div></div>'}).join('')||'<div class="empty"><div class="e1">🌵</div>Писем пока нет.<br>Напишите первое!</div>'}
+ return '<div class="msg'+(m.name===NAME?' mine':'')+'">'+(ADM?'<button class="del" onclick="delMsg(\''+m.key+'\')" title="убрать">✕</button>':'')+'<div class="nm">'+esc(m.name)+'</div><div>'+linkify(m.text)+'</div>'+(m.img?'<img src="'+esc(m.img)+'" loading="lazy" onclick="showLB(\''+esc(m.img)+'\')">':'')+(m.file?(m.mime.indexOf('video')===0?'<video controls preload="metadata" src="'+esc(m.file)+'"></video>':(m.mime.indexOf('audio')===0?'<span class="au"><button class="aub" onclick="auTgl(this)">\u25b6</button><span class="aup" onclick="auSeek(event,this)"><span class="aupf"></span></span><span class="aut">0:00</span><audio preload="metadata" src="'+esc(m.file)+'" ontimeupdate="auUpd(this)" onplay="auUpd(this)" onpause="auUpd(this)" onloadedmetadata="auUpd(this)" onended="auUpd(this)"></audio></span>':'<a class="fl" href="'+esc(m.file)+'" target="_blank" rel="noopener">📎 '+esc(m.fname||'файл')+'</a>')):'')+'<div class="tm">'+fmt(m.ts)+'</div></div>'}).join('')||'<div class="empty"><div class="e1">🌵</div>Писем пока нет.<br>Напишите первое!</div>'}
 window.delMsg=function(key){if(!ADM)return;db.ref('gram/rooms/'+ROOM+'/messages/'+key).update({del:1})};
 window.sendMsg=async()=>{if(BANNED)return toast('🚫 Вам запрещено писать в деревне');
  const t=document.getElementById('txt').value.trim();
