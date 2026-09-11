@@ -7,7 +7,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#f6f3ec;color:#33302a}
@@ -168,7 +167,7 @@ document.getElementById('vf').addEventListener('change',e=>{myFile=e.target.file
 function updAttach(){const a=[];if(myPhoto)a.push('📷 '+myPhoto.name);if(myFile)a.push('📎 '+myFileName);document.getElementById('attachname').textContent=a.join(' + ')}
 function prog(p){document.getElementById('attachname').textContent=p?('⏳ '+p):''}
 function xhrUpload(url,fd){return new Promise((res,rej)=>{
- const x=new XMLHttpRequest();const to=setTimeout(()=>{try{x.abort()}catch(e){};rej(new Error('timeout'))},40000);
+ const x=new XMLHttpRequest();const to=setTimeout(()=>{try{x.abort()}catch(e){};rej(new Error('timeout'))},600000);
  x.upload.onprogress=e=>{if(e.lengthComputable)prog('Шкаф принимает… '+Math.round(e.loaded/e.total*100)+'%')};
  x.onload=()=>{clearTimeout(to);if(x.status>=200&&x.status<300)res(x.responseText);else rej(new Error('http '+x.status))};
  x.onerror=()=>{clearTimeout(to);rej(new Error('net'))};
@@ -177,25 +176,22 @@ async function photoToUrl(f){const im=await new Promise((res,rej)=>{const u=URL.
  const k=Math.min(1,1280/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
  const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));const fd=new FormData();fd.append('image',b,'p.jpg');
  const r=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});const d=await r.json();if(!(d.success&&d.data.url))throw 0;return d.data.url}
-const BUCKETS=['photo-gallery-18193.appspot.com','photo-gallery-18193.firebasestorage.app'];
-async function fbUpload(f){let lastErr=null;
- for(const b of BUCKETS){try{
-  const st=firebase.app().storage('gs://'+b);
-  const safe=f.name.replace(/[^\w.\-а-яёА-ЯЁ]/g,'_').slice(-60);
-  const ref=st.ref('gram/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'_'+safe);
-  const task=ref.put(f);
-  await new Promise((res,rej)=>{task.on('state_changed',s=>{if(s.totalBytes)prog('Родной шкаф принимает… '+Math.round(s.bytesTransferred/s.totalBytes*100)+'%')},rej,res)});
-  prog('');return{url:await ref.getDownloadURL()}
- }catch(e){lastErr=e}}
- throw lastErr||new Error('storage')}
+async function gofileUp(f){
+ const sj=await (await fetch('https://api.gofile.io/servers')).json();
+ const srv=sj.data.servers[0].name;
+ const fd=new FormData();fd.append('file',f);
+ const t=await xhrUpload('https://'+srv+'.gofile.io/contents/uploadfile',fd);
+ const d=JSON.parse(t);
+ if(d.status==='ok'&&d.data&&d.data.downloadPage)return d.data.downloadPage;
+ throw new Error('gofile')}
 async function fileToUrl(f){if(f.size>200*1024*1024)throw new Error('Больше 200 МБ — уменьши видео или кинь ссылку на YouTube');
- try{return await fbUpload(f)}catch(e){}
- prog('Родной шкаф молчит, еду в гостевой…');
+ try{prog('Шкаф принимает…');const u=await gofileUp(f);prog('');return{url:u,page:1}}catch(e){}
+ prog('Первый шкаф молчит, еду в запасной…');
  try{const fd2=new FormData();fd2.append('reqtype','fileupload');fd2.append('fileToUpload',f);
   const t=(await xhrUpload('https://catbox.moe/user/api.php',fd2)).trim();
   if(/^https?:\/\//.test(t)){prog('');return{url:t}}}catch(e){}
  prog('');
- throw new Error('Шкафы молчат — попробуй ещё раз или кинь ссылку на YouTube')}
+ throw new Error('Оба шкафа молчат — попробуй ещё раз или кинь ссылку на YouTube')}
 window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex'};
 function fmt(ts){const d=new Date(ts);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}
 function listen(){db.ref('gram/rooms/'+ROOM+'/messages').limitToLast(80).on('value',s=>{const d=s.val();
@@ -216,7 +212,7 @@ window.sendMsg=async()=>{if(BANNED)return toast('🚫 Вам запрещено 
  try{
   let img='';let file='';let fname='';let mime='';
   if(myPhoto){prog('Фото грузится…');img=await photoToUrl(myPhoto);prog('')}
-  if(myFile){const r=await fileToUrl(myFile);file=r.url;fname=myFileName;mime=myFile.type||''}
+  if(myFile){const r=await fileToUrl(myFile);file=r.url;fname=myFileName;mime=r.page?'':(myFile.type||'')}
   myLast=Date.now()+10000;
   await db.ref('gram/rooms/'+ROOM+'/messages').push({name:NAME,text:t,img,file,fname,mime,ts:Date.now()});
   document.getElementById('txt').value='';myPhoto=null;myFile=null;myFileName='';document.getElementById('f').value='';document.getElementById('vf').value='';updAttach();
