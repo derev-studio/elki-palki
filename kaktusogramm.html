@@ -113,7 +113,7 @@ input[type=file]{display:none}
 </div>
 </div>
 
-<div class="tiny" style="text-align:center;margin-top:16px">Кактусограмм — деревенская почта · шкафы: Pixeldrain → Catbox · версия 8 · 🌵</div>
+<div class="tiny" style="text-align:center;margin-top:16px">Кактусограмм — деревенская почта · шкафы: Pixeldrain → Catbox · версия 9 · 🌵</div>
 </div>
 <script>
 const CFG={apiKey:"AIzaSyB2X3o7KwYFkMfsskKoWpQYBrws8L-Mn9w",authDomain:"photo-gallery-18193.firebaseapp.com",projectId:"photo-gallery-18193",databaseURL:"https://photo-gallery-18193-default-rtdb.firebaseio.com"};
@@ -197,7 +197,7 @@ function listen(){db.ref('gram/rooms/'+ROOM+'/messages').limitToLast(80).on('val
  const ch=document.getElementById('chat');ch.scrollTop=ch.scrollHeight})}
 function render(list){document.getElementById('chat').innerHTML=list.map(m=>{
  if(m.del)return '<div class="msg"><div class="nm">'+esc(m.name)+'</div><div class="removed">🧹 письмо убрано хозяйкой</div></div>';
- return '<div class="msg'+(m.name===NAME?' mine':'')+'">'+(ADM?'<button class="del" onclick="delMsg(\''+m.key+'\')" title="убрать">✕</button>':'')+'<div class="nm">'+esc(m.name)+'</div><div>'+linkify(m.text)+'</div>'+(m.img?'<img src="'+esc(m.img)+'" loading="lazy" onclick="showLB(\''+esc(m.img)+'\')">':'')++(m.file?(m.mime.indexOf('video')===0?'<video controls preload="metadata" src="'+esc(m.file)+'"></video>':(m.mime.indexOf('audio')===0?'<div style="margin-top:6px"><audio controls src="'+esc(m.file)+'" style="width:260px;max-width:100%"></audio></div>':'<a class="fl" href="'+esc(m.file)+'" target="_blank" rel="noopener">📎 '+esc(m.fname||'файл')+'</a>')):'')+'<div class="tm">'+fmt(m.ts)+'</div></div>'}).join('')||'<div class="empty"><div class="e1">🌵</div>Писем пока нет.<br>Напишите первое!</div>'}
+ return '<div class="msg'+(m.name===NAME?' mine':'')+'">'+(ADM?'<button class="del" onclick="delMsg(\''+m.key+'\')" title="убрать">✕</button>':'')+'<div class="nm">'+esc(m.name)+'</div><div>'+linkify(m.text)+'</div>'+(m.img?'<img src="'+esc(m.img)+'" loading="lazy" onclick="showLB(\''+esc(m.img)+'\')">':'')+(m.file?(m.mime.indexOf('video')===0?'<video controls preload="metadata" src="'+esc(m.file)+'"></video>':(m.mime.indexOf('audio')===0?'<div style="margin-top:6px"><audio controls src="'+esc(m.file)+'" style="width:260px;max-width:100%"></audio></div>':'<a class="fl" href="'+esc(m.file)+'" target="_blank" rel="noopener">📎 '+esc(m.fname||'файл')+'</a>')):'')+'<div class="tm">'+fmt(m.ts)+'</div></div>'}).join('')||'<div class="empty"><div class="e1">🌵</div>Писем пока нет.<br>Напишите первое!</div>'}
 window.delMsg=function(key){if(!ADM)return;db.ref('gram/rooms/'+ROOM+'/messages/'+key).update({del:1})};
 window.sendMsg=async()=>{if(BANNED)return toast('🚫 Вам запрещено писать в деревне');
  const t=document.getElementById('txt').value.trim();
