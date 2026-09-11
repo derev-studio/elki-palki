@@ -8,63 +8,58 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <style>
-*{box-sizing:border-box}
-body{font-family:Georgia,serif;background:#f3e9d2;color:#3d2c1e;margin:0}
-.bar{background:#fdf8ec;border-bottom:3px solid #8b5e34;padding:10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:500}
-.bar b{font-size:17px;color:#6b4423}
-.navbtn{font-family:inherit;font-size:14px;font-weight:700;border-radius:13px;padding:8px 16px;text-decoration:none;border:none;cursor:pointer}
-.wrap{max-width:760px;margin:0 auto;padding:16px}
-.doska{background:#fdf8ec;border:3px solid #8b5e34;border-radius:20px;padding:18px 20px;margin-bottom:14px;box-shadow:0 6px 0 #d8c49a}
-h1{font-size:24px;margin:0 0 4px;color:#6b4423}
-.sub{font-size:14px;color:#8b5e34;font-style:italic}
-input[type=text]{font-family:inherit;font-size:16px;padding:10px 14px;border:2px solid #c9a86a;border-radius:12px;background:#fff;color:#3d2c1e;width:100%}
-.btn{font-family:inherit;font-size:15px;font-weight:700;border:none;border-radius:13px;padding:10px 18px;cursor:pointer}
-.green{background:#3f6b4f;color:#fff;box-shadow:0 3px 0 #2c4a38}
-.brown{background:#8b5e34;color:#fdf3df;box-shadow:0 3px 0 #5e3d22}
-.gold{background:#9a7b1e;color:#fff;box-shadow:0 3px 0 #6d5713}
-.btn:disabled{opacity:.5}
-#chat{height:52vh;min-height:300px;overflow:auto;background:#efe4cb;border:2px solid #c9a86a;border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
-.msg{max-width:82%;background:#fdf8ec;border:2px solid #c9a86a;border-radius:14px;padding:8px 12px;font-size:15px;line-height:1.5;word-break:break-word}
-.msg .nm{font-size:12px;color:#8b5e34;font-weight:700;margin-bottom:2px}
-.msg .tm{font-size:10px;color:#b39a6d;margin-top:3px}
-.msg img{max-width:100%;border-radius:10px;border:2px solid #8b5e34;cursor:zoom-in;display:block;margin-top:6px}
-.msg video{max-width:100%;border-radius:10px;display:block;margin-top:6px;background:#000}
-.msg .pl{display:block;margin-top:6px;border:none;border-radius:10px;overflow:hidden;max-width:100%}
-.msg .fl{display:inline-block;margin-top:6px;background:#3f6b4f;color:#fff;padding:6px 12px;border-radius:10px;font-size:13px;text-decoration:none;font-weight:700;word-break:break-all}
-.msg.mine{align-self:flex-end;background:#e9f2e4;border-color:#3f6b4f}
-.msg .del{float:right;background:none;border:none;color:#c1553a;font-size:13px;cursor:pointer;font-family:inherit}
-.msg .removed{color:#b39a6d;font-style:italic}
-.secbox{background:#2a1f14;color:#f3e9d2;border-color:#6b4423}
-.secbox a{color:#ffd76e}
-#lb{position:fixed;inset:0;z-index:600;background:rgba(20,12,6,.92);display:none;align-items:center;justify-content:center;cursor:zoom-out}
-#lb img{max-width:92vw;max-height:92vh;border-radius:16px;border:5px solid #8b5e34}
-#toasts{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:700;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
-.toast{background:#3d2c1e;color:#f3e9d2;padding:10px 22px;border-radius:14px;font-weight:700}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
-.filebtn{display:inline-block;background:#3f6b4f;color:#fff;padding:10px 16px;border-radius:13px;cursor:pointer;font-weight:700;font-size:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#f6f3ec;color:#33302a}
+h1,.serif{font-family:Georgia,serif}
+.bar{background:#fff;border-bottom:1px solid #e7e0cf;padding:10px 16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:500;box-shadow:0 1px 8px rgba(80,70,50,.06)}
+.bar b{font-size:17px;color:#2c5a38;font-family:Georgia,serif}
+.navbtn{font-family:inherit;font-size:13.5px;font-weight:600;border-radius:999px;padding:8px 15px;text-decoration:none;border:none;cursor:pointer;background:#eef3ea;color:#3f6b4f}
+.navbtn:hover{background:#e2ecdb}
+.wrap{max-width:720px;margin:0 auto;padding:18px 14px}
+.card{background:#fff;border:1px solid #e7e0cf;border-radius:18px;padding:20px;box-shadow:0 2px 14px rgba(80,70,50,.05)}
+h1{font-size:23px;color:#2c5a38;margin-bottom:4px}
+.sub{font-size:13.5px;color:#8a8272;font-family:Georgia,serif;font-style:italic}
+input[type=text],textarea{font-family:inherit;font-size:15px;padding:11px 14px;border:1.5px solid #ddd5c2;border-radius:12px;background:#fff;color:#33302a;width:100%;outline:none;transition:border .15s}
+input[type=text]:focus,textarea:focus{border-color:#8fbf9a}
+.btn{font-family:inherit;font-size:14px;font-weight:600;border:none;border-radius:999px;padding:10px 18px;cursor:pointer;transition:opacity .15s}
+.btn.green{background:#3f8a52;color:#fff}
+.btn.brown{background:#8b6a4a;color:#fdf6ec}
+.btn.gold{background:#b3964a;color:#fff}
+.btn:disabled{opacity:.55}
+#chat{height:54vh;min-height:320px;overflow:auto;background:#efece3;border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.msg{max-width:80%;background:#fff;border-radius:16px;border-bottom-left-radius:4px;padding:9px 13px;font-size:14.5px;line-height:1.5;word-break:break-word;box-shadow:0 1px 2px rgba(80,70,50,.08);animation:pop .18s ease}
+@keyframes pop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.msg .nm{font-size:11.5px;color:#7d9a83;font-weight:700;margin-bottom:2px}
+.msg .tm{font-size:10px;color:#bdb5a2;margin-top:4px}
+.msg img{max-width:100%;border-radius:12px;cursor:zoom-in;display:block;margin-top:6px}
+.msg video{max-width:100%;border-radius:12px;display:block;margin-top:6px;background:#000}
+.msg .pl{display:block;margin-top:6px;border:none;border-radius:12px;overflow:hidden;max-width:100%}
+.msg .fl{display:inline-block;margin-top:6px;background:#eef3ea;color:#2c5a38;padding:6px 12px;border-radius:10px;font-size:12.5px;text-decoration:none;font-weight:600;word-break:break-all}
+.msg.mine{align-self:flex-end;background:#dff2d9;border-bottom-left-radius:16px;border-bottom-right-radius:4px}
+.msg.mine .nm{color:#4a7a56}
+.msg .del{float:right;background:none;border:none;color:#c1553a;font-size:13px;cursor:pointer;font-family:inherit;opacity:.7}
+.msg .removed{color:#b3ab98;font-style:italic}
+.secwrap .card{background:#2f2a24;color:#f3ead9;border-color:#4a4238}
+.secwrap .sub{color:#b3a68d}
+.secwrap input{background:#3a342c;color:#f3ead9;border-color:#5a5142}
+.secwrap .btn.gold{background:#8a7433}
+#lb{position:fixed;inset:0;z-index:600;background:rgba(24,20,14,.93);display:none;align-items:center;justify-content:center;cursor:zoom-out}
+#lb img{max-width:92vw;max-height:92vh;border-radius:18px}
+#toasts{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:700;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:#33302a;color:#f6f3ec;padding:10px 22px;border-radius:999px;font-size:13.5px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.composer{display:flex;gap:8px;align-items:flex-end;background:#fff;border:1.5px solid #ddd5c2;border-radius:18px;padding:8px;margin-top:10px}
+.composer textarea{border:none;flex:1;min-width:120px;padding:8px 6px;resize:none;height:38px;max-height:120px}
+.composer textarea:focus{border:none}
+.icobtn{width:38px;height:38px;border-radius:50%;border:none;background:#eef3ea;font-size:16px;cursor:pointer;flex:none;display:flex;align-items:center;justify-content:center}
+.icobtn:hover{background:#e2ecdb}
+.sendbtn{width:42px;height:38px;border-radius:12px;border:none;background:#3f8a52;color:#fff;font-size:16px;cursor:pointer;flex:none}
+.sendbtn:disabled{opacity:.55}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
 input[type=file]{display:none}
-.tiny{font-size:12px;color:#8b5e34;line-height:1.6}
-.badge{background:#9a7b1e;color:#fff;border-radius:10px;padding:2px 10px;font-size:12px;font-weight:700}
-/* ── зелёный кактусовый стиль ── */
-body{background:#eef4e6}
-.bar{background:#3a6b47;border-bottom-color:#2c5238}
-.bar b{color:#eaf6e4}
-.navbtn{background:#4a8a58 !important;color:#fff !important}
-.doska{background:#f7fbf2;border-color:#4a8a58;box-shadow:0 6px 0 #c4d9b2}
-h1{color:#2c5a38}
-.sub{color:#5a8a66}
-input[type=text]{border-color:#8fbf9a;background:#fff}
-.btn.green{background:#3f8a52;box-shadow:0 3px 0 #2c4a38}
-.btn.brown{background:#2f6b3f;box-shadow:0 3px 0 #1e4a2c}
-.btn.gold{background:#7ba83b;box-shadow:0 3px 0 #557a24}
-#chat{background:#e9f1de;border-color:#a9c9a4}
-.msg{background:#fffef8;border-color:#a9c9a4}
-.msg.mine{background:linear-gradient(135deg,#4a9a5e,#79bc7c);border-color:#2f6b3f;color:#fff}
-.msg.mine .nm{color:#dff0dc}
-.msg.mine .tm{color:#cfe6cc}
-.msg .fl{background:#3f8a52}
-.filebtn{background:#3f8a52}
-.spinebar{height:16px;overflow:hidden;line-height:0}
+.tiny{font-size:12px;color:#8a8272;line-height:1.65}
+.badge{background:#b3964a;color:#fff;border-radius:999px;padding:3px 11px;font-size:11.5px;font-weight:700}
+.empty{text-align:center;color:#a39b88;padding:34px 10px;font-family:Georgia,serif;font-style:italic}
+.empty .e1{font-size:40px;font-style:normal}
 </style>
 </head>
 <body>
@@ -73,53 +68,52 @@ input[type=text]{border-color:#8fbf9a;background:#fff}
 <div class="bar">
 <b>✉️ Кактусограмм</b>
 <span style="flex:1"></span>
-<a class="navbtn" style="background:#9a7b1e;color:#fff" href="stuk.html" title="для хозяйки">🔔 Стук в дверь</a>
-<a class="navbtn" style="background:#8b5e34;color:#fdf3df" href="kaktusariy.html">🌵 В начало</a>
-<a class="navbtn" style="background:#3f6b4f;color:#fff" href="systematika.html">🌳 Систематика</a>
-<a class="navbtn" style="background:#3f6b4f;color:#fff" href="biblioteka.html">📕 Библиотека</a>
+<a class="navbtn" href="stuk.html" title="для хозяйки">🔔 Стук</a>
+<a class="navbtn" href="kaktusariy.html">🌵 В начало</a>
+<a class="navbtn" href="biblioteka.html">📕 Библиотека</a>
 </div>
 <div class="wrap">
 
-<div class="doska" id="namecard">
+<div class="card" id="namecard">
 <h1>✉️ Кактусограмм</h1>
-<div class="sub">Деревенская почта Кактусярия: тексты, фото, файлы и видео прямо в письмах.</div>
-<div class="row"><input type="text" id="nm" maxlength="24" placeholder="Как вас звать в деревне?"><button class="btn green" onclick="setName()">🚪 Войти в почту</button></div>
-<div class="row"><button class="btn brown" id="gbtn" onclick="googleIn()">🔑 Войти через Google</button><span class="tiny">— своё имя навсегда и звёздочка хозяйке</span></div>
-<div class="tiny" style="margin-top:8px">Имя гостя хранится только на вашем устройстве. Фото и файлы — в деревенских шкафах (imgbb и Catbox), в базе — только ссылки.</div>
+<div class="sub">Почта Кактусярия: тексты, фото, файлы и видео прямо в письмах.</div>
+<div class="row"><input type="text" id="nm" maxlength="24" placeholder="Как вас звать в деревне?"><button class="btn green" onclick="setName()">Войти</button></div>
+<div class="row" style="margin-top:12px"><button class="btn brown" id="gbtn" onclick="googleIn()">🔑 Войти через Google</button><span class="tiny">— имя навсегда и звёздочка хозяйке</span></div>
+<div class="tiny" style="margin-top:12px">Имя гостя хранится только на вашем устройстве. Фото и файлы — в деревенских шкафах, в базе — только ссылки.</div>
 </div>
 
-<div class="doska" id="chatcard" style="display:none">
+<div id="chatwrap">
+<div class="card" id="chatcard" style="display:none">
 <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
 <h1 id="roomtitle">✉️ Общая почта</h1>
 <span class="badge" id="mebadge" style="display:none">⭐ хозяйка</span>
 <span style="flex:1"></span>
-<button class="btn brown" id="sndbtn" onclick="toggleSnd()">🔊 Стук</button>
-<button class="btn brown" id="outbtn" style="display:none" onclick="googleOut()">Выйти</button>
+<button class="icobtn" id="sndbtn" onclick="toggleSnd()" title="звук стука">🔊</button>
+<button class="icobtn" id="outbtn" style="display:none" onclick="googleOut()" title="выйти">⎋</button>
 </div>
 <div class="sub" id="roomsub">Все жители и гости Кактусярия видят эту переписку.</div>
-<div id="secretbar" class="doska secbox" style="display:none;margin:10px 0;padding:12px 14px">
-🚪 <b>Тайник.</b> Видят только те, у кого есть ссылка. Общий чат остаётся за дверью.<br>
-<button class="btn gold" style="margin-top:8px" onclick="invite()">🔗 Скопировать тайную ссылку</button>
-<button class="btn brown" style="margin-top:8px" onclick="location.href='kaktusogramm.html'">🚪 Выйти к общей почте</button>
+<div id="secretbar" class="card secwrap" style="display:none;margin:12px 0;padding:14px 16px">
+🚪 <b class="serif">Тайник.</b> Видят только те, у кого есть ссылка.<br>
+<button class="btn gold" style="margin-top:10px" onclick="invite()">🔗 Скопировать тайную ссылку</button>
+<button class="btn brown" style="margin-top:10px" onclick="location.href='kaktusogramm.html'">Выйти к общей почте</button>
 </div>
-<div class="spinebar"></div><div id="chat"></div><div class="spinebar"></div>
-<div class="spinebar"></div>
-<div class="row">
-<label class="filebtn" for="f">📷 Фото</label><input type="file" id="f" accept="image/*">
-<label class="filebtn" for="vf" style="background:#9a7b1e">🎬 Видео/файл</label><input type="file" id="vf">
-<textarea id="txt" maxlength="1000" placeholder="Написать письмо... ссылка на YouTube развернётся сама" style="flex:1;min-width:160px;font-family:inherit;font-size:16px;padding:10px 14px;border:2px solid #a9c9a4;border-radius:12px;background:#fff;color:#3d2c1e;resize:none;height:44px;max-height:132px"></textarea>
-<button class="btn green" id="send" onclick="sendMsg()">🌵 Отправить</button>
+<div id="chat"></div>
+<div class="composer">
+<label class="icobtn" for="f" title="фото">📷</label><input type="file" id="f" accept="image/*">
+<label class="icobtn" for="vf" title="видео или файл">📎</label><input type="file" id="vf">
+<textarea id="txt" maxlength="1000" placeholder="Сообщение…"></textarea>
+<button class="sendbtn" id="send" onclick="sendMsg()">➤</button>
 </div>
-<div class="spinebar"></div>
-<div class="tiny" id="attachname" style="margin-top:4px"></div>
-<div class="row" style="margin-top:14px;border-top:2px dashed #c9a86a;padding-top:12px">
-<span class="tiny">🚪 <b>Тайник</b> — секретный разговор по тайной ссылке. Секретное слово:</span>
-<input type="text" id="secword" maxlength="24" placeholder="секретное слово" style="max-width:220px">
-<button class="btn brown" onclick="openSecret()">Войти в Тайник</button>
+<div class="tiny" id="attachname" style="margin-top:6px"></div>
+<div class="row" style="margin-top:14px;border-top:1px dashed #e0d8c6;padding-top:14px">
+<span class="tiny">🚪 <b>Тайник</b> — секретный разговор по ссылке. Слово:</span>
+<input type="text" id="secword" maxlength="24" placeholder="секретное слово" style="max-width:200px">
+<button class="btn brown" onclick="openSecret()">Войти</button>
+</div>
 </div>
 </div>
 
-<div class="tiny" style="text-align:center;margin-top:14px">Кактусограмм — своё, деревенское. Видео и файлы лежат в шкафу Catbox, до 200 МБ за файл. 🌵</div>
+<div class="tiny" style="text-align:center;margin-top:16px">Кактусограмм — деревенская почта. Шкафы: Pixeldrain и Catbox. 🌵</div>
 </div>
 <script>
 const CFG={apiKey:"AIzaSyB2X3o7KwYFkMfsskKoWpQYBrws8L-Mn9w",authDomain:"photo-gallery-18193.firebaseapp.com",projectId:"photo-gallery-18193",databaseURL:"https://photo-gallery-18193-default-rtdb.firebaseio.com"};
@@ -127,7 +121,7 @@ const IMGBB="b3ef16e01059cc97d198428f28ebc07e";
 firebase.initializeApp(CFG);
 const db=firebase.database();
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.getElementById('toasts').appendChild(t);setTimeout(()=>t.remove(),2600)};
+const toast=m=>{const t=document.createElement('div');t.className='toast';t.textContent=m;document.getElementById('toasts').appendChild(t);setTimeout(()=>t.remove(),2800)};
 const P=new URLSearchParams(location.search);
 let SEC=(P.get('room')||'').toLowerCase().replace(/[^a-zа-яё0-9-]/g,'').slice(0,24);
 const ROOM=SEC?('s_'+SEC):'public';
@@ -135,60 +129,64 @@ let NAME=localStorage.getItem('gram-name')||'';
 let lastTs=0;let myLast=0;let LIST=[];
 let SND=localStorage.getItem('gram-snd')!=='0';
 let myPhoto=null;let myFile=null;let myFileName='';
-let ADM=false;let BANNED=false;let ENTERED=false;let UID=null;
-/* ---------- звук стука ---------- */
-function knock(){try{const C=knock.C||(knock.C=new (window.AudioContext||window.webkitAudioContext)());if(C.state==='suspended')C.resume();const t=C.currentTime;[0,0.16].forEach(dt=>{const o=C.createOscillator();const g=C.createGain();o.type='triangle';o.frequency.value=160+Math.random()*40;g.gain.setValueAtTime(0.001,t+dt);g.gain.exponentialRampToValueAtTime(0.4,t+dt+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+dt+0.16);o.connect(g);g.connect(C.destination);o.start(t+dt);o.stop(t+dt+0.2)})}catch(e){}}
+let ADM=false;let BANNED=false;let ENTERED=false;
+function knock(){try{const C=knock.C||(knock.C=new (window.AudioContext||window.webkitAudioContext)());if(C.state==='suspended')C.resume();const t=C.currentTime;[0,0.16].forEach(dt=>{const o=C.createOscillator();const g=C.createGain();o.type='triangle';o.frequency.value=160+Math.random()*40;g.gain.setValueAtTime(0.001,t+dt);g.gain.exponentialRampToValueAtTime(0.35,t+dt+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+dt+0.15);o.connect(g);g.connect(C.destination);o.start(t+dt);o.stop(t+dt+0.2)})}catch(e){}}
 window.toggleSnd=function(){SND=!SND;localStorage.setItem('gram-snd',SND?'1':'0');updSnd();toast(SND?'🔊 Стук включён':'🔇 Стук выключен')};
-function updSnd(){document.getElementById('sndbtn').textContent=SND?'🔊 Стук':'🔇 Стук'}
-/* ---------- ссылки: превращаем в плееры ---------- */
-function linkify(t){
- let h=esc(t);
+function updSnd(){document.getElementById('sndbtn').textContent=SND?'🔊':'🔇'}
+function linkify(t){let h=esc(t);
  h=h.replace(/(https?:\/\/[^\s<]+)/g,(u)=>{
-  if(/pixeldrain\.com\/api\//.test(u))return '<video controls preload="metadata" src="'+u+'"></video>';
+  if(/pixeldrain\.com\/(api\/)?file\//.test(u)||/\.(mp4|webm|ogv|mov)(\?|$)/i.test(u))return '<video controls preload="metadata" src="'+u+'"></video>';
   let m=u.match(/(?:youtube\.com\/watch\?\S*v=|youtu\.be\/)([\w-]{6,})/);
   if(m)return '<span class="pl"><iframe width="300" height="169" src="https://www.youtube.com/embed/'+m[1]+'" frameborder="0" allowfullscreen style="max-width:100%"></iframe></span>';
   m=u.match(/(?:vk\.com\/video|vkvideo\.ru\/video)(-?\d+)_(\d+)/);
   if(m)return '<span class="pl"><iframe width="300" height="169" src="https://vk.com/video_ext.php?oid='+m[1]+'&id='+m[2]+'" frameborder="0" allowfullscreen style="max-width:100%"></iframe></span>';
-  if(/\.(mp4|webm|ogv)(\?|$)/i.test(u))return '<video controls preload="metadata" src="'+u+'"></video>';
   return '<a href="'+u+'" target="_blank" rel="noopener" class="fl">📎 '+u.replace(/^https?:\/\//,'').slice(0,60)+'</a>'});
  return h}
-/* ---------- вход ---------- */
 window.setName=function(){const v=document.getElementById('nm').value.trim();if(!v)return toast('Представьтесь, пожалуйста');NAME=v;localStorage.setItem('gram-name',v);enter()};
 window.googleIn=function(){const g=new firebase.auth.GoogleAuthProvider();firebase.auth().signInWithPopup(g).catch(e=>toast('❌ Вход не удался: '+e.message))};
 window.googleOut=function(){firebase.auth().signOut().then(()=>location.reload())};
-firebase.auth().onAuthStateChanged(u=>{if(u){UID=u.uid;NAME=u.displayName||NAME||'житель';localStorage.setItem('gram-name',NAME);document.getElementById('nm').value=NAME;
+firebase.auth().onAuthStateChanged(u=>{if(u){NAME=u.displayName||NAME||'житель';localStorage.setItem('gram-name',NAME);document.getElementById('nm').value=NAME;
  db.ref('admins/'+u.uid).once('value',s=>{ADM=!!s.val();applyWho()});
  db.ref('banned/'+u.uid).once('value',s=>{BANNED=!!s.val();applyWho()});
- document.getElementById('outbtn').style.display='inline-block';
+ document.getElementById('outbtn').style.display='flex';
  if(!ENTERED)enter()}});
-function applyWho(){if(ADM)document.getElementById('mebadge').style.display='inline-block';
- if(BANNED)toast('🚫 Вам запрещено писать в деревне');render(LIST)}
+function applyWho(){if(ADM)document.getElementById('mebadge').style.display='inline-block';if(BANNED)toast('🚫 Вам запрещено писать в деревне');render(LIST)}
 function enter(){if(ENTERED){render(LIST);return}ENTERED=true;
  document.getElementById('namecard').style.display='none';
  document.getElementById('chatcard').style.display='block';
- if(SEC){document.getElementById('roomtitle').textContent='🚪 Тайник «'+SEC+'»';document.getElementById('roomsub').textContent='Секретная почта: видят только те, у кого есть ссылка. Уведомление хозяйке придёт без текста.';document.getElementById('secretbar').style.display='block'}
+ if(SEC){document.getElementById('roomtitle').textContent='🚪 Тайник «'+SEC+'»';document.getElementById('roomsub').textContent='Секретная почта: видят только те, у кого есть ссылка.';document.getElementById('secretbar').style.display='block';document.getElementById('chatwrap').classList.add('secwrap')}
  updSnd();knock();doKnock();listen()}
 function doKnock(){const last=+localStorage.getItem('gram-knock')||0;if(Date.now()-last<300000)return;
  db.ref('gram/knocks').push({name:NAME,room:SEC?'🔒 Тайник':'Кактусограмм',sec:!!SEC,ts:Date.now()});
  localStorage.setItem('gram-knock',Date.now())}
-/* ---------- тайник ---------- */
 window.openSecret=function(){const w=document.getElementById('secword').value.toLowerCase().replace(/[^a-zа-яё0-9-]/g,'').slice(0,24);if(!w)return toast('Введите секретное слово');location.href='kaktusogramm.html?room='+encodeURIComponent(w)};
 window.invite=function(){const url=location.origin+location.pathname+'?room='+encodeURIComponent(SEC);
  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(()=>toast('🔗 Тайная ссылка скопирована'))}else{prompt('Скопируйте тайную ссылку:',url)}};
-/* ---------- вложения ---------- */
 document.getElementById('f').addEventListener('change',e=>{myPhoto=e.target.files[0]||null;myFile=null;updAttach()});
 document.getElementById('vf').addEventListener('change',e=>{myFile=e.target.files[0]||null;myPhoto=null;myFileName=myFile?myFile.name:'';updAttach()});
 function updAttach(){const a=[];if(myPhoto)a.push('📷 '+myPhoto.name);if(myFile)a.push('📎 '+myFileName);document.getElementById('attachname').textContent=a.join(' + ')}
+function prog(p){document.getElementById('attachname').textContent=p?('⏳ '+p):''}
+function xhrUpload(url,fd){return new Promise((res,rej)=>{
+ const x=new XMLHttpRequest();const to=setTimeout(()=>{try{x.abort()}catch(e){};rej(new Error('timeout'))},40000);
+ x.upload.onprogress=e=>{if(e.lengthComputable)prog('Шкаф принимает… '+Math.round(e.loaded/e.total*100)+'%')};
+ x.onload=()=>{clearTimeout(to);if(x.status>=200&&x.status<300)res(x.responseText);else rej(new Error('http '+x.status))};
+ x.onerror=()=>{clearTimeout(to);rej(new Error('net'))};
+ x.open('POST',url);x.send(fd)})}
 async function photoToUrl(f){const im=await new Promise((res,rej)=>{const u=URL.createObjectURL(f);const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=u});
  const k=Math.min(1,1280/Math.max(im.width,im.height));const c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);
  const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.85));const fd=new FormData();fd.append('image',b,'p.jpg');
  const r=await fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd});const d=await r.json();if(!(d.success&&d.data.url))throw 0;return d.data.url}
-async function fileToUrl(f){if(f.size>190*1024*1024)throw new Error('Файл больше 190 МБ — большие видео лучше на YouTube, а ссылку сюда');
- try{const fd=new FormData();fd.append('reqtype','fileupload');fd.append('fileToUpload',f);const r=await fetch('https://catbox.moe/user/api.php',{method:'POST',body:fd});const t=(await r.text()).trim();if(/^https?:\/\//.test(t))return t}catch(e){}
- try{const fd2=new FormData();fd2.append('file',f);const r2=await fetch('https://pixeldrain.com/api/file',{method:'POST',body:fd2});const d2=await r2.json();if(d2&&d2.id)return 'https://pixeldrain.com/api/file/'+d2.id}catch(e){}
- throw new Error('Шкафы заняты — попробуйте ещё раз или киньте ссылку на YouTube')}
+async function fileToUrl(f){if(f.size>190*1024*1024)throw new Error('Больше 190 МБ — уменьши видео или кинь ссылку на YouTube');
+ try{const fd=new FormData();fd.append('file',f);
+  const j=await xhrUpload('https://pixeldrain.com/api/file',fd);const d2=JSON.parse(j);
+  if(d2&&d2.id){prog('');return{url:'https://pixeldrain.com/api/file/'+d2.id}}}catch(e){}
+ prog('Первый шкаф молчит, еду в запасной…');
+ try{const fd2=new FormData();fd2.append('reqtype','fileupload');fd2.append('fileToUpload',f);
+  const t=(await xhrUpload('https://catbox.moe/user/api.php',fd2)).trim();
+  if(/^https?:\/\//.test(t)){prog('');return{url:t}}}catch(e){}
+ prog('');
+ throw new Error('Оба шкафа молчат — попробуй ещё раз или кинь ссылку на YouTube')}
 window.showLB=src=>{document.getElementById('lbimg').src=src;document.getElementById('lb').style.display='flex'};
-/* ---------- чат ---------- */
 function fmt(ts){const d=new Date(ts);return d.toLocaleDateString('ru-RU',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}
 function listen(){db.ref('gram/rooms/'+ROOM+'/messages').limitToLast(80).on('value',s=>{const d=s.val();
  LIST=d?Object.keys(d).map(k=>({key:k,...d[k]})).sort((a,b)=>a.ts-b.ts):[];
@@ -199,28 +197,26 @@ function listen(){db.ref('gram/rooms/'+ROOM+'/messages').limitToLast(80).on('val
  const ch=document.getElementById('chat');ch.scrollTop=ch.scrollHeight})}
 function render(list){document.getElementById('chat').innerHTML=list.map(m=>{
  if(m.del)return '<div class="msg"><div class="nm">'+esc(m.name)+'</div><div class="removed">🧹 письмо убрано хозяйкой</div></div>';
- return '<div class="msg'+(m.name===NAME?' mine':'')+'">'+(ADM?'<button class="del" onclick="delMsg(\''+m.key+'\')" title="убрать">✕</button>':'')+'<div class="nm">'+esc(m.name)+'</div><div>'+linkify(m.text)+'</div>'+(m.img?'<img src="'+esc(m.img)+'" loading="lazy" onclick="showLB(\''+esc(m.img)+'\')">':'')+'<div class="tm">'+fmt(m.ts)+'</div></div>'}).join('')||'<div class="tiny" style="text-align:center;padding:20px">Писем пока нет. Напишите первое!</div>'}
+ return '<div class="msg'+(m.name===NAME?' mine':'')+'">'+(ADM?'<button class="del" onclick="delMsg(\''+m.key+'\')" title="убрать">✕</button>':'')+'<div class="nm">'+esc(m.name)+'</div><div>'+linkify(m.text)+'</div>'+(m.img?'<img src="'+esc(m.img)+'" loading="lazy" onclick="showLB(\''+esc(m.img)+'\')">':'')++(m.file?(m.mime.indexOf('video')===0?'<video controls preload="metadata" src="'+esc(m.file)+'"></video>':(m.mime.indexOf('audio')===0?'<div style="margin-top:6px"><audio controls src="'+esc(m.file)+'" style="width:260px;max-width:100%"></audio></div>':'<a class="fl" href="'+esc(m.file)+'" target="_blank" rel="noopener">📎 '+esc(m.fname||'файл')+'</a>')):'')+'<div class="tm">'+fmt(m.ts)+'</div></div>'}).join('')||'<div class="empty"><div class="e1">🌵</div>Писем пока нет.<br>Напишите первое!</div>'}
 window.delMsg=function(key){if(!ADM)return;db.ref('gram/rooms/'+ROOM+'/messages/'+key).update({del:1})};
 window.sendMsg=async()=>{if(BANNED)return toast('🚫 Вам запрещено писать в деревне');
  const t=document.getElementById('txt').value.trim();
  if(!t&&!myPhoto&&!myFile)return;
  const btn=document.getElementById('send');btn.disabled=true;
  try{
-  let img='';let extra='';
-  if(myPhoto){btn.textContent='⏳ Фото...';img=await photoToUrl(myPhoto)}
-  if(myFile){btn.textContent='⏳ Файл...';const u=await fileToUrl(myFile);extra='\n'+u+'  ('+myFileName+')'}
+  let img='';let file='';let fname='';let mime='';
+  if(myPhoto){prog('Фото грузится…');img=await photoToUrl(myPhoto);prog('')}
+  if(myFile){const r=await fileToUrl(myFile);file=r.url;fname=myFileName;mime=myFile.type||''}
   myLast=Date.now()+10000;
-  await db.ref('gram/rooms/'+ROOM+'/messages').push({name:NAME,text:t+extra,img,ts:Date.now()});
+  await db.ref('gram/rooms/'+ROOM+'/messages').push({name:NAME,text:t,img,file,fname,mime,ts:Date.now()});
   document.getElementById('txt').value='';myPhoto=null;myFile=null;myFileName='';document.getElementById('f').value='';document.getElementById('vf').value='';updAttach();
  }catch(e){const code=((e&&e.code)||'')+'';const msg=(e&&e.message)||'';
- if(/PERMISSION|denied/i.test(code)||/PERMISSION|denied/i.test(msg))toast('⛔ База не пускает письмо! Хозяйке: добавить «gram» в правила Firebase — инструкция в архиве');
- else if(msg)toast('❌ '+msg);else toast('❌ Не отправилось — проверьте интернет')}
- btn.disabled=false;btn.textContent='➤ Отправить'};
-const TA=document.getElementById('txt');TA.addEventListener('input',()=>{TA.style.height='auto';TA.style.height=Math.min(132,TA.scrollHeight)+'px'});TA.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}});
-function spineSVG(){let s='<svg width="100%" height="16" preserveAspectRatio="none" viewBox="0 0 900 16">';for(let i=0;i<150;i++){const x=i*6+3;s+='<path d="M'+x+' 16 Q'+(x-2)+' 7 '+x+' 0.5 Q'+(x+2)+' 7 '+x+' 16 Z" fill="#3f7a4d"/>'}return s+'</svg>'}
-function paintSpines(){document.querySelectorAll('.spinebar').forEach(el=>{el.innerHTML=spineSVG()})}
-paintSpines();
-/* ---------- старт ---------- */
+  if(/PERMISSION|denied/i.test(code)||/PERMISSION|denied/i.test(msg))toast('⛔ База не пускает письмо');
+  else if(msg)toast('❌ '+msg);else toast('❌ Не отправилось — проверьте интернет')}
+ btn.disabled=false};
+const TA=document.getElementById('txt');
+TA.addEventListener('input',()=>{TA.style.height='auto';TA.style.height=Math.min(120,TA.scrollHeight)+'px'});
+TA.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}});
 if(NAME){document.getElementById('nm').value=NAME;enter()}
 </script>
 </body>
