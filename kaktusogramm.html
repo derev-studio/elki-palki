@@ -136,6 +136,7 @@ let lastTs=0;let myLast=0;let LIST=[];
 let SND=localStorage.getItem('gram-snd')!=='0';
 let myPhoto=null;let myFile=null;let myFileName='';
 let ADM=false;let BANNED=false;let ENTERED=false;
+const DBC={};
 function knock(){try{const C=knock.C||(knock.C=new (window.AudioContext||window.webkitAudioContext)());if(C.state==='suspended')C.resume();const t=C.currentTime;[0,0.16].forEach(dt=>{const o=C.createOscillator();const g=C.createGain();o.type='triangle';o.frequency.value=160+Math.random()*40;g.gain.setValueAtTime(0.001,t+dt);g.gain.exponentialRampToValueAtTime(0.35,t+dt+0.02);g.gain.exponentialRampToValueAtTime(0.001,t+dt+0.15);o.connect(g);g.connect(C.destination);o.start(t+dt);o.stop(t+dt+0.2)})}catch(e){}}
 window.toggleSnd=function(){SND=!SND;localStorage.setItem('gram-snd',SND?'1':'0');updSnd();toast(SND?'🔊 Стук включён':'🔇 Стук выключен')};
 function updSnd(){document.getElementById('sndbtn').textContent=SND?'🔊':'🔇'}
@@ -218,7 +219,10 @@ function listen(){db.ref('gram/rooms/'+ROOM+'/messages').limitToLast(80).on('val
  const ch=document.getElementById('chat');ch.scrollTop=ch.scrollHeight})}
 function render(list){document.getElementById('chat').innerHTML=list.map(m=>{
  if(m.del)return '<div class="msg"><div class="nm">'+esc(m.name)+'</div><div class="removed">🧹 письмо убрано хозяйкой</div></div>';
- return '<div class="msg'+(m.name===NAME?' mine':'')+'">'+(ADM?'<button class="del" onclick="delMsg(\''+m.key+'\')" title="убрать">✕</button>':'')+'<div class="nm">'+esc(m.name)+'</div><div>'+linkify(m.text)+'</div>'+(m.img?'<img src="'+esc(m.img)+'" loading="lazy" onclick="showLB(\''+esc(m.img)+'\')">':'')+(m.file?(m.mime.indexOf('video')===0?'<video controls preload="metadata" src="'+esc(m.file)+'"></video>':(m.mime.indexOf('audio')===0?'<span class="au"><button class="aub" onclick="auTgl(this)">\u25b6</button><span class="aup" onclick="auSeek(event,this)"><span class="aupf"></span></span><span class="aut">0:00</span><audio preload="metadata" src="'+esc(m.file)+'" ontimeupdate="auUpd(this)" onplay="auUpd(this)" onpause="auUpd(this)" onloadedmetadata="auUpd(this)" onended="auUpd(this)"></audio></span>':'<a class="fl" href="'+esc(m.file)+'" target="_blank" rel="noopener">📎 '+esc(m.fname||'файл')+'</a>')):'')+'<div class="tm">'+fmt(m.ts)+'</div></div>'}).join('')||'<div class="empty"><div class="e1">🌵</div>Писем пока нет.<br>Напишите первое!</div>'}
+ return '<div class="msg'+(m.name===NAME?' mine':'')+'">'+(ADM?'<button class="del" onclick="delMsg(\''+m.key+'\')" title="убрать">✕</button>':'')+'<div class="nm">'+esc(m.name)+'</div><div>'+linkify(m.text)+'</div>'+(m.img?'<img src="'+esc(m.img)+'" loading="lazy" onclick="showLB(\''+esc(m.img)+'\')">':'')+(m.file?(m.mime.indexOf('video')===0?(m.file.indexOf('db:')===0?'<video controls preload="metadata" data-dbf="'+esc(m.file.slice(3))+'"></video>':'<video controls preload="metadata" src="'+esc(m.file)+'"></video>'):(m.mime.indexOf('audio')===0?'<span class="au"><button class="aub" onclick="auTgl(this)">\u25b6</button><span class="aup" onclick="auSeek(event,this)"><span class="aupf"></span></span><span class="aut">0:00</span><audio preload="metadata" '+(m.file.indexOf('db:')===0?'data-dbf="'+esc(m.file.slice(3))+'"':'src="'+esc(m.file)+'"')+'" ontimeupdate="auUpd(this)" onplay="auUpd(this)" onpause="auUpd(this)" onloadedmetadata="auUpd(this)" onended="auUpd(this)"></audio></span>':'<a class="fl" href="'+esc(m.file)+'" target="_blank" rel="noopener">📎 '+esc(m.fname||'файл')+'</a>')):'')+'<div class="tm">'+fmt(m.ts)+'</div></div>'}).join('')||'<div class="empty"><div class="e1">🌵</div>Писем пока нет.<br>Напишите первое!</div>';
+ document.querySelectorAll('[data-dbf]').forEach(el=>{const id=el.getAttribute('data-dbf');
+  if(DBC[id]){el.src=DBC[id];return}
+  db.ref('gram/files/'+id).once('value',s=>{const v=s.val();if(v){DBC[id]=v;el.src=v}})})}
 window.delMsg=function(key){if(!ADM)return;db.ref('gram/rooms/'+ROOM+'/messages/'+key).update({del:1})};
 window.sendMsg=async()=>{if(BANNED)return toast('🚫 Вам запрещено писать в деревне');
  const t=document.getElementById('txt').value.trim();
@@ -227,7 +231,16 @@ window.sendMsg=async()=>{if(BANNED)return toast('🚫 Вам запрещено 
  try{
   let img='';let file='';let fname='';let mime='';
   if(myPhoto){prog('Фото грузится…');img=await photoToUrl(myPhoto);prog('')}
-  if(myFile){const r=await fileToUrl(myFile);file=r.url;fname=myFileName;mime=r.page?'':(myFile.type||'')}
+  if(myFile){fname=myFileName;mime=myFile.type||'';
+   if(myFile.size<=6*1024*1024&&/^(audio|video)\//.test(mime)){
+    try{prog('Вкладываю в письмо…');
+     const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(myFile)});
+     const fid=db.ref().push().key;
+     await db.ref('gram/files/'+fid).set(dataUrl);
+     file='db:'+fid;prog('');
+    }catch(e){file=''}
+   }
+   if(!file){const r=await fileToUrl(myFile);file=r.url;if(r.page)mime=''}}
   myLast=Date.now()+10000;
   await db.ref('gram/rooms/'+ROOM+'/messages').push({name:NAME,text:t,img,file,fname,mime,ts:Date.now()});
   document.getElementById('txt').value='';myPhoto=null;myFile=null;myFileName='';document.getElementById('f').value='';document.getElementById('vf').value='';updAttach();
