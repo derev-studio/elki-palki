@@ -3,20 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌵</text></svg>">
-
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Кактусярий — Систематика</title>
+<title>Кактусярий — Систематика v5</title>
 <style>
 *{box-sizing:border-box}
 body{font-family:Georgia,serif;background:#17233a;color:#f3e9d2;margin:0;min-height:100vh}
+.bar{background:#fdf8ec;border-bottom:3px solid #8b5e34;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:500}
+.bar b{font-size:17px;color:#6b4423}
+.navbtn{font-family:inherit;font-size:14px;font-weight:700;border-radius:13px;padding:8px 16px;text-decoration:none}
+.searchwrap{max-width:1200px;margin:14px auto 0;padding:0 16px;position:relative;z-index:400}
+.search{width:100%;font-family:inherit;font-size:19px;padding:13px 44px 13px 16px;border-radius:14px;border:3px solid #8b5e34;background:#fdf8ec;color:#5a3a1e}
+.search::placeholder{color:#a5855f}
+.qclear{position:absolute;right:28px;top:13px;font-size:22px;color:#8b5e34;cursor:pointer;display:none;background:none;border:none}
+#hits{position:absolute;left:16px;right:16px;top:100%;background:#fdf8ec;border:3px solid #8b5e34;border-top:none;border-radius:0 0 14px 14px;overflow:hidden;display:none;box-shadow:0 10px 24px rgba(0,0,0,.4)}
+.hit{display:flex;align-items:center;gap:10px;padding:8px 14px;cursor:pointer;color:#5a3a1e;border-top:1px solid #e8dcc4}
+.hit:hover{background:#f3e6c8}
+.hit img{width:44px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #8b5e34}
+.hit .l{font-style:italic;font-size:16px}
+.hit .r{font-size:13px;color:#8b5e34}
+.hit .p{font-size:11px;color:#9db4d0;margin-left:auto;text-align:right;max-width:45%}
 .wrap{display:flex;flex-wrap:wrap;max-width:1200px;margin:0 auto;gap:16px;padding:16px}
-.treebox{flex:1 1 560px;background:#1e2a44;border:3px solid #3b5f8a;border-radius:22px;padding:20px;max-height:88vh;overflow:auto}
+.treebox{flex:1 1 560px;background:#1e2a44;border:3px solid #3b5f8a;border-radius:22px;padding:20px;min-width:0}
 .panel{flex:1 1 320px;background:#2a1f14;border:3px solid #8b5e34;border-radius:22px;padding:20px;position:sticky;top:16px;align-self:flex-start;max-height:88vh;overflow:auto}
 h1{font-size:22px;margin:4px 0 2px}
-.tip{font-size:13px;color:#9db4d0;font-style:italic}
-.search{width:100%;font-family:inherit;font-size:16px;padding:10px 14px;border-radius:12px;border:2px solid #3b5f8a;background:#0f1830;color:#f3e9d2;margin:12px 0}
-.stat{font-size:13px;color:#c9a86a;margin-bottom:8px}
-ul.tree{list-style:none;padding-left:0;margin:0}
+.tip{font-size:13px;color:#9db4d0;font-style:italic;line-height:1.5}
+.stat{font-size:13px;color:#c9a86a;margin:8px 0}
+.vbtn{font-family:inherit;font-size:14px;font-weight:700;border-radius:13px;padding:8px 16px;cursor:pointer;border:2px solid #8b5e34;background:#fdf8ec;color:#6b4423}
+.vbtn.on{background:#8b5e34;color:#fdf3df}
+#gal{display:none;columns:3;column-gap:12px;margin-top:12px}
+@media(max-width:1100px){#gal{columns:2}}@media(max-width:640px){#gal{columns:1}}
+.gcard{break-inside:avoid;margin-bottom:12px;background:#fff;border:2px solid #8b5e34;border-radius:14px;overflow:hidden;cursor:pointer;transition:.15s}
+.gcard:hover{transform:translateY(-3px);border-color:#3f6b4f;box-shadow:0 6px 14px rgba(60,40,20,.25)}
+.gcard img{width:100%;height:auto;display:block}
+.gcard .nm{padding:6px 8px;font-size:13px;line-height:1.3;color:#5a3a1e}
+#az{display:none;margin-top:12px}
+.azletter{font-size:18px;color:#ffd76e;margin:14px 0 6px;border-bottom:1px solid #3b5f8a}
+.azrow{display:flex;flex-wrap:wrap;gap:6px}
+.azchip{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:13px;cursor:pointer;background:#132a1c;border:1px solid #3f6b4f;font-size:15px;transition:.15s}
+.azchip:hover{background:#1d3d2b}
+.azchip.nophoto{background:#1e2a44;border-color:#3b5f8a}
+.azchip i{color:#f3e9d2}
+.azchip span{color:#8fd0a0;font-size:12px}
+ul.tree{list-style:none;padding-left:0;margin:12px 0 0;display:none}
 ul.tree ul{list-style:none;padding-left:26px;margin:0;position:relative}
 ul.tree ul::before{content:'';position:absolute;left:9px;top:0;bottom:8px;width:2px;background:#3b5f8a}
 li{margin:3px 0;position:relative}
@@ -32,11 +60,9 @@ li::before{content:'';position:absolute;left:-17px;top:16px;width:16px;height:2p
 li.open>.kids{display:block}
 .arr{font-size:11px;color:#9db4d0}
 .ph{width:100%;border-radius:14px;border:2px solid #8b5e34}
-.phwrap{position:relative}
 .phcap{font-size:11px;color:#c9a86a;margin-top:4px}
-.phcap a{color:#e8a97e}
-.phtitle{font-size:24px;font-style:italic;margin:2px 0}
-.phrus{color:#c9a86a;font-size:15px}
+.phtitle{font-size:26px;font-style:italic;margin:2px 0}
+.phrus{color:#c9a86a;font-size:16px}
 .path{font-size:13px;color:#9db4d0;background:#1e2a44;border-radius:10px;padding:8px 12px;margin:10px 0;line-height:1.7}
 .path b{color:#ffd76e}
 .sib{font-size:14px;background:#1e2a44;border-radius:10px;padding:8px 12px;margin:10px 0}
@@ -44,43 +70,37 @@ li.open>.kids{display:block}
 .addbtn{font-family:inherit;font-size:16px;font-weight:700;background:#3f6b4f;color:#fff;border:none;border-radius:14px;padding:11px 22px;cursor:pointer;box-shadow:0 4px 0 #2c4a38;margin-top:12px;width:100%}
 .addbtn:active{transform:translateY(3px);box-shadow:none}
 .note{font-size:14px;color:#e8d9b8;margin:8px 0}
-.demo{position:fixed;bottom:12px;right:12px}
-.vbtn{font-family:inherit;font-size:14px;font-weight:700;border-radius:13px;padding:8px 16px;cursor:pointer;border:2px solid #8b5e34;background:#fdf8ec;color:#6b4423}
-.vbtn.on{background:#8b5e34;color:#fdf3df}
-#gal{display:block;columns:3;column-gap:12px;margin-top:12px}@media(max-width:1100px){#gal{columns:2}}@media(max-width:640px){#gal{columns:1}}
-.gcard{break-inside:avoid;margin-bottom:12px;background:#fff;border:2px solid #8b5e34;border-radius:14px;overflow:hidden;cursor:pointer;transition:.15s}
-.gcard:hover{transform:translateY(-3px);border-color:#3f6b4f;box-shadow:0 6px 14px rgba(60,40,20,.25)}
-.gcard img{width:100%;height:auto;display:block}
-.gcard .nm{padding:6px 8px;font-size:13px;line-height:1.3;color:#5a3a1e}
-@media(max-width:900px){.panel{position:static;max-height:none}}
+.panelstart{text-align:center;color:#9db4d0;padding:30px 10px;font-size:15px;line-height:1.8}
 @media(max-width:900px){.panel{position:static;max-height:none}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<div style="background:#fdf8ec;border-bottom:3px solid #8b5e34;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:500">
-<b style="font-size:17px;color:#6b4423">🌵 Кактусярий · 🌳 Систематика · витрина v4</b>
+<div class="bar">
+<b>🌵 Кактусярий · 🌳 Систематика · v5</b>
 <span style="flex:1"></span>
-<a href="kaktusariy.html" style="font-family:inherit;font-size:14px;font-weight:700;background:#8b5e34;color:#fdf3df;border-radius:13px;padding:8px 16px;text-decoration:none">🌵 В начало</a>
-<a href="kaktusariy-map.html" style="font-family:inherit;font-size:14px;font-weight:700;background:#3f6b4f;color:#fff;border-radius:13px;padding:8px 16px;text-decoration:none">🗺 Карта</a>
-<a href="index.html" style="font-family:inherit;font-size:14px;font-weight:700;background:#8b5e34;color:#fdf3df;border-radius:13px;padding:8px 16px;text-decoration:none">🌲 В деревню</a>
+<a href="kaktusariy.html" class="navbtn" style="background:#8b5e34;color:#fdf3df">🌵 В начало</a>
+<a href="kaktusariy-map.html" class="navbtn" style="background:#3f6b4f;color:#fff">🗺 Карта</a>
+<a href="index.html" class="navbtn" style="background:#8b5e34;color:#fdf3df">🌲 В деревню</a>
 </div>
+<div class="searchwrap">
+<input class="search" id="q" placeholder="🔍 Пиши название рода — по-латыни или по-русски: Ariocarpus или ариокарпус" autocomplete="off">
+<button class="qclear" id="qclear" title="очистить">✕</button>
+<div id="hits"></div>
+</div>
+<div class="wrap">
 <div class="treebox">
-<h1>🌳 Живое дерево кактусовых</h1>
-<div class="tip">Нажимайте на ветки — они раскрываются. Нажмите на род — справа откроется его карточка.</div>
-<input class="search" id="q" placeholder="🔍 Найти род, напр. Ariocarpus или Маммиллярия">
-<div class="stat" id="stat"></div>
-<div style="margin:8px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-<button class="vbtn on" id="vGal" onclick="showView('gal')">🖼 Витрина</button>
+<div style="margin:4px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+<button class="vbtn" id="vAz" onclick="showView('az')">🔤 Все роды А–Я</button>
+<button class="vbtn" id="vGal" onclick="showView('gal')">🖼 Витрина</button>
 <button class="vbtn" id="vTree" onclick="showView('tree')">🌳 Дерево</button>
-<span style="font-size:12px;color:#8b5e34;font-style:italic">витрина — по картинкам · дерево — вся родословная</span>
 </div>
+<div class="stat" id="stat"></div>
+<div id="az"></div>
 <div id="gal"></div>
 <ul class="tree" id="root"></ul>
 </div>
-<div class="panel" id="panel"></div>
+<div class="panel" id="panel"><div class="panelstart">🌵<br>Найди род в поиске выше<br>или нажми на него в списке —<br>здесь откроется его карточка</div></div>
 </div>
-
 <script>
 const P=(u,c)=>({photo:u,credit:c});
 const TREE={name:'Кактусовые · Cactaceae',cls:'sf',ru:'семейство · ~155 родов · ~1500 видов',kids:[
@@ -116,51 +136,96 @@ const TREE={name:'Кактусовые · Cactaceae',cls:'sf',ru:'семейст
   {name:'Reicheocactinae',cls:'st',kids:['Reicheocactus']},
   {name:'Trichocereinae',cls:'st',kids:['Acanthocalycium','Arthrocereus','Borzicactus','Cephalocleistocactus','Cleistocactus','Cremnocereus','Denmoza','Echinopsis','Espostoa','Haageocereus','Harrisia','Lasiocereus','Leucostele','Matucana','Mila','Oreocereus','Oroya','Pygmaeocereus','Rauhocereus','Samaipaticereus','Setiechinopsis','Vatricania','Weberbauerocereus','Winterocereus','Yungasocereus']}]}]}]};
 const RU={'Ariocarpus':'ариокарпус','Lophophora':'лофофора','Obregonia':'обрегония','Pelecyphora':'пелицифора','Turbinicarpus':'турбинкарпус','Mammillaria':'маммиллярия','Ferocactus':'ферокактус','Kroenleinia':'кроенлейния','Opuntia':'опунция','Echinocereus':'эхиноцереус','Astrophytum':'астрофитум','Gymnocalycium':'гимнокалициум','Echinopsis':'эхинопсис','Cereus':'цереус','Parodia':'пародия','Epiphyllum':'эпифиллум','Schlumbergera':'шлюмбергера','Rhipsalis':'рипсалис','Hylocereus':'гилоцереус','Carnegiea':'карнегия','Lophocereus':'лофоцереус','Stenocereus':'стеноцереус','Melocactus':'мелокактус','Copiapoa':'копьяпоа','Eriosyce':'эриосице','Thelocactus':'телокактус','Aztekium':'ацтекиум','Leuchtenbergia':'лойхтенбергия','Sclerocactus':'склерокактус','Coryphantha':'корифанта','Escobaria':'эскобария','Pediocactus':'педиокактус','Epithelantha':'эпителанта','Strombocactus':'стромбокактус','Rebutia':'ребутия','Weingartia':'вайнгартия','Browningia':'браунингия','Espostoa':'эспостоя','Oreocereus':'ореоцереус','Matucana':'матукана','Cleistocactus':'клейстокактус','Haageocereus':'хагеоцереус','Pilosocereus':'пилозоцереус','Discocactus':'дискокактус','Tephrocactus':'тефрокактус','Pterocactus':'терокактус','Cylindropuntia':'цилиндропунция','Grusonia':'грузония','Consolea':'консолея','Pereskia':'переския','Blossfeldia':'блосфельдия','Maihuenia':'мауэния','Frailea':'фраилея','Hatiora':'хатиора','Lepismium':'леписмиум','Uebelmannia':'убельмания','Aylostera':'айлостера','Denmoza':'денмоза','Oroya':'оройя','Yavia':'явия'};
+
 function zoomPhoto(src,cap){let z=document.getElementById('pzoom');if(!z){z=document.createElement('div');z.id='pzoom';z.style.cssText='position:fixed;inset:0;background:rgba(14,21,38,.94);z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:zoom-out;padding:18px';z.onclick=()=>{z.style.display='none'};document.body.appendChild(z)}z.innerHTML='<img src="'+src+'" style="max-width:96vw;max-height:86vh;border:4px solid #fdf8ec;border-radius:14px"><div style="color:#f3e9d2;font-family:Georgia,serif;font-size:13px;margin-top:12px;text-align:center">'+cap+' · нажмите — закрыть</div>';z.style.display='flex'}
 let NID=0;
 function norm(n,parent){if(typeof n==='string')n={name:n};n.id=++NID;n.parent=parent;n.kids=(n.kids||[]).map(k=>norm(k,n));return n}
 const ROOT=norm(TREE,null);
-function countGen(n){if(!n.kids.length)return 1;return n.kids.reduce((s,k)=>s+countGen(k),0)}
-const ALL=[];(function walk(n,path){ALL.push({n,path});n.kids.forEach(k=>walk(k,path+' › '+n.name))})(ROOT,'');
-document.getElementById('stat').textContent='Родов в пробе: '+countGen(ROOT)+' · с фото: '+ALL.filter(a=>a.n.photo).length+' (растём понемногу)';
-function el(n){const li=document.createElement('li');
- if(n.kids.length){const b=document.createElement('span');b.className='node '+(n.cls||'');b.innerHTML='<span class="arr">▸</span><b>'+n.name+'</b>'+(n.ru?'<span style="color:#c9a86a;font-size:12px">'+n.ru+'</span>':'');
-  b.onclick=()=>{li.classList.toggle('open');b.querySelector('.arr').textContent=li.classList.contains('open')?'▾':'▸';if(li.classList.contains('open')&&!n._shown){n._shown=1;showPanel(n)}};li.appendChild(b);
-  const ul=document.createElement('ul');ul.className='kids';n.kids.forEach(k=>ul.appendChild(el(k)));li.appendChild(ul)}
- else{const b=document.createElement('span');b.className='node gen'+(n.photo?'':' dim');b.innerHTML=(n.photo?'🌵 ':'🍃 ')+'<i>'+n.name+'</i>'+(RU[n.name]?' <span style="color:#8fd0a0;font-size:12px">'+RU[n.name]+'</span>':'')+(n.note?'<span style="color:#ffd76e;font-size:11px">'+n.note.slice(0,40)+'…</span>':'');
-  b.onclick=()=>showPanel(n);li.appendChild(b)}
- return li}
-document.getElementById('root').appendChild(el(ROOT));
-function findPathTo(li,id){}
+const ALL=[];(function walk(n){ALL.push({n});n.kids.forEach(k=>walk(k))})(ROOT);
+const GENERA=ALL.filter(a=>!a.n.kids.length).map(a=>a.n).sort((a,b)=>a.name.localeCompare(b.name));
+const WITHPHOTO=GENERA.filter(n=>n.photo).length;
+document.getElementById('stat').textContent='Родов всего: '+GENERA.length+' · с фото: '+WITHPHOTO+' · без фото: '+(GENERA.length-WITHPHOTO);
+
+/* ── панель-карточка ── */
 function showPanel(n){const p=document.getElementById('panel');
  const path=[];let c=n;while(c){path.unshift(c);c=c.parent}
  const sibs=n.parent?n.parent.kids.filter(k=>k!==n&&k.kids.length===0):[];
- p.innerHTML='<div class="phwrap">'+(n.photo?'<img class="ph" style="cursor:zoom-in" src="'+n.photo+'" onclick="zoomPhoto(\''+n.photo+'\',\''+(n.credit||'').replace(/'/g,'')+'\')">':'<div style="background:#1e2a44;border:2px dashed #8b5e34;border-radius:14px;padding:34px 10px;text-align:center;color:#9db4d0">📷<br>фото скоро появится</div>')+(n.photo?'<div class="phcap">'+n.credit+'</div>':'')+'</div>'
+ p.innerHTML='<div>'+(n.photo?'<img class="ph" style="cursor:zoom-in" src="'+n.photo+'" onclick="zoomPhoto(\''+n.photo+'\',\''+(n.credit||'').replace(/'/g,'')+'\')">':'<div style="background:#1e2a44;border:2px dashed #8b5e34;border-radius:14px;padding:34px 10px;text-align:center;color:#9db4d0">📷<br>фото скоро появится</div>')+(n.photo?'<div class="phcap">'+n.credit+'</div>':'')+'</div>'
  +'<div class="phtitle">'+n.name+'</div>'
  +(RU[n.name]?'<div class="phrus">'+RU[n.name]+'</div>':'')
  +(n.note?'<div class="note">'+n.note+'</div>':'')
- +'<div class="path">Где живёт: '+'<b>'+path.map(x=>x.name).join('</b> → <b>')+'</b></div>'
- +(sibs.length?'<div class="sib"><b>Родня рядом</b> (та же ветка):<br>'+sibs.slice(0,8).map(s=>'<i onclick="showPanelByName(\''+s.name+'\')">'+s.name+'</i>').join(' · ')+(sibs.length>8?' …':'')+'</div>':'')
- +'<button class="addbtn" onclick="alert(\'Скоро: жители смогут прикреплять свои фото к роду.\')">➕ Добавить своё фото к роду</button>'}
-window.showPanelByName=function(nm){const f=ALL.find(a=>a.n.name===nm);if(f)showPanel(f.n)};
-window.showView=function(v){document.getElementById('gal').style.display=v==='gal'?'block':'none';document.getElementById('root').style.display=v==='tree'?'block':'none';document.getElementById('vGal').className='vbtn'+(v==='gal'?' on':'');document.getElementById('vTree').className='vbtn'+(v==='tree'?' on':'')};
-(function(){const g=document.getElementById('gal');ALL.forEach(a=>{if(!a.n.photo)return;const c=document.createElement('div');c.className='gcard';c.innerHTML='<img src="'+a.n.photo+'" loading="lazy"><div class="nm"><i>'+a.n.name+'</i>'+(window.RU&&RU[a.n.name]?'<br><span style="color:#8b5e34;font-size:11px">'+RU[a.n.name]+'</span>':'')+'</div>';c.onclick=()=>{showPanel(a.n);document.getElementById('panel').scrollIntoView({behavior:'smooth'})};g.appendChild(c)});const noPh=ALL.filter(a=>!a.n.kids.length&&!a.n.photo);if(noPh.length){const d=document.createElement('div');d.style.cssText='grid-column:1/-1;font-size:13px;color:#c9a86a;line-height:1.8';d.innerHTML='<b>Ещё без фото ('+noPh.length+' родов):</b> '+noPh.slice(0,50).map(a=>'<i style="cursor:pointer;border-bottom:1px dashed #8b5e34" onclick="showPanelByName(\''+a.n.name+'\')">'+a.n.name+'</i>').join(' · ')+(noPh.length>50?' …':'');g.appendChild(d)}})();
-showView('gal'); /* открытие рода по ссылке ?rod=Имя */ (function(){const r=new URLSearchParams(location.search).get('rod');if(!r)return;showView('tree');const f=ALL.find(function(a){return a.n.name.toLowerCase()===r.toLowerCase()});if(f)showPanel(f.n)})();
-document.getElementById('q').addEventListener('input',e=>{
- const v=e.target.value.trim().toLowerCase();showView('tree');document.querySelectorAll('.node.hl').forEach(x=>x.classList.remove('hl'));
- if(v.length<2)return;
- const f=ALL.filter(a=>a.n.name.toLowerCase().includes(v)||(RU[a.n.name]||'').toLowerCase().includes(v));
- // раскрыть всех предков через DOM: ищем кнопку по тексту
- document.querySelectorAll('#root li').forEach(li=>li.classList.remove('open'));
- f.slice(0,6).forEach(a=>{let c=a.n;const chain=[];while(c){chain.unshift(c.name);c=c.parent}
-  // открываем дерево по именам
-  const lis=document.querySelectorAll('#root li');let container=document.getElementById('root');
-  for(let i=0;i<chain.length;i++){const nm=chain[i];let found=null;
-   container.querySelectorAll(':scope > li').forEach(li=>{const b=li.querySelector(':scope > .node');if(b&&b.textContent.includes(nm))found=li});
-   if(!found)break;found.classList.add('open');const ar=found.querySelector(':scope > .node .arr');if(ar)ar.textContent='▾';
-   const node=found.querySelector(':scope > .node');if(i===chain.length-1){node.classList.add('hl');showPanel(a.n)}
-   container=found.querySelector(':scope > ul')||found}});
- if(f[0])document.getElementById('panel').scrollIntoView({behavior:'smooth',block:'nearest'})});
+ +'<div class="path">Где живёт: <b>'+path.map(x=>x.name).join('</b> → <b>')+'</b></div>'
+ +(sibs.length?'<div class="sib"><b>Родня рядом</b> (та же ветка):<br>'+sibs.slice(0,10).map(s=>'<i onclick="openGenus(\''+s.name+'\')">'+s.name+'</i>').join(' · ')+(sibs.length>10?' …':'')+'</div>':'')
+ +'<button class="addbtn" onclick="location.href=\'kaktusariy-gallery.html\'">➕ Добавить своё фото к роду</button>'
+ +'<div class="tip" style="text-align:center;margin-top:6px">кнопка ведёт в Галерею — там галочка «К роду в Систематике»</div>';
+ if(window.innerWidth<900)p.scrollIntoView({behavior:'smooth',block:'nearest'})}
+window.openGenus=function(nm){const f=GENERA.find(g=>g.name===nm);if(f)showPanel(f)};
+
+/* ── вкладки ── */
+window.showView=function(v){['gal','az','tree'].forEach(x=>{const e=document.getElementById(x==='tree'?'root':x);if(e)e.style.display=(x===v)?(x==='tree'?'block':'block'):'none'});
+ document.getElementById('vGal').className='vbtn'+(v==='gal'?' on':'');
+ document.getElementById('vAz').className='vbtn'+(v==='az'?' on':'');
+ document.getElementById('vTree').className='vbtn'+(v==='tree'?' on':'')};
+
+/* ── А–Я ── */
+(function(){const box=document.getElementById('az');let letter='';
+ GENERA.forEach(n=>{const L=n.name[0].toUpperCase();
+  if(L!==letter){letter=L;const h=document.createElement('div');h.className='azletter';h.textContent=L;box.appendChild(h);const r=document.createElement('div');r.className='azrow';r.id='az-'+L;box.appendChild(r)}
+  const c=document.createElement('span');c.className='azchip'+(n.photo?'':' nophoto');
+  c.innerHTML=(n.photo?'🌵':'🍃')+'<i>'+n.name+'</i>'+(RU[n.name]?'<span>'+RU[n.name]+'</span>':'');
+  c.onclick=()=>showPanel(n);
+  document.getElementById('az-'+L).appendChild(c)})})();
+
+/* ── витрина ── */
+(function(){const g=document.getElementById('gal');
+ GENERA.filter(n=>n.photo).forEach(n=>{const c=document.createElement('div');c.className='gcard';
+  c.innerHTML='<img src="'+n.photo+'" loading="lazy"><div class="nm"><i>'+n.name+'</i>'+(RU[n.name]?'<br><span style="color:#8b5e34;font-size:11px">'+RU[n.name]+'</span>':'')+'</div>';
+  c.onclick=()=>showPanel(n);g.appendChild(c)});
+ const noPh=GENERA.filter(n=>!n.photo);
+ if(noPh.length){const d=document.createElement('div');d.style.cssText='font-size:13px;color:#c9a86a;line-height:1.8';
+  d.innerHTML='<b>Ещё без фото ('+noPh.length+' родов):</b> '+noPh.map(a=>'<i style="cursor:pointer;border-bottom:1px dashed #8b5e34" onclick="openGenus(\''+a.name+'\')">'+a.name+'</i>').join(' · ');
+  g.appendChild(d)}})();
+
+/* ── дерево: ветки только раскрываются, карточки открывают только роды ── */
+function el(n){const li=document.createElement('li');
+ if(n.kids.length){const b=document.createElement('span');b.className='node '+(n.cls||'');
+  b.innerHTML='<span class="arr">▸</span><b>'+n.name+'</b>'+(n.ru?'<span style="color:#c9a86a;font-size:12px">'+n.ru+'</span>':'');
+  b.onclick=()=>{li.classList.toggle('open');b.querySelector('.arr').textContent=li.classList.contains('open')?'▾':'▸'};
+  li.appendChild(b);
+  const ul=document.createElement('ul');ul.className='kids';n.kids.forEach(k=>ul.appendChild(el(k)));li.appendChild(ul)}
+ else{const b=document.createElement('span');b.className='node gen';
+  b.innerHTML=(n.photo?'🌵 ':'🍃 ')+'<i>'+n.name+'</i>'+(RU[n.name]?' <span style="color:#8fd0a0;font-size:12px">'+RU[n.name]+'</span>':'');
+  b.onclick=()=>showPanel(n);li.appendChild(b)}
+ return li}
+document.getElementById('root').appendChild(el(ROOT));
+document.getElementById('root').firstChild.classList.add('open');
+document.querySelector('#root > li > .node .arr').textContent='▾';
+
+/* ── поиск ── */
+const q=document.getElementById('q'),hits=document.getElementById('hits'),qc=document.getElementById('qclear');
+function shortPath(n){const p=[];let c=n.parent;while(c&&c.parent){p.unshift(c.name);c=c.parent}return p.join(' › ')}
+q.addEventListener('input',()=>{const v=q.value.trim().toLowerCase();qc.style.display=v?'block':'none';
+ if(v.length<2){hits.style.display='none';return}
+ const f=GENERA.filter(n=>n.name.toLowerCase().includes(v)||(RU[n.name]||'').toLowerCase().includes(v));
+ if(!f.length){hits.innerHTML='<div class="hit"><span class="r">Не нашлось. Проверь написание — или этого рода ещё нет в списке.</span></div>';hits.style.display='block';return}
+ hits.innerHTML='';
+ f.slice(0,12).forEach(n=>{const d=document.createElement('div');d.className='hit';
+  d.innerHTML=(n.photo?'<img src="'+n.photo+'" loading="lazy">':'<span style="font-size:26px;width:44px;text-align:center">🍃</span>')
+   +'<span><span class="l">'+n.name+'</span>'+(RU[n.name]?' · <span class="r">'+RU[n.name]+'</span>':'')+'</span>'
+   +'<span class="p">'+shortPath(n)+'</span>';
+  d.onclick=()=>{hits.style.display='none';showPanel(n)};hits.appendChild(d)});
+ if(f.length>12){const m=document.createElement('div');m.className='hit';m.innerHTML='<span class="r">…и ещё '+(f.length-12)+' — уточни буквы</span>';hits.appendChild(m)}
+ hits.style.display='block'});
+qc.onclick=()=>{q.value='';hits.style.display='none';qc.style.display='none';q.focus()};
+document.addEventListener('click',e=>{if(!e.target.closest('.searchwrap'))hits.style.display='none'});
+
+/* ── стартовый вид и ?rod=Имя ── */
+showView('az');
+(function(){const r=new URLSearchParams(location.search).get('rod');
+ if(!r)return;
+ const f=GENERA.find(g=>g.name.toLowerCase()===r.toLowerCase());
+ if(f)showPanel(f);
+ else document.getElementById('panel').innerHTML='<div class="panelstart">🔍<br>Род «'+r.replace(/</g,'')+'» пока не найден.<br>Попробуй поиск выше.</div>'})();
 </script>
 <div style="max-width:1200px;margin:0 auto;padding:0 16px 24px;font-size:12px;color:#8b5e34">Составлено по: de Vos J.M. et al. (2025), Korotkova N. et al. (2021), Nyffeler &amp; Eggli (2010) · фото: Wikimedia Commons (авторы указаны) · проверяет старший кактусовод С. Деревяшкин</div>
 </body>
