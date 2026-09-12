@@ -6,6 +6,8 @@
 <title>רוני</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+img,svg,iframe{max-width:100%}
 :root{--bg:#241c11;--tx:#f3ead9;--sub:#c9b896;--tiny:#9a8c6d;--gift:#2f2617;--giftx:#f0e2b8;--brd:#5a4a22}
 body{font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding:26px 14px 40px;transition:background .4s}
 .wrap{max-width:520px;margin:0 auto;text-align:center;animation:fadein 1.2s ease}
@@ -43,7 +45,7 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 .cal .shb{background:rgba(143,180,232,.18)}
 .cal .hld{color:#e8c96a;font-weight:700}
 .cty{display:inline-block;border:1px solid var(--brd);border-radius:999px;padding:3px 10px;font-size:13px;cursor:pointer;margin:2px;color:var(--giftx)}
-.d5{width:58px;font-size:12px;background:var(--bg);border-radius:10px;padding:6px 2px}
+.d5{font-size:11px;background:var(--bg);border-radius:10px;padding:6px 1px;min-width:0}
 .d5 b{display:block;font-size:15px}
 .deth{margin-top:10px}
 .deth summary{cursor:pointer;color:#e8c96a;font-size:14.5px;font-weight:700;list-style:none;user-select:none}
@@ -83,7 +85,7 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 
 <div class="panel">🌤 <b>מזג אוויר</b><br>
 <div id="wx">טוען…</div>
-<div id="wxd" style="display:flex;justify-content:center;gap:6px;margin-top:8px;flex-wrap:wrap"></div>
+<div id="wxd" style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:8px"></div>
 <div style="margin-top:8px">
 <span class="cty" onclick="wx(32.7922,35.5312,'טבריה')">טבריה</span>
 <span class="cty" onclick="wx(32.0853,34.7818,'תל אביב')">תל אביב</span>
@@ -155,9 +157,9 @@ function wxm(c){if(c===0)return['☀️','בהיר'];if(c<=2)return['🌤','מע
  if(c>=71&&c<=77)return['❄️','שלג'];if(c>=80&&c<=82)return['🌦','ממטרים'];if(c>=95)return['⛈','סופה'];return['🌡','']}
 function wx(lat,lon,name){fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=6')
  .then(r=>r.json()).then(d=>{const c=d.current_weather;const m=wxm(c.weathercode);
-  document.getElementById('wx').innerHTML='<b>'+name+'</b> · '+m[0]+' '+m[1]+' · <span style="font-size:24px;color:#e8c96a">'+Math.round(c.temperature)+'°</span> · 💨 '+Math.round(c.windspeed)+' קמ״ש';
+  document.getElementById('wx').innerHTML='<b>'+name+'</b> · '+m[0]+' '+m[1]+'<br><span style="font-size:26px;color:#e8c96a">'+Math.round(c.temperature)+'°</span> <span style="font-size:13px">💨 '+Math.round(c.windspeed)+' קמ״ש</span>';
   let h='';for(let i=1;i<6;i++){const dt=new Date(d.daily.time[i]);const dn=dt.toLocaleDateString('he-IL',{weekday:'short'});const mm=wxm(d.daily.weathercode[i]);
-   h+='<div class="d5">'+dn+'<br><span style="font-size:18px">'+mm[0]+'</span><br><b>'+Math.round(d.daily.temperature_2m_max[i])+'°</b> '+Math.round(d.daily.temperature_2m_min[i])+'°</div>'}
+   h+='<div class="d5">'+dn+'<br><span style="font-size:16px">'+mm[0]+'</span><br><b>'+Math.round(d.daily.temperature_2m_max[i])+'°</b> '+Math.round(d.daily.temperature_2m_min[i])+'°</div>'}
   document.getElementById('wxd').innerHTML=h})
  .catch(()=>{document.getElementById('wx').textContent='🌤 מזג האוויר לא זמין כרגע'})}
 function findCity(){const q=document.getElementById('wxq').value.trim();if(!q)return;
