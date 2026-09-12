@@ -33,6 +33,9 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 .inp::placeholder{color:var(--tiny);opacity:.95}
 .inp:focus{border-color:#e8c96a;box-shadow:0 0 0 3px rgba(232,201,106,.18)}
 .lbl{display:block;text-align:right;font-size:12.5px;color:var(--tiny);margin:4px 3px 0}
+.hint{display:inline-block;margin-right:6px;width:18px;height:18px;line-height:18px;border-radius:50%;background:#e8c96a;color:#241c11;font-size:11.5px;font-weight:700;text-align:center;cursor:pointer;position:relative;vertical-align:middle}
+.hb{display:none;position:absolute;top:23px;right:0;background:#e8c96a;color:#241c11;padding:7px 11px;border-radius:10px;font-size:12.5px;font-weight:400;width:190px;text-align:right;line-height:1.5;z-index:60;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.hint.on .hb{display:block}
 .cal{border-collapse:collapse;margin:4px auto}
 .cal td,.cal th{width:36px;height:30px;text-align:center;font-size:13.5px;border-radius:8px}
 .cal .tdy{background:#e8c96a;color:#241c11;font-weight:700}
@@ -91,16 +94,12 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 </div>
 
 <div class="panel">🚕 <b>להזמין נסיעה</b><br>
-<span class="lbl">שם</span>
-<input class="inp" id="onm" placeholder="למשל: דוד">
-<span class="lbl">טלפון</span>
-<input class="inp" id="oph" placeholder="למשל: 050-1234567">
-<span class="lbl">מאיפה?</span>
-<input class="inp" id="ofr" placeholder="למשל: טבריה, רחוב הגליל 5">
-<span class="lbl">לאן?</span>
-<input class="inp" id="oto" placeholder="למשל: בית חולים פוריה">
-<span class="lbl">מתי?</span>
-<input class="inp" id="owh" placeholder="למשל: מחר ב-10:00">
+<span class="lbl">מתי? <span class="hint" onclick="this.classList.toggle('on')">?<span class="hb">כתבו מתי להגיע — תאריך ושעה</span></span></span>
+<input class="inp" id="owh">
+<span class="lbl">מאיפה? <span class="hint" onclick="this.classList.toggle('on')">?<span class="hb">כתבו איפה אתם נמצאים</span></span></span>
+<input class="inp" id="ofr">
+<span class="lbl">לאן? <span class="hint" onclick="this.classList.toggle('on')">?<span class="hb">כתבו לאן אתם צריכים לנסוע</span></span></span>
+<input class="inp" id="oto">
 <button class="btn wa" style="margin:8px 0 0" onclick="order()">🔔 לשלוח לרוני בוואטסאפ</button>
 </div>
 
@@ -167,7 +166,7 @@ wx(32.7922,35.5312,'טבריה');
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(
  p=>{document.getElementById('wmap').src='https://embed.waze.com/he/iframe?zoom=12&lat='+p.coords.latitude+'&lon='+p.coords.longitude},()=>{})}
 function order(){const v=i=>document.getElementById(i).value.trim();
- const t='🚕 הזמנת נסיעה!\n'+'שם: '+v('onm')+'\nטלפון: '+v('oph')+'\nמאיפה: '+v('ofr')+'\nלאן: '+v('oto')+'\nמתי: '+v('owh');
+ const t='🚕 הזמנת נסיעה!\n'+'מתי: '+v('owh')+'\nמאיפה: '+v('ofr')+'\nלאן: '+v('oto');
  window.open('https://wa.me/972532790555?text='+encodeURIComponent(t),'_blank')}
 function dl(id,name){
  const a=document.createElement('a');
