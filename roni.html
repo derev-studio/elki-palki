@@ -39,6 +39,9 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 .cty{display:inline-block;border:1px solid var(--brd);border-radius:999px;padding:3px 10px;font-size:13px;cursor:pointer;margin:2px;color:var(--giftx)}
 .d5{width:58px;font-size:12px;background:var(--bg);border-radius:10px;padding:6px 2px}
 .d5 b{display:block;font-size:15px}
+.deth{margin-top:10px}
+.deth summary{cursor:pointer;color:#e8c96a;font-size:14.5px;font-weight:700;list-style:none;user-select:none}
+.deth summary::-webkit-details-marker{display:none}
 .sw{width:27px;height:27px;border-radius:9px;border:1.5px solid rgba(150,130,90,.55);cursor:pointer}
 .sw.on{outline:2.5px solid #e8c96a;outline-offset:2px}
 </style>
@@ -69,7 +72,7 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 
 <div class="panel"><div class="clock" id="clk"></div><div id="dte"></div><div id="hdt" style="color:#e8c96a"></div></div>
 
-<div class="panel"><table class="cal" id="cal"></table><div id="hll" style="margin-top:6px;font-size:13.5px;color:#e8c96a;line-height:1.7"></div></div>
+<div class="panel"><table class="cal" id="cal"></table><details class="deth"><summary>✡ חגים ומועדים בחודש ▾</summary><div id="hll" style="margin-top:8px;font-size:13.5px;color:var(--giftx);line-height:1.8"></div></details></div>
 
 <div class="panel">🌤 <b>מזג אוויר</b><br>
 <div id="wx">טוען…</div>
@@ -122,7 +125,7 @@ function cal(hd){const n=new Date();const y=n.getFullYear();const m=n.getMonth()
  const mn=new Intl.DateTimeFormat('he-IL',{month:'long',year:'numeric'}).format(n);
  let h='<tr><th colspan="7" style="color:#e8c96a">'+mn+'</th></tr><tr>'+['א','ב','ג','ד','ה','ו','ש'].map(d=>'<th>'+d+'</th>').join('')+'</tr><tr>';
  for(let i=0;i<first;i++)h+='<td></td>';
- for(let d=1;d<=days;d++){const sat=(first+d)%7===6;let cls='';
+ for(let d=1;d<=days;d++){const sat=(first+d-1)%7===6;let cls='';
   if(d===n.getDate())cls='tdy';else if(hd&&hd[d])cls='hld';else if(sat)cls='shb';
   h+='<td'+(cls?' class="'+cls+'"':'')+'>'+d+'</td>';
   if((first+d)%7===0&&d<days)h+='</tr><tr>'}
