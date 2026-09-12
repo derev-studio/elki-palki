@@ -26,6 +26,19 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 .qrbox img{width:150px;height:150px;display:block}
 .tiny{font-size:13px;color:var(--tiny);line-height:1.8;margin-top:18px}
 .swrow{display:flex;gap:9px;justify-content:center;margin:16px 0 2px}
+.panel{background:var(--gift);border:1px solid var(--brd);border-radius:16px;padding:14px 16px;margin:14px 0;font-size:16px;line-height:1.7;color:var(--giftx);text-align:center}
+.panel b{color:#e8c96a}
+.clock{font-size:32px;font-weight:700;color:#e8c96a;font-variant-numeric:tabular-nums}
+.inp{width:100%;font-family:inherit;font-size:15px;padding:10px 12px;border:1.5px solid var(--brd);border-radius:10px;background:var(--bg);color:var(--tx);margin:4px 0;outline:none}
+.cal{border-collapse:collapse;margin:4px auto}
+.cal td,.cal th{width:36px;height:30px;text-align:center;font-size:13.5px;border-radius:8px}
+.cal .tdy{background:#e8c96a;color:#241c11;font-weight:700}
+.wmap{width:100%;border:0;border-radius:14px;height:280px;margin-top:8px}
+.cal .shb{background:rgba(143,180,232,.18)}
+.cal .hld{color:#e8c96a;font-weight:700}
+.cty{display:inline-block;border:1px solid var(--brd);border-radius:999px;padding:3px 10px;font-size:13px;cursor:pointer;margin:2px;color:var(--giftx)}
+.d5{width:58px;font-size:12px;background:var(--bg);border-radius:10px;padding:6px 2px}
+.d5 b{display:block;font-size:15px}
 .sw{width:27px;height:27px;border-radius:9px;border:1.5px solid rgba(150,130,90,.55);cursor:pointer}
 .sw.on{outline:2.5px solid #e8c96a;outline-offset:2px}
 </style>
@@ -54,6 +67,36 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 <div class="qrbox"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOgAAADoAQMAAADfZzo7AAAABlBMVEU6LBD99uOSVx3kAAAA2ElEQVR42u2ZyxaEIAxDc+b//znzKH0wC/deBPUIuAklbVrlq6Zn9f6rivYdKD6vmZeu2h1XlRvyA/55bjNQvAqkq/cMHG8OjsEbWPn2dWMszGD+rpfR0f55C03WDGBc/irjbhzptRFM+/ZxTnmidXPP86Cwys5Y+7aSTEfN1lcRj7zFY65+Ho65SCwuf7WSpE6WjOav2mO50KP529cwsX2CvhqZv+H6OUGWhj4gP7IPsO9/vg/n78Cr9M7sel3VN4bz4tc3OnMo9QGvb3grP9PrG8/fB+DqG4iBK3uWgAHGAAAAAElFTkSuQmCC" alt="QR WhatsApp"></div>
 <div class="tiny" style="margin-top:2px">מכוונים את המצלמה לריבוע — נפתח הוואטסאפ של רוני</div>
 
+<div class="panel"><div class="clock" id="clk"></div><div id="dte"></div><div id="hdt" style="color:#e8c96a"></div></div>
+
+<div class="panel"><table class="cal" id="cal"></table><div id="hll" style="margin-top:6px;font-size:13.5px;color:#e8c96a;line-height:1.7"></div></div>
+
+<div class="panel">🌤 <b>מזג אוויר</b><br>
+<div id="wx">טוען…</div>
+<div id="wxd" style="display:flex;justify-content:center;gap:6px;margin-top:8px;flex-wrap:wrap"></div>
+<div style="margin-top:8px">
+<span class="cty" onclick="wx(32.7922,35.5312,'טבריה')">טבריה</span>
+<span class="cty" onclick="wx(32.0853,34.7818,'תל אביב')">תל אביב</span>
+<span class="cty" onclick="wx(31.7683,35.2137,'ירושלים')">ירושלים</span>
+<span class="cty" onclick="wx(32.794,34.9896,'חיפה')">חיפה</span>
+</div>
+<input class="inp" id="wxq" placeholder="עיר אחרת — בישראל או בעולם…" onkeydown="if(event.key==='Enter')findCity()">
+</div>
+
+<div class="panel">🚕 <b>להזמין נסיעה</b><br>
+<input class="inp" id="onm" placeholder="שם">
+<input class="inp" id="oph" placeholder="טלפון">
+<input class="inp" id="ofr" placeholder="מאיפה?">
+<input class="inp" id="oto" placeholder="לאן?">
+<input class="inp" id="owh" placeholder="מתי?">
+<button class="btn wa" style="margin:8px 0 0" onclick="order()">🔔 לשלוח לרוני בוואטסאפ</button>
+</div>
+
+<div class="panel">🗺 <b>מפה ופקקים</b><br>
+<iframe id="wmap" class="wmap" src="https://embed.waze.com/he/iframe?zoom=11&lat=32.0853&lon=34.7818" loading="lazy"></iframe>
+<a class="btn gold" style="margin:8px 0 0" href="https://waze.com/ul" target="_blank" rel="noopener">לפתוח ב-Waze</a>
+</div>
+
 <div class="tiny">
 איך מדפיסים: מורידים את שתי התמונות ← מראים במקום שמדפיס תמונות<br>
 ומבקשים: «כרטיס ביקור 9 על 5 ס״מ, דו-צדדי — מצד אחד הכתר, מצד שני הקוד».<br>
@@ -69,6 +112,51 @@ function setT(i){const t=TH[i];const r=document.documentElement.style;
  try{localStorage.setItem('roni-theme',i)}catch(e){}
  document.querySelectorAll('.sw').forEach((s,j)=>s.classList.toggle('on',j===i))}
 setT(+((localStorage.getItem('roni-theme'))||0));
+function tick(){const n=new Date();
+ document.getElementById('clk').textContent=n.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});
+ document.getElementById('dte').textContent=n.toLocaleDateString('he-IL',{weekday:'long',day:'numeric',month:'long'});
+ try{document.getElementById('hdt').textContent=new Intl.DateTimeFormat('he-IL-u-ca-hebrew',{day:'numeric',month:'long',year:'numeric'}).format(n)}catch(e){}}
+setInterval(tick,1000);tick();
+function cal(hd){const n=new Date();const y=n.getFullYear();const m=n.getMonth();
+ const first=new Date(y,m,1).getDay();const days=new Date(y,m+1,0).getDate();
+ const mn=new Intl.DateTimeFormat('he-IL',{month:'long',year:'numeric'}).format(n);
+ let h='<tr><th colspan="7" style="color:#e8c96a">'+mn+'</th></tr><tr>'+['א','ב','ג','ד','ה','ו','ש'].map(d=>'<th>'+d+'</th>').join('')+'</tr><tr>';
+ for(let i=0;i<first;i++)h+='<td></td>';
+ for(let d=1;d<=days;d++){const sat=(first+d)%7===6;let cls='';
+  if(d===n.getDate())cls='tdy';else if(hd&&hd[d])cls='hld';else if(sat)cls='shb';
+  h+='<td'+(cls?' class="'+cls+'"':'')+'>'+d+'</td>';
+  if((first+d)%7===0&&d<days)h+='</tr><tr>'}
+ h+='</tr>';document.getElementById('cal').innerHTML=h}
+cal();
+function hol(){const n=new Date();
+ fetch('https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=on&nx=on&mf=on&ss=on&mod=on&s=on&i=on&lg=he&year='+n.getFullYear()+'&month='+(n.getMonth()+1)+'&geo=none')
+ .then(r=>r.json()).then(d=>{const map={};const list=[];
+  (d.items||[]).forEach(it=>{if(!it.date||it.category==='candles'||it.category==='havdalah')return;
+   const day=+it.date.slice(8,10);map[day]=1;list.push(day+' · '+it.title)});
+  cal(map);
+  document.getElementById('hll').innerHTML=list.length?('✡ '+list.join('<br>✡ ')):'';
+ }).catch(()=>{})}
+hol();
+function wxm(c){if(c===0)return['☀️','בהיר'];if(c<=2)return['🌤','מעונן חלקית'];if(c===3)return['☁️','מעונן'];
+ if(c===45||c===48)return['🌫','ערפל'];if(c>=51&&c<=57)return['🌦','טפטוף'];if(c>=61&&c<=67)return['🌧','גשם'];
+ if(c>=71&&c<=77)return['❄️','שלג'];if(c>=80&&c<=82)return['🌦','ממטרים'];if(c>=95)return['⛈','סופה'];return['🌡','']}
+function wx(lat,lon,name){fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=6')
+ .then(r=>r.json()).then(d=>{const c=d.current_weather;const m=wxm(c.weathercode);
+  document.getElementById('wx').innerHTML='<b>'+name+'</b> · '+m[0]+' '+m[1]+' · <span style="font-size:24px;color:#e8c96a">'+Math.round(c.temperature)+'°</span> · 💨 '+Math.round(c.windspeed)+' קמ״ש';
+  let h='';for(let i=1;i<6;i++){const dt=new Date(d.daily.time[i]);const dn=dt.toLocaleDateString('he-IL',{weekday:'short'});const mm=wxm(d.daily.weathercode[i]);
+   h+='<div class="d5">'+dn+'<br><span style="font-size:18px">'+mm[0]+'</span><br><b>'+Math.round(d.daily.temperature_2m_max[i])+'°</b> '+Math.round(d.daily.temperature_2m_min[i])+'°</div>'}
+  document.getElementById('wxd').innerHTML=h})
+ .catch(()=>{document.getElementById('wx').textContent='🌤 מזג האוויר לא זמין כרגע'})}
+function findCity(){const q=document.getElementById('wxq').value.trim();if(!q)return;
+ fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=1&language=he')
+ .then(r=>r.json()).then(d=>{if(d.results&&d.results[0]){const g=d.results[0];wx(g.latitude,g.longitude,g.name)}
+  else{document.getElementById('wx').textContent='🌤 לא נמצאה עיר כזו'}}).catch(()=>{})}
+wx(32.7922,35.5312,'טבריה');
+if(navigator.geolocation){navigator.geolocation.getCurrentPosition(
+ p=>{document.getElementById('wmap').src='https://embed.waze.com/he/iframe?zoom=12&lat='+p.coords.latitude+'&lon='+p.coords.longitude},()=>{})}
+function order(){const v=i=>document.getElementById(i).value.trim();
+ const t='🚕 הזמנת נסיעה!\n'+'שם: '+v('onm')+'\nטלפון: '+v('oph')+'\nמאיפה: '+v('ofr')+'\nלאן: '+v('oto')+'\nמתי: '+v('owh');
+ window.open('https://wa.me/972532790555?text='+encodeURIComponent(t),'_blank')}
 function dl(id,name){
  const a=document.createElement('a');
  a.download=name;
