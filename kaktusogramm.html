@@ -85,7 +85,7 @@ input[type=file]{display:none}
 <div class="sub">Почта Кактусярия: тексты, фото, файлы и видео прямо в письмах.</div>
 <div class="row"><input type="text" id="nm" maxlength="24" placeholder="Как вас звать в деревне?"><button class="btn green" onclick="setName()">Войти</button></div>
 <div class="row" style="margin-top:12px"><button class="btn brown" id="gbtn" onclick="googleIn()">🔑 Войти через Google</button><span class="tiny">— имя навсегда и звёздочка хозяйке</span></div>
-<div class="tiny" style="margin-top:12px">Имя гостя хранится только на вашем устройстве. Фото и файлы — в деревенских шкафах, в базе — только ссылки. <b style="color:#3f8a52">версия 4 · плеер 🎵</b></div>
+<div class="tiny" style="margin-top:12px">Имя гостя хранится только на вашем устройстве. Фото и файлы — в деревенских шкафах, в базе — только ссылки. <b style="color:#3f8a52">версия 7 · плеер 🎵</b></div>
 </div>
 
 <div id="chatwrap">
@@ -119,7 +119,7 @@ input[type=file]{display:none}
 </div>
 </div>
 
-<div class="tiny" style="text-align:center;margin-top:16px">Кактусограмм — деревенская почта · шкафы: Pixeldrain → Catbox · версия 9 · 🌵</div>
+<div class="tiny" style="text-align:center;margin-top:16px">Кактусограмм — деревенская почта · шкаф: Cloudinary · версия 7 · 🌵</div>
 </div>
 <script>
 const CFG={apiKey:"AIzaSyB2X3o7KwYFkMfsskKoWpQYBrws8L-Mn9w",authDomain:"photo-gallery-18193.firebaseapp.com",projectId:"photo-gallery-18193",databaseURL:"https://photo-gallery-18193-default-rtdb.firebaseio.com"};
@@ -193,11 +193,15 @@ async function gofileUp(f){
  const d=JSON.parse(t);
  if(d.status==='ok'&&d.data&&d.data.downloadPage)return d.data.downloadPage;
  throw new Error('gofile')}
-async function fileToUrl(f){if(f.size>200*1024*1024)throw new Error('Больше 200 МБ — уменьши видео или кинь ссылку на YouTube');
+async function cloudUp(f){
+ const fd=new FormData();fd.append('file',f);fd.append('upload_preset','kaktus');
+ const t=await xhrUpload('https://api.cloudinary.com/v1_1/i1lysqxk/auto/upload',fd);
+ const d=JSON.parse(t);
+ if(d.secure_url)return d.secure_url;
+ throw new Error('cloudinary')}
+async function fileToUrl(f){if(f.size>100*1024*1024)throw new Error('Больше 100 МБ — уменьши видео или кинь ссылку на YouTube');
  try{prog('Шкаф принимает…');
-  const fd2=new FormData();fd2.append('reqtype','fileupload');fd2.append('fileToUpload',f);
-  const t=(await xhrUpload('https://catbox.moe/user/api.php',fd2)).trim();
-  if(/^https?:\/\//.test(t)){prog('');return{url:t}}}catch(e){}
+  const u=await cloudUp(f);prog('');return{url:u}}catch(e){}
  prog('Первый шкаф молчит, еду в запасной…');
  try{const u=await gofileUp(f);prog('');return{url:u,page:1}}catch(e){}
  prog('');
@@ -222,7 +226,7 @@ function render(list){document.getElementById('chat').innerHTML=list.map(m=>{
  return '<div class="msg'+(m.name===NAME?' mine':'')+'">'+(ADM?'<button class="del" onclick="delMsg(\''+m.key+'\')" title="убрать">✕</button>':'')+'<div class="nm">'+esc(m.name)+'</div><div>'+linkify(m.text)+'</div>'+(m.img?'<img src="'+esc(m.img)+'" loading="lazy" onclick="showLB(\''+esc(m.img)+'\')">':'')+(m.file?(m.mime.indexOf('video')===0?(m.file.indexOf('db:')===0?'<video controls preload="metadata" data-dbf="'+esc(m.file.slice(3))+'"></video>':'<video controls preload="metadata" src="'+esc(m.file)+'"></video>'):(m.mime.indexOf('audio')===0?'<span class="au"><button class="aub" onclick="auTgl(this)">\u25b6</button><span class="aup" onclick="auSeek(event,this)"><span class="aupf"></span></span><span class="aut">0:00</span><audio preload="metadata" '+(m.file.indexOf('db:')===0?'data-dbf="'+esc(m.file.slice(3))+'"':'src="'+esc(m.file)+'"')+'" ontimeupdate="auUpd(this)" onplay="auUpd(this)" onpause="auUpd(this)" onloadedmetadata="auUpd(this)" onended="auUpd(this)"></audio></span>':'<a class="fl" href="'+esc(m.file)+'" target="_blank" rel="noopener">📎 '+esc(m.fname||'файл')+'</a>')):'')+'<div class="tm">'+fmt(m.ts)+'</div></div>'}).join('')||'<div class="empty"><div class="e1">🌵</div>Писем пока нет.<br>Напишите первое!</div>';
  document.querySelectorAll('[data-dbf]').forEach(el=>{const id=el.getAttribute('data-dbf');
   if(DBC[id]){el.src=DBC[id];return}
-  db.ref('gram/files/'+id).once('value',s=>{const v=s.val();if(v){DBC[id]=v;el.src=v}})})}
+  db.ref('gram/files/'+id).once('value',s=>{const v=s.val();if(v){const j=Object.keys(v).sort((a,b)=>a-b).map(k=>v[k]).join('');DBC[id]=j;el.src=j}})})}
 window.delMsg=function(key){if(!ADM)return;db.ref('gram/rooms/'+ROOM+'/messages/'+key).update({del:1})};
 window.sendMsg=async()=>{if(BANNED)return toast('🚫 Вам запрещено писать в деревне');
  const t=document.getElementById('txt').value.trim();
@@ -232,15 +236,10 @@ window.sendMsg=async()=>{if(BANNED)return toast('🚫 Вам запрещено 
   let img='';let file='';let fname='';let mime='';
   if(myPhoto){prog('Фото грузится…');img=await photoToUrl(myPhoto);prog('')}
   if(myFile){fname=myFileName;mime=myFile.type||'';
-   if(myFile.size<=10*1024*1024&&/^(audio|video)\//.test(mime)){
-    try{prog('Вкладываю в письмо…');
-     const dataUrl=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(myFile)});
-     const fid=db.ref().push().key;
-     await db.ref('gram/files/'+fid).set(dataUrl);
-     file='db:'+fid;prog('');
-    }catch(e){file=''}
-   }
-   if(!file){const r=await fileToUrl(myFile);file=r.url;if(r.page)mime=''}}
+   if(!mime){const ext=(fname.split('.').pop()||'').toLowerCase();
+    if(['mp3','m4a','ogg','oga','wav','aac','flac','opus'].indexOf(ext)>=0)mime='audio/'+ext;
+    else if(['mp4','webm','mov','m4v','ogv'].indexOf(ext)>=0)mime='video/'+ext}
+   const r=await fileToUrl(myFile);file=r.url;if(r.page)mime=''}
   myLast=Date.now()+10000;
   await db.ref('gram/rooms/'+ROOM+'/messages').push({name:NAME,text:t,img,file,fname,mime,ts:Date.now()});
   document.getElementById('txt').value='';myPhoto=null;myFile=null;myFileName='';document.getElementById('f').value='';document.getElementById('vf').value='';updAttach();
