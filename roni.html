@@ -92,7 +92,7 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 <span class="cty" onclick="wx(31.7683,35.2137,'ירושלים')">ירושלים</span>
 <span class="cty" onclick="wx(32.794,34.9896,'חיפה')">חיפה</span>
 </div>
-<input class="inp" id="wxq" placeholder="עיר אחרת — בישראל או בעולם…" onkeydown="if(event.key==='Enter')findCity()">
+<div style="display:flex;gap:6px;align-items:center"><input class="inp" id="wxq" style="flex:1;margin:0" placeholder="עיר אחרת — בישראל או בעולם…" onkeydown="if(event.key==='Enter')findCity()"><button class="cty" style="flex:none;font-size:16px;padding:8px 14px;margin:0" onclick="findCity()">🔍</button></div>
 </div>
 
 <div class="panel">🚕 <b>להזמין נסיעה</b><br>
@@ -163,9 +163,11 @@ function wx(lat,lon,name){fetch('https://api.open-meteo.com/v1/forecast?latitude
   document.getElementById('wxd').innerHTML=h})
  .catch(()=>{document.getElementById('wx').textContent='🌤 מזג האוויר לא זמין כרגע'})}
 function findCity(){const q=document.getElementById('wxq').value.trim();if(!q)return;
- fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=1&language=he')
+ document.getElementById('wx').textContent='🌤 מחפש…';tryLang(q,['ru','he','en'],0)}
+function tryLang(q,ls,i){if(i>=ls.length){document.getElementById('wx').textContent='🌤 לא נמצאה עיר כזו';return}
+ fetch('https://geocoding-api.open-meteo.com/v1/search?name='+encodeURIComponent(q)+'&count=1&language='+ls[i])
  .then(r=>r.json()).then(d=>{if(d.results&&d.results[0]){const g=d.results[0];wx(g.latitude,g.longitude,g.name)}
-  else{document.getElementById('wx').textContent='🌤 לא נמצאה עיר כזו'}}).catch(()=>{})}
+  else{tryLang(q,ls,i+1)}}).catch(()=>tryLang(q,ls,i+1))}
 wx(32.7922,35.5312,'טבריה');
 if(navigator.geolocation){navigator.geolocation.getCurrentPosition(
  p=>{document.getElementById('wmap').src='https://embed.waze.com/he/iframe?zoom=12&lat='+p.coords.latitude+'&lon='+p.coords.longitude},()=>{})}
