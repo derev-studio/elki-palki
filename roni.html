@@ -29,7 +29,10 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 .panel{background:var(--gift);border:1px solid var(--brd);border-radius:16px;padding:14px 16px;margin:14px 0;font-size:16px;line-height:1.7;color:var(--giftx);text-align:center}
 .panel b{color:#e8c96a}
 .clock{font-size:32px;font-weight:700;color:#e8c96a;font-variant-numeric:tabular-nums}
-.inp{width:100%;font-family:inherit;font-size:15px;padding:10px 12px;border:1.5px solid var(--brd);border-radius:10px;background:var(--bg);color:var(--tx);margin:4px 0;outline:none}
+.inp{width:100%;font-family:inherit;font-size:15px;padding:10px 12px;border:1.5px solid var(--brd);border-radius:10px;background:var(--bg);color:var(--tx);margin:2px 0 6px;outline:none}
+.inp::placeholder{color:var(--tiny);opacity:.95}
+.inp:focus{border-color:#e8c96a;box-shadow:0 0 0 3px rgba(232,201,106,.18)}
+.lbl{display:block;text-align:right;font-size:12.5px;color:var(--tiny);margin:4px 3px 0}
 .cal{border-collapse:collapse;margin:4px auto}
 .cal td,.cal th{width:36px;height:30px;text-align:center;font-size:13.5px;border-radius:8px}
 .cal .tdy{background:#e8c96a;color:#241c11;font-weight:700}
@@ -67,6 +70,7 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 <button class="btn gold" onclick="dl('im1','roni-qr.jpg')">⬇ להוריד את הכרטיס עם הקוד</button>
 
 <a class="btn wa" href="https://wa.me/972532790555" target="_blank" rel="noopener">💬 לכתוב לרוני בוואטסאפ</a>
+<a class="btn gold" href="tel:+972532790555" style="margin-top:-14px">📞 להתקשר: 053-279-0555</a>
 <div class="qrbox"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOgAAADoAQMAAADfZzo7AAAABlBMVEU6LBD99uOSVx3kAAAA2ElEQVR42u2ZyxaEIAxDc+b//znzKH0wC/deBPUIuAklbVrlq6Zn9f6rivYdKD6vmZeu2h1XlRvyA/55bjNQvAqkq/cMHG8OjsEbWPn2dWMszGD+rpfR0f55C03WDGBc/irjbhzptRFM+/ZxTnmidXPP86Cwys5Y+7aSTEfN1lcRj7zFY65+Ho65SCwuf7WSpE6WjOav2mO50KP529cwsX2CvhqZv+H6OUGWhj4gP7IPsO9/vg/n78Cr9M7sel3VN4bz4tc3OnMo9QGvb3grP9PrG8/fB+DqG4iBK3uWgAHGAAAAAElFTkSuQmCC" alt="QR WhatsApp"></div>
 <div class="tiny" style="margin-top:2px">מכוונים את המצלמה לריבוע — נפתח הוואטסאפ של רוני</div>
 
@@ -87,11 +91,16 @@ h1{font-family:Georgia,serif;font-size:27px;color:#e8c96a;margin-bottom:6px}
 </div>
 
 <div class="panel">🚕 <b>להזמין נסיעה</b><br>
-<input class="inp" id="onm" placeholder="שם">
-<input class="inp" id="oph" placeholder="טלפון">
-<input class="inp" id="ofr" placeholder="מאיפה?">
-<input class="inp" id="oto" placeholder="לאן?">
-<input class="inp" id="owh" placeholder="מתי?">
+<span class="lbl">שם</span>
+<input class="inp" id="onm" placeholder="למשל: דוד">
+<span class="lbl">טלפון</span>
+<input class="inp" id="oph" placeholder="למשל: 050-1234567">
+<span class="lbl">מאיפה?</span>
+<input class="inp" id="ofr" placeholder="למשל: טבריה, רחוב הגליל 5">
+<span class="lbl">לאן?</span>
+<input class="inp" id="oto" placeholder="למשל: בית חולים פוריה">
+<span class="lbl">מתי?</span>
+<input class="inp" id="owh" placeholder="למשל: מחר ב-10:00">
 <button class="btn wa" style="margin:8px 0 0" onclick="order()">🔔 לשלוח לרוני בוואטסאפ</button>
 </div>
 
